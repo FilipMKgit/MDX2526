@@ -3,11 +3,12 @@
 
 server <- function(input, output, session) {
   
+  ###PROPORTIONS
 # Reactive plot output based on the slider value
 PlotReact <- reactive({
   x <-seq(from = input$p1.tolerable - 0.02, to = input$p1.tolerable, by = 0.005)
   y <- sapply(x, function(x) {
-    total_sample_size(
+    total_sample_size_prop(
       p0 = input$p0.expected,
       p1 = input$p1.expected,
       p1tol = x,
@@ -33,3 +34,5 @@ output$plot1 <- renderPlot({
     theme_minimal()
 })
 }
+
+  ###MEANS

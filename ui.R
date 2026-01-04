@@ -1,8 +1,8 @@
 #ui
-
-
-
 ui <- fluidPage(
+  
+  ###PROPORTIONS
+
   titlePanel("Minimum Sample Size Required"),
   sidebarLayout(
     sidebarPanel( 
@@ -18,3 +18,5 @@ ui <- fluidPage(
     )
   )
 )
+
+  ###MEANS
