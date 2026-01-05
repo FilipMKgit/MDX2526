@@ -1,10 +1,17 @@
 #global
 
 #packages
+
 library(shiny)
 library(dani)
 library(ggplot2)
 library(dplyr)
+library(ggthemes)
+library(bslib)
+
+#themes for app
+default_mode <- bs_theme( bootswatch = "flatly")
+dark_mode <- bs_theme(bootswatch = "darkly")
 
   ###PROPORTIONS
 #total sample size calculation for proportions
@@ -21,8 +28,8 @@ total_sample_size_prop <- function(p0, p1, p1tol, sig.level, power, r) {
   sum(n)  
 }
 
-  ###MEANS
-#total sample size calculation for means
+  ###CONTINUOUS
+#total sample size calculation for continuous outcomes
 total_sample_size_mean <- function(mu0, mu1, sd, delta, sigma, power, r = 1){
   
   #mu0 = control mean
@@ -50,6 +57,7 @@ total_sample_size_mean <- function(mu0, mu1, sd, delta, sigma, power, r = 1){
   n_con <- ceiling(n_con)
   n_treat   <- ceiling(n_treat)
   total_n <- n_con + n_treat
+  return(total_n)
 }
 
 
