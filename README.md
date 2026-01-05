@@ -1,4 +1,4 @@
-# NI-SIZER
+# NI-Sizer
 
 NI-Sizer is an Interactive sample size exploration app for non-inferiority trials.<br>
 
