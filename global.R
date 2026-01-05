@@ -9,10 +9,14 @@ library(dplyr)
 library(ggthemes)
 library(bslib)
 library(DT)
+library(thematic)
+
 
 #themes for app
 default_mode <- bs_theme( bootswatch = "flatly")
 dark_mode <- bs_theme(bootswatch = "darkly")
+
+thematic_shiny() #to make plot backgrounds dark when dark mode enabled
 
   ###PROPORTIONS
 #total sample size calculation for proportions

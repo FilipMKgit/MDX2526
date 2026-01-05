@@ -1,8 +1,19 @@
 #server
 server <- function(input, output, session) {
   
+  ###SET UP TAB 1
 
-  ###PROPORTIONS TAB 1
+  observeEvent(input$dark_mode_on, {
+    if (isTRUE(input$dark_mode_on)) {
+      session$setCurrentTheme(dark_mode)
+    } else {
+      session$setCurrentTheme(default_mode)
+    }
+  }, ignoreInit = TRUE)
+  
+  
+
+  ###PROPORTIONS TAB 2
 
 # Plot 1
 # Reactive plot output based on the slider value
@@ -32,8 +43,7 @@ output$plot1 <- renderPlot({
   ggplot(PlotReact(), aes(x, y)) +
     geom_line() + 
     geom_point() +
-    labs(title = 'Non-Inferiority Margin vs. Minimum Total Sample Size', x = 'Non-Inferiority Margin', y = 'Minimum Total Sample Size') +
-    theme_minimal()
+    labs(title = 'Non-Inferiority Margin vs. Minimum Total Sample Size', x = 'Non-Inferiority Margin', y = 'Minimum Total Sample Size')
 })
 
 #Plot 2
@@ -56,8 +66,7 @@ output$plot2 <- renderPlot({
   ggplot(PlotReact2(), aes(x, y)) +
     geom_line() + 
     geom_point() +
-    labs(title = 'Expected Product/ Competition Preformance vs. Minimum Total Sample Size', x = 'Expected Product/ Competition Preformance', y = 'Minimum Total Sample Size') +
-    theme_minimal()
+    labs(title = 'Expected Product/ Competition Preformance vs. Minimum Total Sample Size', x = 'Expected Product/ Competition Preformance', y = 'Minimum Total Sample Size')
 })
 
 #TABLE SHOW/HIDE CHECKBOX
@@ -112,10 +121,7 @@ output$downloadData <- downloadHandler(
   }
 )
 
-
-
-
-  ###CONTINOUS TAB 2
+  ###CONTINOUS TAB 3
 
 # Plot 1
 # Reactive plot Δ vs n
@@ -151,8 +157,7 @@ output$plot_mean <- renderPlot({
       title = "NI margin (mean difference) vs. minimum total sample size",
       x = "Non-inferiority margin (Δ)",
       y = "Minimum total sample size"
-    ) +
-    theme_minimal()
+    )
 })
 
 # Plot 2
@@ -187,8 +192,7 @@ output$plot_mean2 <- renderPlot({
       title = "Assumed experimental mean (mu1) vs minimum total sample size",
       x = "Assumed experimental mean (mu1)",
       y = "Minimum total sample size"
-    ) +
-    theme_minimal()
+    )
 })
 
 output$dataTable_mean <- renderDT({
