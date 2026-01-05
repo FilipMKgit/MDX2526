@@ -59,6 +59,6 @@ total_sample_size_mean <- function(mu0, mu1, sd, delta, sigma, power, r = 1){
   n_treat   <- ceiling(n_treat)
   total_n <- n_con + n_treat
   return(total_n)
-}
 
+}
 
