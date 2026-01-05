@@ -2,7 +2,24 @@
 ui <- fluidPage(
   theme = default_mode,
   
-  titlePanel("NI-Sizer"),
+  tags$h1(
+    "NI-Sizer",
+    style = "
+    color: #18bdb9;
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  "
+  ),
+  tags$h4(
+    "Non-inferiority sample size exploration tool",
+    style = "
+    color: #666666;
+    font-weight: 300;
+    margin-top: 0;
+  "
+  ),
   
   tabsetPanel(
     
@@ -80,8 +97,22 @@ ui <- fluidPage(
     tabPanel(
       title = "Proportions",
       
+      wellPanel(
+        strong(span("Non-inferiority hypothesis (proportions, risk difference)", class = "text-primary")),
+        br(),
+        "H0: (p1 − p0) ≤ −Δ",
+        br(),
+        "H1: (p1 − p0) > −Δ",
+        br(), br(),
+        "p0 = control event rate, p1 = expected experimental event rate, Δ = non-inferiority margin"
+      ),
+      
       sidebarLayout(
+        
+        
         sidebarPanel(
+          
+          
           sliderInput("p0.expected", "ExpectedControl:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
           sliderInput("p1.expected", "ExpectedExperimental:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
           sliderInput("p1.tolerable", "NonInferiorityMargin:", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
