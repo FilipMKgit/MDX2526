@@ -8,6 +8,7 @@ library(ggplot2)
 library(dplyr)
 library(ggthemes)
 library(bslib)
+library(DT)
 
 #themes for app
 default_mode <- bs_theme( bootswatch = "flatly")

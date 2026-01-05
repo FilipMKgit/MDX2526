@@ -1,23 +1,26 @@
 #server
-
 server <- function(input, output, session) {
   
-  ###PROPORTIONS
+
+  ###PROPORTIONS TAB 1
+
+# Plot 1
 # Reactive plot output based on the slider value
-PlotReact <- reactive({
-  x <-seq(from = input$p1.tolerable - 0.02, to = input$p1.tolerable, by = 0.005)
-  y <- sapply(x, function(x) {
-    total_sample_size_prop(
-      p0 = input$p0.expected,
-      p1 = input$p1.expected,
-      p1tol = x,
-      sig.level = as.numeric(input$sig.level),
-      power = input$power,
-      r = as.numeric(input$r)
-    )
+
+  PlotReact <- reactive({
+    x <-seq(from = input$p1.tolerable - as.numeric(input$WindowMargin), to = input$p1.tolerable +as.numeric(input$WindowMargin), by = 0.005)
+    y <- sapply(x, function(x) {
+      total_sample_size_prop(
+        p0 = input$p0.expected,
+        p1 = input$p1.expected,
+        p1tol = x,
+        sig.level = as.numeric(input$sig.level),
+        power = input$power,
+        r = as.numeric(input$r)
+      )
+    })
+    data.frame(x = x, y = y)
   })
-  data.frame(x = x, y = y)
-})
 
 #How this works: When the formula is calculation it find the target, control, and total sample size. 
 #The first calculation boils this down to just the total sample size (one value).
@@ -33,6 +36,78 @@ output$plot1 <- renderPlot({
     theme_minimal()
 })
 
+#Plot 2
+PlotReact2 <- reactive({
+  x <-seq(from = input$p1.expected, to = input$p0.expected, by = 0.005)
+  y <- sapply(x, function(x) {
+    total_sample_size_prop(
+      p0 = input$p0.expected,
+      p1 = input$p1.expected,
+      p1tol = x,
+      sig.level = as.numeric(input$sig.level),
+      power = input$power,
+      r = as.numeric(input$r)
+    )
+  })
+  data.frame(x = x, y = y)
+})
+
+output$plot2 <- renderPlot({
+  ggplot(PlotReact2(), aes(x, y)) +
+    geom_line() + 
+    geom_point() +
+    labs(title = 'Expected Product/ Competition Preformance vs. Minimum Total Sample Size', x = 'Expected Product/ Competition Preformance', y = 'Minimum Total Sample Size') +
+    theme_minimal()
+})
+
+#TABLE SHOW/HIDE CHECKBOX
+output$dataTable <- renderDT({
+  if (input$showTable) {
+    DT::datatable(
+      PlotReact(),
+      data.frame(
+        NI_Margin = numeric(0),
+        Total_Sample_Size = numeric(0)
+      ),
+      options = list(
+        stripe = TRUE,
+        hover = TRUE,
+        bordered = TRUE,
+        rownames = FALSE,
+        colnames = TRUE #I can figure out how to name the columns
+      )
+    )
+  } else {
+    NULL
+  }
+})
+
+# Show/hide data table based on checkbox
+output$dataTable2 <- renderDT({
+  if (input$showTable2) {
+    DT::datatable(
+      PlotReact2(),
+      options = list(
+        dom = "t", #Unsure what this does thought it could handle null values then but clearly not. 
+        stripe = TRUE,
+        hover = TRUE,
+        bordered = TRUE,
+        na = "NA",
+        rownames = FALSE,
+        colnames = TRUE #I cant figure out how to name the columns 
+      )
+    )
+  } else {
+    NULL
+  }
+})
+
+# Download data table as CSV
+output$downloadData <- downloadHandler(
+  filename = function() {
+    paste("Minimum Sample Size", ".csv", sep = "")
+  })
+
 
   ###CONTINOUS
 PlotReact_mean <- reactive({
@@ -47,12 +122,12 @@ PlotReact_mean <- reactive({
       sd = input$sd, #common sd
       delta = d, #
       sigma = as.numeric(input$sig.level), #one sided alpha 
-      power = input$power,
-      r = as.numeric(input$r)
+      power = input$power, #power wanted
+      r = as.numeric(input$r) #allocation ratio (treat/control)
     )
   })
   
-  data.frame(delta = delta_seq, total_n = y)
+  data.frame(delta = delta_seq, total_n = y) #return dataframe where x = margin, y = sample size
 })
 
 output$plot_mean <- renderPlot({
@@ -70,3 +145,4 @@ output$plot_mean <- renderPlot({
     theme_minimal()
 })
 }
+
