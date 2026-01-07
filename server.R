@@ -2,12 +2,13 @@
 server <- function(input, output, session) {
   
   ###SET UP TAB 1
+  #observe dark mode logic
 
   observeEvent(input$dark_mode_on, {
-    if (isTRUE(input$dark_mode_on)) {
-      session$setCurrentTheme(dark_mode)
-    } else {
-      session$setCurrentTheme(default_mode)
+    if (isTRUE(input$dark_mode_on)) { #if user ticks dark mode
+      session$setCurrentTheme(dark_mode) #switch theme to dark mode
+    } else {2
+      session$setCurrentTheme(default_mode) #else switch to default
     }
   }, ignoreInit = TRUE)
   
@@ -19,18 +20,30 @@ server <- function(input, output, session) {
 # Reactive plot output based on the slider value
 
   PlotReact <- reactive({
-    x <-seq(from = input$p1.tolerable - as.numeric(input$WindowMargin), to = input$p1.tolerable +as.numeric(input$WindowMargin), by = 0.005)
-    y <- sapply(x, function(x) {
+    
+    #window around margin
+    window <- as.numeric(input$WindowMargin)
+    
+    #this clamps the x-range so it never becomes negative or above 1
+    #this fixes the crash “p1.tolerable >= 0 is not TRUE”
+    x_min <- max(0.001, input$p1.tolerable - window) #lower bound
+    x_max <- min(0.99, input$p1.tolerable + window) #upper bound
+    
+    req(x_max > x_min) #safety check so seq() doesn't break if bounds are reversed
+    
+    x <-seq(from = x_min, to = x_max, by = 0.005)
+    
+    y <- sapply(x, function(xi) { #xi is each candidate margin
       total_sample_size_prop(
-        p0 = input$p0.expected,
-        p1 = input$p1.expected,
-        p1tol = x,
-        sig.level = as.numeric(input$sig.level),
-        power = input$power,
-        r = as.numeric(input$r)
+        p0 = input$p0.expected, #control event rate
+        p1 = input$p1.expected, #expected experimental event rate
+        p1tol = xi, #vary NI margin over x
+        sig.level = as.numeric(input$sig.level), #alpha from setup
+        power = input$power, #power from set up
+        r = as.numeric(input$r) #allocation ratio from setup
       )
     })
-    data.frame(x = x, y = y)
+    data.frame(x = x, y = y) #data for ggplot
   })
 
 #How this works: When the formula is calculation it find the target, control, and total sample size. 
@@ -40,6 +53,7 @@ server <- function(input, output, session) {
 #(Will we do many graphs or just one and instead of NI use how well you think your product would do)?
 #Next points-different tabs for safety/ effectivness? Have an opening into part (Like Clodaghs?). 
 output$plot1 <- renderPlot({
+    
   ggplot(PlotReact(), aes(x, y)) +
     geom_line() + 
     geom_point() +
@@ -48,12 +62,19 @@ output$plot1 <- renderPlot({
 
 #Plot 2
 PlotReact2 <- reactive({
-  x <-seq(from = input$p1.expected, to = input$p0.expected, by = 0.005)
-  y <- sapply(x, function(x) {
+  
+  #i changed this so instead of sequencing from p1.expected to p0.expected (which could be empty)
+  #you now build a symmetric window around p1.expected
+  x_min <- max(0.001, input$p1.expected - 0.10)
+  x_max <- min(0.999, input$p1.expected + 0.10)
+  
+  x <-seq(from = x_min, to = x_max, by = 0.005)
+  
+  y <- sapply(x, function(pli) { #pli = each candidate p1 value
     total_sample_size_prop(
-      p0 = input$p0.expected,
-      p1 = input$p1.expected,
-      p1tol = x,
+      p0 = input$p0.expected, #control rate stays fixed
+      p1 = pli, #vary expected experimental rate across x
+      p1tol = input$p1.tolerable, #margin stays fixed
       sig.level = as.numeric(input$sig.level),
       power = input$power,
       r = as.numeric(input$r)
@@ -195,10 +216,21 @@ output$plot_mean2 <- renderPlot({
     )
 })
 
+
+#TABLES FOR CONTINOUS
+#Table 1
+
 output$dataTable_mean <- renderDT({
   if (input$showTable_mean) {
+    
+    df <- PlotReact_mean()
+    colnames(df) <- c(
+      "Non-Inferiority Margin (Δ)",
+      "Total Sample Size"
+    )
+    
     DT::datatable(
-      PlotReact_mean(),
+      df,
       options = list(
         stripe = TRUE,
         hover = TRUE,
@@ -211,10 +243,18 @@ output$dataTable_mean <- renderDT({
   }
 })
 
+#Table 2
 output$dataTable_mean2 <- renderDT({
   if (input$showTable_mean2) {
+    
+    df <- PlotReact_mean2()
+    colnames(df) <- c(
+      "Assumed Experimental Mean (μ1)",
+      "Total Sample Size"
+    )
+    
     DT::datatable(
-      PlotReact_mean2(),
+      df,
       options = list(
         stripe = TRUE,
         hover = TRUE,
@@ -226,6 +266,6 @@ output$dataTable_mean2 <- renderDT({
     NULL
   }
 })
-  
 }
+
 

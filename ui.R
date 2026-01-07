@@ -97,21 +97,9 @@ ui <- fluidPage(
     tabPanel(
       title = "Proportions",
       
-      wellPanel(
-        strong(span("Non-inferiority hypothesis (proportions, risk difference)", class = "text-primary")),
-        br(),
-        "H0: (p1 − p0) ≤ −Δ",
-        br(),
-        "H1: (p1 − p0) > −Δ",
-        br(), br(),
-        "p0 = control event rate, p1 = expected experimental event rate, Δ = non-inferiority margin"
-      ),
-      
       sidebarLayout(
         
-        
         sidebarPanel(
-          
           
           sliderInput("p0.expected", "ExpectedControl:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
           sliderInput("p1.expected", "ExpectedExperimental:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
