@@ -109,12 +109,12 @@ ui <- fluidPage(
           
           #options tick
           tags$div(
-          checkboxInput("showExtras_mean", "More Options", value = FALSE),
+          checkboxInput("showExtras_prop", "More Options", value = FALSE),
           style = "margin-top: 15px;"
           ),
           
           conditionalPanel(
-            condition = "input.showExtras_mean == true",
+            condition = "input.showExtras_prop == true",
             
             tags$hr(),
   #TABLE SHOW/HIDE CHECKBOX
@@ -147,8 +147,8 @@ ui <- fluidPage(
           numericInput("mu0", "Control mean (μ0):", value = 50),
           numericInput("mu1", "Expected experimental mean (μ1):", value = 50),
           
-          numericInput("sd", "Common SD:", value = 10, min = 0.0001),
-          numericInput("delta", "Non-inferiority margin (Δ):", value = 5, min = 0.0001),
+          numericInput("sd", "Common SD:", value = 10.00, min = 1, step = 1),
+          numericInput("delta", "Non-inferiority margin (Δ):", value = 5.00, min = 0, step = 1),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
