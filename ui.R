@@ -27,7 +27,7 @@ ui <- fluidPage(
 ###SETUP TAB 1
     
     tabPanel(
-      title = "Set Up",
+      title = "Set up",
       
       sidebarLayout(
         sidebarPanel(
@@ -105,15 +105,27 @@ ui <- fluidPage(
           sliderInput("p1.expected", "ExpectedExperimental:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
           sliderInput("p1.tolerable", "NonInferiorityMargin:", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
           
-          helpText("Note: alpha, power and allocation ratio can be set in the Set Up tab."),
+          helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
+          #options tick
+          tags$div(
+          checkboxInput("showExtras_mean", "More Options", value = FALSE),
+          style = "margin-top: 15px;"
+          ),
+          
+          conditionalPanel(
+            condition = "input.showExtras_mean == true",
+            
+            tags$hr(),
   #TABLE SHOW/HIDE CHECKBOX
           checkboxInput("showTable", "Show Data Table (NonInferiority Margin)", value = FALSE),
           checkboxInput("showTable2", "Show Data Table (Expected Performance)", value = FALSE),
           
   #DOWNLOAD BUTTONS
-          downloadButton("downloadData", "Download Data")
-        ),
+  downloadButton("downloadData_plot1", "Download NI Margin Table", class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+  downloadButton("downloadData_plot2", "Download Expected Performance Table", class = "btn-sm btn-outline-primary", style = "width: 220px;")
+  
+        )),
         
         mainPanel(
           plotOutput("plot1"),
@@ -138,16 +150,27 @@ ui <- fluidPage(
           numericInput("sd", "Common SD:", value = 10, min = 0.0001),
           numericInput("delta", "Non-inferiority margin (Δ):", value = 5, min = 0.0001),
           
-          helpText("Note: alpha, power and allocation ratio can be set in the Set Up tab."),
+          helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
-          #TABLE SHOW/HIDE CHECKBOX
+          tags$br(),
+          
+          #options tick
+          tags$div(
+          checkboxInput("showExtras_mean", "More Options", value = FALSE),
+          style = "margin-top: 15px;"),
+          
+          
+          conditionalPanel(
+            condition = "input.showExtras_mean == true",
+            
+            #TABLE SHOW/HIDE CHECKBOX
           checkboxInput("showTable_mean",  "Show Data Table (Δ sensitivity)", value = FALSE),
           checkboxInput("showTable_mean2", "Show Data Table (μ1 sensitivity)", value = FALSE),
           
           #DOWNLOAD BUTTONS
-          downloadButton("downloadData_mean", "Download Δ table"),
-          downloadButton("downloadData_mean2", "Download μ1 table")
-        ),
+          downloadButton("downloadData_mean1", "Download NI Margin (Means) Table", class = "btn-sm btn-outline-primary",  style = "width: 220px;"),
+          downloadButton("downloadData_mean2", "Download Assumed Mean Table", class = "btn-sm btn-outline-primary",  style = "width: 220px;")
+        )),
         
         mainPanel(
           plotOutput("plot_mean"),

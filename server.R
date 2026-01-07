@@ -7,7 +7,7 @@ server <- function(input, output, session) {
   observeEvent(input$dark_mode_on, {
     if (isTRUE(input$dark_mode_on)) { #if user ticks dark mode
       session$setCurrentTheme(dark_mode) #switch theme to dark mode
-    } else {2
+    } else {
       session$setCurrentTheme(default_mode) #else switch to default
     }
   }, ignoreInit = TRUE)
@@ -28,8 +28,6 @@ server <- function(input, output, session) {
     #this fixes the crash “p1.tolerable >= 0 is not TRUE”
     x_min <- max(0.001, input$p1.tolerable - window) #lower bound
     x_max <- min(0.99, input$p1.tolerable + window) #upper bound
-    
-    req(x_max > x_min) #safety check so seq() doesn't break if bounds are reversed
     
     x <-seq(from = x_min, to = x_max, by = 0.005)
     
@@ -91,20 +89,20 @@ output$plot2 <- renderPlot({
 })
 
 #TABLE SHOW/HIDE CHECKBOX
+#Table 1
 output$dataTable <- renderDT({
   if (input$showTable) {
-    DT::datatable(
-      PlotReact(),
-      data.frame(
-        NI_Margin = numeric(0),
-        Total_Sample_Size = numeric(0)
-      ),
-      options = list(
-        stripe = TRUE,
-        hover = TRUE,
-        bordered = TRUE,
-        rownames = FALSE,
-        colnames = TRUE #I can figure out how to name the columns
+    
+    #now we store plotreact() in a df so that wee can rename the columns
+    df <- PlotReact() #grabs data used in plot1
+    colnames(df) <- c("NI Margin", "Total Sample Size") #renames columns
+    
+    DT::datatable(df,
+    options = list(
+      stripe = TRUE,
+      hover = TRUE,
+      bordered = TRUE,
+      rownames = FALSE
       )
     )
   } else {
@@ -112,19 +110,23 @@ output$dataTable <- renderDT({
   }
 })
 
-# Show/hide data table based on checkbox
+#Table 2
 output$dataTable2 <- renderDT({
   if (input$showTable2) {
+    
+    df <- PlotReact2() #get data used in plot2
+    colnames(df) <- c(
+      "Expected Experimental Event Rate",
+      "Total Sample Size"
+    )
+    
     DT::datatable(
-      PlotReact2(),
+      df,
       options = list(
-        dom = "t", #Unsure what this does thought it could handle null values then but clearly not. 
         stripe = TRUE,
         hover = TRUE,
         bordered = TRUE,
-        na = "NA",
-        rownames = FALSE,
-        colnames = TRUE #I cant figure out how to name the columns 
+        rownames = FALSE
       )
     )
   } else {
@@ -132,13 +134,39 @@ output$dataTable2 <- renderDT({
   }
 })
 
-# Download data table as CSV
-output$downloadData <- downloadHandler(
+
+###DOWNLOAD TABLES CSV
+#Table 1
+output$downloadData_plot1 <- downloadHandler(
   filename = function() {
-    paste0("Minimum_Sample_Size_", Sys.Date(), ".csv")
+    paste0("NI_margin_table_", Sys.Date(), ".csv")
   },
   content = function(file) {
-    write.csv(PlotReact(), file, row.names = FALSE)
+    
+    df <- PlotReact()
+    colnames(df) <- c(
+      "NI Margin",
+      "Total Sample Size"
+    )
+    
+    write.csv(df, file, row.names = FALSE)
+  }
+)
+
+#Table 2
+output$downloadData_plot2 <- downloadHandler(
+  filename = function() {
+    paste0("expected_performance_table_", Sys.Date(), ".csv")
+  },
+  content = function(file) {
+    
+    df <- PlotReact2()
+    colnames(df) <- c(
+      "Expected Experimental Event Rate",
+      "Total Sample Size"
+    )
+    
+    write.csv(df, file, row.names = FALSE)
   }
 )
 
@@ -266,6 +294,45 @@ output$dataTable_mean2 <- renderDT({
     NULL
   }
 })
+
+
+###DOWNLOAD TABLES CSV
+#Table 1
+
+output$downloadData_mean1 <- downloadHandler(
+  filename = function() {
+    paste0("mean_NI_margin_table_", Sys.Date(), ".csv")
+  },
+  content = function(file) {
+    
+    df <- PlotReact_mean()
+    colnames(df) <- c(
+      "Non-Inferiority Margin (Δ)",
+      "Total Sample Size"
+    )
+    
+    write.csv(df, file, row.names = FALSE)
+  }
+)
+
+#Table 2
+output$downloadData_mean2 <- downloadHandler(
+  filename = function() {
+    paste0("assumed_mean_table_", Sys.Date(), ".csv")
+  },
+  content = function(file) {
+    
+    df <- PlotReact_mean2()
+    colnames(df) <- c(
+      "Assumed Experimental Mean (μ1)",
+      "Total Sample Size"
+    )
+    
+    write.csv(df, file, row.names = FALSE)
+  }
+)
 }
+
+
 
 
