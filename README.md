@@ -17,10 +17,7 @@ Notes<br>
 To Do:<br>
 -Add equations to set up tab.<br>
 -Limit sliders to minimize number of errors.<br>
--Fix slider labels in tab 2.<br>
 -Rework text in tab 1.<br>
 -Add credits and github link on bottom of tab 1.<br>
--Make labels bigger on graphs.<br>
--Make the graphs easy to download.<br>
 -Fix bug where switching back to light mode from dark mode keeps some labels white/invisible.<br>
 -See if I can change tab 3 into sliders to keep the app exploratory and consistent.

@@ -71,23 +71,50 @@ ui <- fluidPage(
         ),
         
         mainPanel(
-          h3("What NI-Sizer does"),
-          p("NI-Sizer is an interactive Shiny app that helps explore minimum sample size requirements for non-inferiority trials."),
-          p("It supports binary outcomes (risk difference scale) and continuous outcomes (mean difference scale), and visualises how sensitive the required sample size is to key assumptions."),
+          h3("Overview"),
+          p("NI-Sizer explores sample size requirements for non-inferiority trials using sensitivity plots."),
+          p("This tab sets trial-level choices (one-sided α, power, allocation ratio) that apply across both the Proportions and Continuous tabs."),
           
-          h4("Workflow"),
+          h4("How to use"),
           tags$ol(
-            tags$li("Set trial-level assumptions here (α, power, allocation ratio)."),
-            tags$li("Use the Proportions tab or Continuous tab to enter outcome-specific assumptions."),
-            tags$li("Use the plots to understand how design choices change the required sample size.")
+            tags$li("Choose α, power, and allocation ratio on the left."),
+            tags$li("Pick a sensitivity window (±) to control how wide the Δ curve is around your chosen margin."),
+            tags$li("Go to Proportions (binary) or Continuous (means) to enter outcome assumptions and view plots/tables.")
+          ),
+          
+          h4("Interpretation"),
+          tags$ul(
+            tags$li("Δ plots show how tightening/loosening the NI margin changes the required total sample size."),
+            tags$li("p₁ / μ₁ plots show how sensitive results are to assumed experimental performance.")
           ),
           
           h4("Note"),
           tags$ul(
-            tags$li("Plots are for planning/sensitivity analysis, not a full SAP."),
-            tags$li("Always validate final design choices with a statistician.")
+            tags$li("Outputs are for planning and sensitivity exploration."),
+            tags$li("Final design choices should be justified clinically and statistically.")
+          ),
+          
+          tags$hr(),
+          
+          tags$p(
+            style = "font-size: 13px; color: #777777; line-height: 1.4;",
+            HTML(
+              "Developed by <strong>Filip Kłosowski</strong> and <strong>Áine Glynn</strong><br/>
+     University of Galway"
+            )
+          ),
+          
+          tags$p(
+            style = "font-size: 13px;",
+            tags$a(
+              href = "https://github.com/FilipMKgit/NI-Sizer",
+              target = "_blank",
+              "View the NI-Sizer GitHub repository (open source)"
+            )
           )
+          
         )
+        
       )
     ),
     
@@ -101,9 +128,9 @@ ui <- fluidPage(
         
         sidebarPanel(
           
-          sliderInput("p0.expected", "ExpectedControl:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
-          sliderInput("p1.expected", "ExpectedExperimental:", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
-          sliderInput("p1.tolerable", "NonInferiorityMargin:", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
+          sliderInput("p0.expected", "Control event rate (p0)::", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
+          sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
+          sliderInput("p1.tolerable", "Non-inferiority margin (Δ, risk difference):", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
@@ -118,13 +145,14 @@ ui <- fluidPage(
             
             tags$hr(),
   #TABLE SHOW/HIDE CHECKBOX
-          checkboxInput("showTable", "Show Data Table (NonInferiority Margin)", value = FALSE),
-          checkboxInput("showTable2", "Show Data Table (Expected Performance)", value = FALSE),
+          checkboxInput("showTable", "Show Δ table", value = FALSE),
+          checkboxInput("showTable2", "Show p₁ table", value = FALSE),
           
   #DOWNLOAD BUTTONS
-  downloadButton("downloadData_plot1", "Download NI Margin Table", class = "btn-sm btn-outline-primary", style = "width: 220px;"),
-  downloadButton("downloadData_plot2", "Download Expected Performance Table", class = "btn-sm btn-outline-primary", style = "width: 220px;")
-  
+  downloadButton("downloadPlot_prop1", "Download Δ plot",  class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+  downloadButton("downloadPlot_prop2", "Download p₁ plot", class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+  downloadButton("downloadData_plot1", "Download Δ table", class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+  downloadButton("downloadData_plot2", "Download p₁ table", class = "btn-sm btn-outline-primary", style = "width: 220px;")
         )),
         
         mainPanel(
@@ -164,12 +192,14 @@ ui <- fluidPage(
             condition = "input.showExtras_mean == true",
             
             #TABLE SHOW/HIDE CHECKBOX
-          checkboxInput("showTable_mean",  "Show Data Table (Δ sensitivity)", value = FALSE),
-          checkboxInput("showTable_mean2", "Show Data Table (μ1 sensitivity)", value = FALSE),
+          checkboxInput("showTable_mean",  "Show Δ sensitivity table", value = FALSE),
+          checkboxInput("showTable_mean2", "Show μ1 sensitivity table", value = FALSE),
           
           #DOWNLOAD BUTTONS
-          downloadButton("downloadData_mean1", "Download NI Margin (Means) Table", class = "btn-sm btn-outline-primary",  style = "width: 220px;"),
-          downloadButton("downloadData_mean2", "Download Assumed Mean Table", class = "btn-sm btn-outline-primary",  style = "width: 220px;")
+          downloadButton("downloadPlot_mean1", "Download Δ plot",  class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+          downloadButton("downloadPlot_mean2", "Download μ₁ plot", class = "btn-sm btn-outline-primary", style = "width: 220px;"),
+          downloadButton("downloadData_mean1", "Download Δ sensitivity table", class = "btn-sm btn-outline-primary",  style = "width: 220px;"),
+          downloadButton("downloadData_mean2", "Download μ₁ table", class = "btn-sm btn-outline-primary",  style = "width: 220px;")
         )),
         
         mainPanel(

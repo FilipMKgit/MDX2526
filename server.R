@@ -55,7 +55,8 @@ output$plot1 <- renderPlot({
   ggplot(PlotReact(), aes(x, y)) +
     geom_line() + 
     geom_point() +
-    labs(title = 'Non-Inferiority Margin vs. Minimum Total Sample Size', x = 'Non-Inferiority Margin', y = 'Minimum Total Sample Size')
+    labs(title = 'Δ vs total sample size', x = 'Non-inferiority margin (Δ)', y = 'Total sample size') +
+    plot_theme_large
 })
 
 #Plot 2
@@ -85,7 +86,8 @@ output$plot2 <- renderPlot({
   ggplot(PlotReact2(), aes(x, y)) +
     geom_line() + 
     geom_point() +
-    labs(title = 'Expected Product/ Competition Preformance vs. Minimum Total Sample Size', x = 'Expected Product/ Competition Preformance', y = 'Minimum Total Sample Size')
+    labs(title = 'p₁ vs total sample size', x = 'Expected experimental event rate (p₁)', y = 'Total sample size') +
+    plot_theme_large
 })
 
 #TABLE SHOW/HIDE CHECKBOX
@@ -117,7 +119,7 @@ output$dataTable2 <- renderDT({
     df <- PlotReact2() #get data used in plot2
     colnames(df) <- c(
       "Expected Experimental Event Rate",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     DT::datatable(
@@ -133,6 +135,37 @@ output$dataTable2 <- renderDT({
     NULL
   }
 })
+###DOWNLOAD PLOTS
+
+#1
+output$downloadPlot_prop1 <- downloadHandler(
+  filename = function() paste0("prop_delta_plot_", Sys.Date(), ".png"),
+  content  = function(file) {
+    p <- ggplot(PlotReact(), aes(x, y)) +
+      geom_line() + geom_point() +
+      labs(title = "Δ vs total sample size",
+           x = "Non-inferiority margin (Δ)",
+           y = "Total sample size") +
+      plot_theme_large
+    
+    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
+  }
+)
+
+#2
+output$downloadPlot_prop2 <- downloadHandler(
+  filename = function() paste0("prop_p1_plot_", Sys.Date(), ".png"),
+  content  = function(file) {
+    p <- ggplot(PlotReact2(), aes(x, y)) +
+      geom_line() + geom_point() +
+      labs(title = "p₁ vs total sample size",
+           x = "Expected experimental event rate (p₁)",
+           y = "Total sample size") +
+      plot_theme_large
+    
+    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
+  }
+)
 
 
 ###DOWNLOAD TABLES CSV
@@ -146,7 +179,7 @@ output$downloadData_plot1 <- downloadHandler(
     df <- PlotReact()
     colnames(df) <- c(
       "NI Margin",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     write.csv(df, file, row.names = FALSE)
@@ -163,7 +196,7 @@ output$downloadData_plot2 <- downloadHandler(
     df <- PlotReact2()
     colnames(df) <- c(
       "Expected Experimental Event Rate",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     write.csv(df, file, row.names = FALSE)
@@ -203,10 +236,10 @@ output$plot_mean <- renderPlot({
     geom_line() +
     geom_point() +
     labs(
-      title = "NI margin (mean difference) vs. minimum total sample size",
+      title = "Δ vs total sample size",
       x = "Non-inferiority margin (Δ)",
-      y = "Minimum total sample size"
-    )
+      y = "Total sample size (N)"
+    ) + plot_theme_large
 })
 
 # Plot 2
@@ -238,10 +271,10 @@ output$plot_mean2 <- renderPlot({
     geom_line() +
     geom_point() +
     labs(
-      title = "Assumed experimental mean (mu1) vs minimum total sample size",
-      x = "Assumed experimental mean (mu1)",
-      y = "Minimum total sample size"
-    )
+      title = "μ₁ vs total sample size",
+      x = "Assumed experimental mean (μ₁)",
+      y = "Total sample size (N)"
+    ) + plot_theme_large
 })
 
 
@@ -254,7 +287,7 @@ output$dataTable_mean <- renderDT({
     df <- PlotReact_mean()
     colnames(df) <- c(
       "Non-Inferiority Margin (Δ)",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     DT::datatable(
@@ -278,7 +311,7 @@ output$dataTable_mean2 <- renderDT({
     df <- PlotReact_mean2()
     colnames(df) <- c(
       "Assumed Experimental Mean (μ1)",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     DT::datatable(
@@ -295,6 +328,44 @@ output$dataTable_mean2 <- renderDT({
   }
 })
 
+###DOWNLOAD PLOTS
+
+#1
+output$downloadPlot_mean1 <- downloadHandler(
+  filename = function() paste0("mean_delta_plot_", Sys.Date(), ".png"),
+  content  = function(file) {
+    df <- PlotReact_mean()
+    
+    p <- ggplot(df, aes(x = delta, y = total_n)) +
+      geom_line() + geom_point() +
+      labs(title = "Δ vs total sample size",
+           x = "Non-inferiority margin (Δ)",
+           y = "Total sample size (N)") +
+      plot_theme_large
+    
+    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
+  }
+)
+
+
+#2
+output$downloadPlot_mean2 <- downloadHandler(
+  filename = function() paste0("mean_mu1_plot_", Sys.Date(), ".png"),
+  content  = function(file) {
+    df <- PlotReact_mean2()
+    
+    p <- ggplot(df, aes(x = mu1, y = total_n)) +
+      geom_line() + geom_point() +
+      labs(title = "μ₁ vs total sample size",
+           x = "Assumed experimental mean (μ₁)",
+           y = "Total sample size (N)") +
+      plot_theme_large
+    
+    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
+  }
+)
+
+
 
 ###DOWNLOAD TABLES CSV
 #Table 1
@@ -308,7 +379,7 @@ output$downloadData_mean1 <- downloadHandler(
     df <- PlotReact_mean()
     colnames(df) <- c(
       "Non-Inferiority Margin (Δ)",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     write.csv(df, file, row.names = FALSE)
@@ -325,7 +396,7 @@ output$downloadData_mean2 <- downloadHandler(
     df <- PlotReact_mean2()
     colnames(df) <- c(
       "Assumed Experimental Mean (μ1)",
-      "Total Sample Size"
+      "Total Sample Size (N)"
     )
     
     write.csv(df, file, row.names = FALSE)

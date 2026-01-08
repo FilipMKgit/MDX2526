@@ -16,6 +16,17 @@ library(thematic)
 default_mode <- bs_theme( bootswatch = "flatly")
 dark_mode <- bs_theme(bootswatch = "darkly")
 
+#plot theme definition
+plot_theme_large <- theme(
+  plot.title = element_text(size = 16, face = "bold"),
+  axis.title.x = element_text(size = 14),
+  axis.title.y = element_text(size = 14),
+  axis.text.x  = element_text(size = 12),
+  axis.text.y  = element_text(size = 12)
+)
+
+
+
 thematic_shiny() #to make plot backgrounds dark when dark mode enabled
 
   ###PROPORTIONS
