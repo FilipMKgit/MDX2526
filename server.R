@@ -12,6 +12,96 @@ server <- function(input, output, session) {
     }
   }, ignoreInit = TRUE)
   
+  observeEvent(input$eq_prop1, {
+    showModal(modalDialog(
+      title = "Proportions: Δ vs total sample size",
+      
+      tags$p("Hypotheses (risk difference):"),
+      tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
+      
+      tags$p("Sample size calculation:"),
+      tags$pre(paste0(
+        "Total N = n0 + n1\n\n",
+        "Computed using:\n",
+        "dani::sample.size.NI(\n",
+        "  p0.expected  = p0,\n",
+        "  p1.expected  = p1,\n",
+        "  p1.tolerable = Δ,\n",
+        "  sig.level    = α,\n",
+        "  power        = 1−β,\n",
+        "  r            = n1/n0,\n",
+        "  scale        = \"RD\"\n",
+        ")"
+      )),
+      
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+  })
+  
+  observeEvent(input$eq_prop2, {
+    showModal(modalDialog(
+      title = "Proportions: p₁ vs total sample size",
+      
+      tags$p("Hypotheses (risk difference):"),
+      tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
+      
+      tags$p("What changes in this plot:"),
+      tags$pre("p1 varies over a range; Δ and p0 are held fixed."),
+      
+      tags$p("Sample size calculation:"),
+      tags$pre(paste0(
+        "Total N = n0 + n1\n\n",
+        "Computed using dani::sample.size.NI(..., scale = \"RD\")"
+      )),
+      
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+  })
+  
+  observeEvent(input$eq_mean1, {
+    showModal(modalDialog(
+      title = "Continuous: Δ vs total sample size",
+      
+      tags$p("Hypotheses (mean difference):"),
+      tags$pre("H0: (μ1 − μ0) ≤ −Δ\nH1: (μ1 − μ0) > −Δ"),
+      
+      tags$p("Sample size formula (common SD):"),
+      tags$pre(paste0(
+        "Let δ = (μ1 − μ0)\n",
+        "eff = δ + Δ\n\n",
+        "zα = qnorm(1 − α)\n",
+        "zβ = qnorm(power)\n\n",
+        "n0 = ((1 + 1/r) * σ² * (zα + zβ)²) / eff²\n",
+        "n1 = r * n0\n",
+        "Total N = ceil(n0) + ceil(n1)\n\n",
+        "If eff ≤ 0 then NI not achievable → N = Inf"
+      )),
+      
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+  })
+  
+  observeEvent(input$eq_mean2, {
+    showModal(modalDialog(
+      title = "Continuous: μ₁ vs total sample size",
+      
+      tags$p("Hypotheses (mean difference):"),
+      tags$pre("H0: (μ1 − μ0) ≤ −Δ\nH1: (μ1 − μ0) > −Δ"),
+      
+      tags$p("What changes in this plot:"),
+      tags$pre("μ1 varies over a range; Δ, μ0 and σ are held fixed."),
+      
+      tags$p("Sample size formula:"),
+      tags$pre("Same formula as the Continuous Δ plot."),
+      
+      easyClose = TRUE,
+      footer = modalButton("Close")
+    ))
+  })
+  
   
 
   ###PROPORTIONS TAB 2
@@ -97,7 +187,7 @@ output$dataTable <- renderDT({
     
     #now we store plotreact() in a df so that wee can rename the columns
     df <- PlotReact() #grabs data used in plot1
-    colnames(df) <- c("NI Margin", "Total Sample Size") #renames columns
+    colnames(df) <- c("NI Margin", "Total Sample Size (N)") #renames columns
     
     DT::datatable(df,
     options = list(

@@ -15,9 +15,7 @@ Notes<br>
 -Always validate final design choices with a statistician.
 
 To Do:<br>
--Add equations to set up tab.<br>
+
 -Limit sliders to minimize number of errors.<br>
--Rework text in tab 1.<br>
--Add credits and github link on bottom of tab 1.<br>
 -Fix bug where switching back to light mode from dark mode keeps some labels white/invisible.<br>
 -See if I can change tab 3 into sliders to keep the app exploratory and consistent.

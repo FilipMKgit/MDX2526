@@ -66,7 +66,7 @@ ui <- fluidPage(
             "WindowMargin",
             "Sensitivity window for NI margin (±)",
             choices = c("0.01" = 0.01, "0.02" = 0.02, "0.05" = 0.05),
-            selected = 0.05
+            selected = 0.02
           )
         ),
         
@@ -87,6 +87,16 @@ ui <- fluidPage(
             tags$li("Δ plots show how tightening/loosening the NI margin changes the required total sample size."),
             tags$li("p₁ / μ₁ plots show how sensitive results are to assumed experimental performance.")
           ),
+          
+          h4("Equations"),
+          
+          actionButton("eq_prop1", "Proportions: Δ plot", class = "btn-sm btn-outline-primary", style="width:220px;"),
+          actionButton("eq_prop2", "Proportions: p₁ plot", class = "btn-sm btn-outline-primary", style="width:220px;"),
+          tags$br(), tags$br(),
+          actionButton("eq_mean1", "Continuous: Δ plot", class = "btn-sm btn-outline-primary", style="width:220px;"),
+          actionButton("eq_mean2", "Continuous: μ₁ plot", class = "btn-sm btn-outline-primary", style="width:220px;"),
+          
+          tags$hr(),
           
           h4("Note"),
           tags$ul(
@@ -128,8 +138,8 @@ ui <- fluidPage(
         
         sidebarPanel(
           
-          sliderInput("p0.expected", "Control event rate (p0)::", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
-          sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.01, max = 0.99, step = 0.01, value = 0.05),
+          sliderInput("p0.expected", "Control event rate (p0):", min = 0.01, max = 0.99, step = 0.01, value = 0.10),
+          sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.01, max = 0.99, step = 0.01, value = 0.10),
           sliderInput("p1.tolerable", "Non-inferiority margin (Δ, risk difference):", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
@@ -175,8 +185,8 @@ ui <- fluidPage(
           numericInput("mu0", "Control mean (μ0):", value = 50),
           numericInput("mu1", "Expected experimental mean (μ1):", value = 50),
           
-          numericInput("sd", "Common SD:", value = 10.00, min = 1, step = 1),
-          numericInput("delta", "Non-inferiority margin (Δ):", value = 5.00, min = 0, step = 1),
+          numericInput("sd", "Common SD:", value = 10, min = 1, step = 1),
+          numericInput("delta", "Non-inferiority margin (Δ):", value = 5, min = 0, step = 1),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
