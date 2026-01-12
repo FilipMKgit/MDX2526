@@ -18,11 +18,11 @@ dark_mode <- bs_theme(bootswatch = "darkly")
 
 #plot theme definition
 plot_theme_large <- theme(
-  plot.title = element_text(size = 16, face = "bold"),
-  axis.title.x = element_text(size = 14),
-  axis.title.y = element_text(size = 14),
-  axis.text.x  = element_text(size = 12),
-  axis.text.y  = element_text(size = 12)
+  plot.title = element_text(size = 20, face = "bold"),
+  axis.title.x = element_text(size = 16),
+  axis.title.y = element_text(size = 16),
+  axis.text.x  = element_text(size = 14),
+  axis.text.y  = element_text(size = 14)
 )
 
 

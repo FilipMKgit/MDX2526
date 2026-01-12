@@ -2,6 +2,19 @@
 ui <- fluidPage(
   theme = default_mode,
   
+  tags$div(
+    style = "
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+  ",
+    
+    tags$img(
+      src = "nisizer_logo.png",
+      height = "100px"
+    ),
+  
   tags$h1(
     "NI-Sizer",
     style = "
@@ -19,7 +32,7 @@ ui <- fluidPage(
     font-weight: 300;
     margin-top: 0;
   "
-  ),
+  )),
   
   tabsetPanel(
     
