@@ -11,7 +11,7 @@ ui <- fluidPage(
   ",
     
     tags$img(
-      src = "nisizer_logo.png",
+      src = "nisizer_logo2.png",
       height = "100px"
     ),
   
