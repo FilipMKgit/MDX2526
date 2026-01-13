@@ -308,14 +308,14 @@ PlotReact_mean <- reactive({
       mu0 = input$mu0, #control mean
       mu1 = input$mu1, #expected experimental mean
       sd = input$sd, #common sd
-      delta = d, #
+      delta = d, #non inferiority margin
       sigma = as.numeric(input$sig.level), #one sided alpha 
       power = input$power, #power wanted
       r = as.numeric(input$r) #allocation ratio (treat/control)
     )
   })
   
-  data.frame(delta = delta_seq, total_n = y) #return dataframe where x = margin, y = sample size
+  data.frame(delta = delta_seq, total_n = y) #return dataf rame where x = margin, y = sample size
 })
 
 output$plot_mean <- renderPlot({

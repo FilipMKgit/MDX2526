@@ -16,6 +16,5 @@ Notes<br>
 
 To Do:<br>
 
--Limit sliders to minimize number of errors.<br>
--Fix bug where switching back to light mode from dark mode keeps some labels white/invisible.<br>
--See if I can change tab 3 into sliders to keep the app exploratory and consistent.
+-Fix bug where download plot downloads dark mode plots
+-Rewrite the equations for plots in tab 1.
