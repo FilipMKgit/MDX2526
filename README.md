@@ -16,10 +16,10 @@ Notes<br>
 
 To Do:<br>
 
--Rewrite the equations for plots in tab 1.
--Change plots to plotly
--remove download plots
--change global equations logic
--add CI settings for proportions when ratio = 1:1
--add text box under plots which shows the exact number n as settings are changed
--make bigger gaps between plots
+-Rewrite the equations for plots in tab 1.<br>
+-Change plots to plotly<br>
+-remove download plots<br>
+-change global equations logic<br>
+-add CI settings for proportions when ratio = 1:1<br>
+-add text box under plots which shows the exact number n as settings are changed<br>
+-make bigger gaps between plots<br>
