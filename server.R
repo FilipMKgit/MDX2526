@@ -1,39 +1,31 @@
-#server
 server <- function(input, output, session) {
   
-  ###SET UP TAB 1
-  #observe dark mode logic
-
+  ################################################################
+  #theme
+  ################################################################
   observeEvent(input$dark_mode_on, {
-    if (isTRUE(input$dark_mode_on)) { #if user ticks dark mode
-      session$setCurrentTheme(dark_mode) #switch theme to dark mode
+    if (isTRUE(input$dark_mode_on)) {
+      session$setCurrentTheme(dark_mode)
     } else {
-      session$setCurrentTheme(default_mode) #else switch to default
+      session$setCurrentTheme(default_mode)
     }
   }, ignoreInit = TRUE)
   
+  ################################################################
+  #equation modals
+  ################################################################
   observeEvent(input$eq_prop1, {
     showModal(modalDialog(
       title = "Proportions: Δ vs total sample size",
-      
       tags$p("Hypotheses (risk difference):"),
       tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
-      
-      tags$p("Sample size calculation:"),
-      tags$pre(paste0(
-        "Total N = n0 + n1\n\n",
-        "Computed using:\n",
-        "dani::sample.size.NI(\n",
-        "  p0.expected  = p0,\n",
-        "  p1.expected  = p1,\n",
-        "  p1.tolerable = Δ,\n",
-        "  sig.level    = α,\n",
-        "  power        = 1−β,\n",
-        "  r            = n1/n0,\n",
-        "  scale        = \"RD\"\n",
-        ")"
-      )),
-      
+      tags$p("How N is computed in this app:"),
+      tags$ul(
+        tags$li("If Method = 'Z (power formula)': analytic z approximation using the power slider."),
+        tags$li("Otherwise: CI-rule + simulation to hit target power (power slider).")
+      ),
+      tags$p("CI-rule used for simulation methods (conservative):"),
+      tags$pre("Compute CI(p0) and CI(p1) using chosen method.\nLower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ."),
       easyClose = TRUE,
       footer = modalButton("Close")
     ))
@@ -42,19 +34,12 @@ server <- function(input, output, session) {
   observeEvent(input$eq_prop2, {
     showModal(modalDialog(
       title = "Proportions: p₁ vs total sample size",
-      
       tags$p("Hypotheses (risk difference):"),
       tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
-      
       tags$p("What changes in this plot:"),
-      tags$pre("p1 varies over a range; Δ and p0 are held fixed."),
-      
-      tags$p("Sample size calculation:"),
-      tags$pre(paste0(
-        "Total N = n0 + n1\n\n",
-        "Computed using dani::sample.size.NI(..., scale = \"RD\")"
-      )),
-      
+      tags$pre("p1 varies; Δ and p0 are held fixed."),
+      tags$p("Decision rule for simulation methods:"),
+      tags$pre("Lower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ."),
       easyClose = TRUE,
       footer = modalButton("Close")
     ))
@@ -63,10 +48,8 @@ server <- function(input, output, session) {
   observeEvent(input$eq_mean1, {
     showModal(modalDialog(
       title = "Continuous: Δ vs total sample size",
-      
       tags$p("Hypotheses (mean difference):"),
       tags$pre("H0: (μ1 − μ0) ≤ −Δ\nH1: (μ1 − μ0) > −Δ"),
-      
       tags$p("Sample size formula (common SD):"),
       tags$pre(paste0(
         "Let δ = (μ1 − μ0)\n",
@@ -78,7 +61,6 @@ server <- function(input, output, session) {
         "Total N = ceil(n0) + ceil(n1)\n\n",
         "If eff ≤ 0 then NI not achievable → N = Inf"
       )),
-      
       easyClose = TRUE,
       footer = modalButton("Close")
     ))
@@ -87,261 +69,242 @@ server <- function(input, output, session) {
   observeEvent(input$eq_mean2, {
     showModal(modalDialog(
       title = "Continuous: μ₁ vs total sample size",
-      
       tags$p("Hypotheses (mean difference):"),
       tags$pre("H0: (μ1 − μ0) ≤ −Δ\nH1: (μ1 − μ0) > −Δ"),
-      
       tags$p("What changes in this plot:"),
-      tags$pre("μ1 varies over a range; Δ, μ0 and σ are held fixed."),
-      
-      tags$p("Sample size formula:"),
-      tags$pre("Same formula as the Continuous Δ plot."),
-      
+      tags$pre("μ1 varies; Δ, μ0 and σ are held fixed."),
       easyClose = TRUE,
       footer = modalButton("Close")
     ))
   })
   
-  
-
-  ###PROPORTIONS TAB 2
-
-# Plot 1
-# Reactive plot output based on the slider value
-
-  PlotReact <- reactive({
+  ################################################################
+  #helpers
+  ################################################################
+  prop_total_n <- function(p0, p1, delta) {
+    if (isTRUE(input$ci_method_prop == "z_power")) {
+      return(total_sample_size_prop(
+        p0 = p0,
+        p1 = p1,
+        delta = delta,
+        sig.level = as.numeric(input$sig.level),
+        power = input$power,
+        r = as.numeric(input$r)
+      ))
+    }
     
-    #window around margin
+    total_sample_size_prop_ci_power(
+      p0 = p0,
+      p1 = p1,
+      delta = delta,
+      alpha = as.numeric(input$sig.level),
+      power = input$power,
+      r = as.numeric(input$r),
+      ci_method = input$ci_method_prop,
+      nsim = as.numeric(input$sim_quality),
+      seed = as.numeric(input$sim_seed)
+    )
+  }
+  
+  box_ui <- function(title, msg) {
+    tags$div(
+      style = "border:1px solid #999; border-radius:12px; padding:12px; margin-top:10px; margin-bottom:14px;",
+      tags$div(style = "font-weight:700; font-size:16px;", title),
+      tags$div(style = "margin-top:6px; font-size:15px;", msg)
+    )
+  }
+  
+  ################################################################
+  #proportions: data
+  ################################################################
+  prop_df_delta <- reactive({
     window <- as.numeric(input$WindowMargin)
     
-    #this clamps the x-range so it never becomes negative or above 1
-    #this fixes the crash “p1.tolerable >= 0 is not TRUE”
-    x_min <- max(0.001, input$p1.tolerable - window) #lower bound
-    x_max <- min(0.99, input$p1.tolerable + window) #upper bound
+    x_min <- max(0.01, input$p1.tolerable - window)
+    x_max <- min(0.20, input$p1.tolerable + window)
     
-    x <-seq(from = x_min, to = x_max, by = 0.005)
+    x <- seq(from = x_min, to = x_max, by = 0.005)
+    y <- sapply(x, function(d) prop_total_n(input$p0.expected, input$p1.expected, d))
     
-    y <- sapply(x, function(xi) { #xi is each candidate margin
-      total_sample_size_prop(
-        p0 = input$p0.expected, #control event rate
-        p1 = input$p1.expected, #expected experimental event rate
-        p1tol = xi, #vary NI margin over x
-        sig.level = as.numeric(input$sig.level), #alpha from setup
-        power = input$power, #power from set up
-        r = as.numeric(input$r) #allocation ratio from setup
-      )
-    })
-    data.frame(x = x, y = y) #data for ggplot
+    data.frame(x = x, y = y)
   })
-
-#How this works: When the formula is calculation it find the target, control, and total sample size. 
-#The first calculation boils this down to just the total sample size (one value).
-#The x axis is creating a sequence considering a sensitivity window of -.02NI (Going to also make this a slider so can choose value 0.01/0.02/0.05)
-#Then using the value from every point in the sequence the corresponding sample size is computed
-#(Will we do many graphs or just one and instead of NI use how well you think your product would do)?
-#Next points-different tabs for safety/ effectivness? Have an opening into part (Like Clodaghs?). 
-output$plot1 <- renderPlot({
+  
+  prop_df_p1 <- reactive({
+    x_min <- max(0.001, input$p1.expected - 0.10)
+    x_max <- min(0.999, input$p1.expected + 0.10)
     
-  ggplot(PlotReact(), aes(x, y)) +
-    geom_line() + 
-    geom_point() +
-    labs(title = 'Δ vs total sample size', x = 'Non-inferiority margin (Δ)', y = 'Total sample size') +
-    plot_theme_large
-})
-
-#Plot 2
-PlotReact2 <- reactive({
-  
-  #i changed this so instead of sequencing from p1.expected to p0.expected (which could be empty)
-  #you now build a symmetric window around p1.expected
-  x_min <- max(0.001, input$p1.expected - 0.10)
-  x_max <- min(0.999, input$p1.expected + 0.10)
-  
-  x <-seq(from = x_min, to = x_max, by = 0.005)
-  
-  y <- sapply(x, function(pli) { #pli = each candidate p1 value
-    total_sample_size_prop(
-      p0 = input$p0.expected, #control rate stays fixed
-      p1 = pli, #vary expected experimental rate across x
-      p1tol = input$p1.tolerable, #margin stays fixed
-      sig.level = as.numeric(input$sig.level),
-      power = input$power,
-      r = as.numeric(input$r)
-    )
+    x <- seq(from = x_min, to = x_max, by = 0.005)
+    y <- sapply(x, function(p1i) prop_total_n(input$p0.expected, p1i, input$p1.tolerable))
+    
+    data.frame(x = x, y = y)
   })
-  data.frame(x = x, y = y)
-})
-
-output$plot2 <- renderPlot({
-  ggplot(PlotReact2(), aes(x, y)) +
-    geom_line() + 
-    geom_point() +
-    labs(title = 'p₁ vs total sample size', x = 'Expected experimental event rate (p₁)', y = 'Total sample size') +
-    plot_theme_large
-})
-
-#TABLE SHOW/HIDE CHECKBOX
-#Table 1
-output$dataTable <- renderDT({
-  if (input$showTable) {
+  
+  prop_n_at_delta <- reactive({
+    prop_total_n(input$p0.expected, input$p1.expected, input$p1.tolerable)
+  })
+  
+  ################################################################
+  #proportions: n box
+  ################################################################
+  output$n_box_prop <- renderUI({
+    if (!isTRUE(input$showNBox_prop)) return(NULL)
     
-    #now we store plotreact() in a df so that wee can rename the columns
-    df <- PlotReact() #grabs data used in plot1
-    colnames(df) <- c("NI Margin", "Total Sample Size (N)") #renames columns
+    n_out <- prop_n_at_delta()
     
-    DT::datatable(df,
-    options = list(
-      stripe = TRUE,
-      hover = TRUE,
-      bordered = TRUE,
-      rownames = FALSE
+    method_label <- if (isTRUE(input$ci_method_prop == "z_power")) {
+      "Z (power formula)"
+    } else {
+      paste0("CI + simulation (", input$ci_method_prop, ")")
+    }
+    
+    msg <- if (is.infinite(n_out)) {
+      paste0("Not achievable (N = Inf) under current assumptions.  [", method_label, "]")
+    } else {
+      paste0(
+        "Total sample size at Δ = ",
+        sprintf("%.3f", input$p1.tolerable),
+        " is:  N = ",
+        format(n_out, big.mark = ","),
+        "  [", method_label, "]"
       )
-    )
-  } else {
-    NULL
-  }
-})
-
-#Table 2
-output$dataTable2 <- renderDT({
-  if (input$showTable2) {
+    }
     
-    df <- PlotReact2() #get data used in plot2
-    colnames(df) <- c(
-      "Expected Experimental Event Rate",
-      "Total Sample Size (N)"
-    )
+    box_ui("N at chosen margin (Δ)", msg)
+  })
+  
+  ################################################################
+  #proportions: plots
+  ################################################################
+  output$plot1 <- renderPlotly({
+    df <- prop_df_delta()
+    
+    p <- ggplot(df, aes(x = x, y = y)) +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "Δ vs total sample size",
+        x = "Non-inferiority margin (Δ)",
+        y = "Total sample size"
+      ) +
+      plot_theme_large
+    
+    ggplotly(p) %>%
+      layout(hovermode = "x unified") %>%
+      config(displaylogo = FALSE)
+  })
+  
+  output$plot2 <- renderPlotly({
+    df <- prop_df_p1()
+    
+    p <- ggplot(df, aes(x = x, y = y)) +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "p₁ vs total sample size",
+        x = "Expected experimental event rate (p₁)",
+        y = "Total sample size"
+      ) +
+      plot_theme_large
+    
+    ggplotly(p) %>%
+      layout(hovermode = "x unified") %>%
+      config(displaylogo = FALSE)
+  })
+  
+  ################################################################
+  #proportions: tables + downloads
+  ################################################################
+  output$dataTable <- renderDT({
+    if (!isTRUE(input$showTable)) return(NULL)
+    
+    df <- prop_df_delta()
+    colnames(df) <- c("NI Margin (Δ)", "Total Sample Size (N)")
     
     DT::datatable(
       df,
-      options = list(
-        stripe = TRUE,
-        hover = TRUE,
-        bordered = TRUE,
-        rownames = FALSE
-      )
-    )
-  } else {
-    NULL
-  }
-})
-###DOWNLOAD PLOTS
-
-#1
-output$downloadPlot_prop1 <- downloadHandler(
-  filename = function() paste0("prop_delta_plot_", Sys.Date(), ".png"),
-  content  = function(file) {
-    p <- ggplot(PlotReact(), aes(x, y)) +
-      geom_line() + geom_point() +
-      labs(title = "Δ vs total sample size",
-           x = "Non-inferiority margin (Δ)",
-           y = "Total sample size") +
-      plot_theme_large
-    
-    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
-  }
-)
-
-#2
-output$downloadPlot_prop2 <- downloadHandler(
-  filename = function() paste0("prop_p1_plot_", Sys.Date(), ".png"),
-  content  = function(file) {
-    p <- ggplot(PlotReact2(), aes(x, y)) +
-      geom_line() + geom_point() +
-      labs(title = "p₁ vs total sample size",
-           x = "Expected experimental event rate (p₁)",
-           y = "Total sample size") +
-      plot_theme_large
-    
-    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
-  }
-)
-
-
-###DOWNLOAD TABLES CSV
-#Table 1
-output$downloadData_plot1 <- downloadHandler(
-  filename = function() {
-    paste0("NI_margin_table_", Sys.Date(), ".csv")
-  },
-  content = function(file) {
-    
-    df <- PlotReact()
-    colnames(df) <- c(
-      "NI Margin",
-      "Total Sample Size (N)"
-    )
-    
-    write.csv(df, file, row.names = FALSE)
-  }
-)
-
-#Table 2
-output$downloadData_plot2 <- downloadHandler(
-  filename = function() {
-    paste0("expected_performance_table_", Sys.Date(), ".csv")
-  },
-  content = function(file) {
-    
-    df <- PlotReact2()
-    colnames(df) <- c(
-      "Expected Experimental Event Rate",
-      "Total Sample Size (N)"
-    )
-    
-    write.csv(df, file, row.names = FALSE)
-  }
-)
-
-  ###CONTINOUS TAB 3
-
-# Plot 1
-# Reactive plot Δ vs n
-
-PlotReact_mean <- reactive({
-  req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
-  delta_seq <- seq(from = input$delta - 0.20, to = input$delta, by = 0.05)
-  delta_seq <- delta_seq[delta_seq > 0]
-  
-  y <- sapply(delta_seq, function(d) {
-    total_sample_size_mean(
-      mu0 = input$mu0, #control mean
-      mu1 = input$mu1, #expected experimental mean
-      sd = input$sd, #common sd
-      delta = d, #non inferiority margin
-      sigma = as.numeric(input$sig.level), #one sided alpha 
-      power = input$power, #power wanted
-      r = as.numeric(input$r) #allocation ratio (treat/control)
+      options = list(stripe = TRUE, hover = TRUE, bordered = TRUE, rownames = FALSE)
     )
   })
   
-  data.frame(delta = delta_seq, total_n = y) #return dataf rame where x = margin, y = sample size
-})
-
-output$plot_mean <- renderPlot({
+  output$dataTable2 <- renderDT({
+    if (!isTRUE(input$showTable2)) return(NULL)
+    
+    df <- prop_df_p1()
+    colnames(df) <- c("Expected Experimental Event Rate (p₁)", "Total Sample Size (N)")
+    
+    DT::datatable(
+      df,
+      options = list(stripe = TRUE, hover = TRUE, bordered = TRUE, rownames = FALSE)
+    )
+  })
   
-  df <- PlotReact_mean()
+  output$downloadData_plot1 <- downloadHandler(
+    filename = function() paste0("NI_margin_table_", Sys.Date(), ".csv"),
+    content = function(file) {
+      df <- prop_df_delta()
+      colnames(df) <- c("NI Margin (Δ)", "Total Sample Size (N)")
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
   
-  ggplot(df, aes(x = delta, y = total_n)) +
-    geom_line() +
-    geom_point() +
-    labs(
-      title = "Δ vs total sample size",
-      x = "Non-inferiority margin (Δ)",
-      y = "Total sample size (N)"
-    ) + plot_theme_large
-})
-
-# Plot 2
-# assumed experimental mean (mu1) vs sample size (with Δ fixed)
-
-PlotReact_mean2 <- reactive({
-  req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
-  mu1_seq <- seq(from = input$mu1 - 5, to = input$mu1 + 5, by = 1)
-  y <- sapply(mu1_seq, function(m1) {
+  output$downloadData_plot2 <- downloadHandler(
+    filename = function() paste0("expected_performance_table_", Sys.Date(), ".csv"),
+    content = function(file) {
+      df <- prop_df_p1()
+      colnames(df) <- c("Expected Experimental Event Rate (p₁)", "Total Sample Size (N)")
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
+  
+  ################################################################
+  #continuous: data
+  ################################################################
+  cont_df_delta <- reactive({
+    req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
+    
+    delta_seq <- seq(from = input$delta - 0.20, to = input$delta, by = 0.05)
+    delta_seq <- delta_seq[delta_seq > 0]
+    
+    y <- sapply(delta_seq, function(d) {
+      total_sample_size_mean(
+        mu0 = input$mu0,
+        mu1 = input$mu1,
+        sd = input$sd,
+        delta = d,
+        sigma = as.numeric(input$sig.level),
+        power = input$power,
+        r = as.numeric(input$r)
+      )
+    })
+    
+    data.frame(delta = delta_seq, total_n = y)
+  })
+  
+  cont_df_mu1 <- reactive({
+    req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
+    
+    mu1_seq <- seq(from = input$mu1 - 5, to = input$mu1 + 5, by = 1)
+    
+    y <- sapply(mu1_seq, function(m1) {
+      total_sample_size_mean(
+        mu0 = input$mu0,
+        mu1 = m1,
+        sd = input$sd,
+        delta = input$delta,
+        sigma = as.numeric(input$sig.level),
+        power = input$power,
+        r = as.numeric(input$r)
+      )
+    })
+    
+    data.frame(mu1 = mu1_seq, total_n = y)
+  })
+  
+  cont_n_at_delta <- reactive({
+    req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
     total_sample_size_mean(
       mu0 = input$mu0,
-      mu1 = m1,
+      mu1 = input$mu1,
       sd = input$sd,
       delta = input$delta,
       sigma = as.numeric(input$sig.level),
@@ -350,150 +313,109 @@ PlotReact_mean2 <- reactive({
     )
   })
   
-  data.frame(mu1 = mu1_seq, total_n = y)
-})
-
-output$plot_mean2 <- renderPlot({
-  
-  df <- PlotReact_mean2()
-  
-  ggplot(df, aes(x = mu1, y = total_n)) +
-    geom_line() +
-    geom_point() +
-    labs(
-      title = "μ₁ vs total sample size",
-      x = "Assumed experimental mean (μ₁)",
-      y = "Total sample size (N)"
-    ) + plot_theme_large
-})
-
-
-#TABLES FOR CONTINOUS
-#Table 1
-
-output$dataTable_mean <- renderDT({
-  if (input$showTable_mean) {
+  ################################################################
+  #continuous: n box
+  ################################################################
+  output$n_box_mean <- renderUI({
+    if (!isTRUE(input$showNBox_mean)) return(NULL)
     
-    df <- PlotReact_mean()
-    colnames(df) <- c(
-      "Non-Inferiority Margin (Δ)",
-      "Total Sample Size (N)"
-    )
+    n_out <- cont_n_at_delta()
     
-    DT::datatable(
-      df,
-      options = list(
-        stripe = TRUE,
-        hover = TRUE,
-        bordered = TRUE,
-        rownames = FALSE
+    msg <- if (is.infinite(n_out)) {
+      "Not achievable (N = Inf) under current assumptions."
+    } else {
+      paste0(
+        "Total sample size at Δ = ",
+        sprintf("%.3f", input$delta),
+        " is:  N = ",
+        format(n_out, big.mark = ",")
       )
-    )
-  } else {
-    NULL
-  }
-})
-
-#Table 2
-output$dataTable_mean2 <- renderDT({
-  if (input$showTable_mean2) {
+    }
     
-    df <- PlotReact_mean2()
-    colnames(df) <- c(
-      "Assumed Experimental Mean (μ1)",
-      "Total Sample Size (N)"
-    )
-    
-    DT::datatable(
-      df,
-      options = list(
-        stripe = TRUE,
-        hover = TRUE,
-        bordered = TRUE,
-        rownames = FALSE
-      )
-    )
-  } else {
-    NULL
-  }
-})
-
-###DOWNLOAD PLOTS
-
-#1
-output$downloadPlot_mean1 <- downloadHandler(
-  filename = function() paste0("mean_delta_plot_", Sys.Date(), ".png"),
-  content  = function(file) {
-    df <- PlotReact_mean()
+    box_ui("N at chosen margin (Δ)", msg)
+  })
+  
+  ################################################################
+  #continuous: plots
+  ################################################################
+  output$plot_mean <- renderPlotly({
+    df <- cont_df_delta()
     
     p <- ggplot(df, aes(x = delta, y = total_n)) +
-      geom_line() + geom_point() +
-      labs(title = "Δ vs total sample size",
-           x = "Non-inferiority margin (Δ)",
-           y = "Total sample size (N)") +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "Δ vs total sample size",
+        x = "Non-inferiority margin (Δ)",
+        y = "Total sample size (N)"
+      ) +
       plot_theme_large
     
-    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
-  }
-)
-
-
-#2
-output$downloadPlot_mean2 <- downloadHandler(
-  filename = function() paste0("mean_mu1_plot_", Sys.Date(), ".png"),
-  content  = function(file) {
-    df <- PlotReact_mean2()
+    ggplotly(p) %>%
+      layout(hovermode = "x unified") %>%
+      config(displaylogo = FALSE)
+  })
+  
+  output$plot_mean2 <- renderPlotly({
+    df <- cont_df_mu1()
     
     p <- ggplot(df, aes(x = mu1, y = total_n)) +
-      geom_line() + geom_point() +
-      labs(title = "μ₁ vs total sample size",
-           x = "Assumed experimental mean (μ₁)",
-           y = "Total sample size (N)") +
+      geom_line() +
+      geom_point() +
+      labs(
+        title = "μ₁ vs total sample size",
+        x = "Assumed experimental mean (μ₁)",
+        y = "Total sample size (N)"
+      ) +
       plot_theme_large
     
-    ggsave(file, plot = p, width = 8, height = 5, dpi = 300)
-  }
-)
-
-
-
-###DOWNLOAD TABLES CSV
-#Table 1
-
-output$downloadData_mean1 <- downloadHandler(
-  filename = function() {
-    paste0("mean_NI_margin_table_", Sys.Date(), ".csv")
-  },
-  content = function(file) {
+    ggplotly(p) %>%
+      layout(hovermode = "x unified") %>%
+      config(displaylogo = FALSE)
+  })
+  
+  ################################################################
+  #continuous: tables + downloads
+  ################################################################
+  output$dataTable_mean <- renderDT({
+    if (!isTRUE(input$showTable_mean)) return(NULL)
     
-    df <- PlotReact_mean()
-    colnames(df) <- c(
-      "Non-Inferiority Margin (Δ)",
-      "Total Sample Size (N)"
+    df <- cont_df_delta()
+    colnames(df) <- c("Non-Inferiority Margin (Δ)", "Total Sample Size (N)")
+    
+    DT::datatable(
+      df,
+      options = list(stripe = TRUE, hover = TRUE, bordered = TRUE, rownames = FALSE)
     )
+  })
+  
+  output$dataTable_mean2 <- renderDT({
+    if (!isTRUE(input$showTable_mean2)) return(NULL)
     
-    write.csv(df, file, row.names = FALSE)
-  }
-)
-
-#Table 2
-output$downloadData_mean2 <- downloadHandler(
-  filename = function() {
-    paste0("assumed_mean_table_", Sys.Date(), ".csv")
-  },
-  content = function(file) {
+    df <- cont_df_mu1()
+    colnames(df) <- c("Assumed Experimental Mean (μ₁)", "Total Sample Size (N)")
     
-    df <- PlotReact_mean2()
-    colnames(df) <- c(
-      "Assumed Experimental Mean (μ1)",
-      "Total Sample Size (N)"
+    DT::datatable(
+      df,
+      options = list(stripe = TRUE, hover = TRUE, bordered = TRUE, rownames = FALSE)
     )
-    
-    write.csv(df, file, row.names = FALSE)
-  }
-)
+  })
+  
+  output$downloadData_mean1 <- downloadHandler(
+    filename = function() paste0("mean_NI_margin_table_", Sys.Date(), ".csv"),
+    content = function(file) {
+      df <- cont_df_delta()
+      colnames(df) <- c("Non-Inferiority Margin (Δ)", "Total Sample Size (N)")
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
+  
+  output$downloadData_mean2 <- downloadHandler(
+    filename = function() paste0("assumed_mean_table_", Sys.Date(), ".csv"),
+    content = function(file) {
+      df <- cont_df_mu1()
+      colnames(df) <- c("Assumed Experimental Mean (μ₁)", "Total Sample Size (N)")
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
 }
-
-
-
-

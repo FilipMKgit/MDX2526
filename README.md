@@ -14,7 +14,5 @@ Notes<br>
 -Plots are for planning/sensitivity analysis, not a full SAP.<br>
 -Always validate final design choices with a statistician.
 
-To Do:<br>
 
--Fix bug where download plot downloads dark mode plots
--Rewrite the equations for plots in tab 1.
+
