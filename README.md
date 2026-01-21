@@ -1,6 +1,6 @@
-# NI-Sizer
+# Margin-Jinn
 
-NI-Sizer is an Interactive sample size exploration app for non-inferiority trials.<br>
+Margin-Jinn is an Interactive sample size exploration app for non-inferiority trials.<br>
 
 Purpose<br>
 -Explore how NI margins, expected performance, alpha, power, and allocation ratio affect required sample size.
