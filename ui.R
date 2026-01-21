@@ -133,7 +133,7 @@ ui <- fluidPage(
           tags$p(
             style = "font-size:13px;",
             tags$a(
-              href = "https://github.com/FilipMKgit/NI-Sizer",
+              href = "https://github.com/FilipMKgit/Margin-Jinn",
               target = "_blank",
               "View the Margin-Jinn GitHub repository (open source)"
             )
