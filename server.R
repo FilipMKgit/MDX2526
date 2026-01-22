@@ -1,8 +1,5 @@
 server <- function(input, output, session) {
   
-  ################################################################
-  #theme
-  ################################################################
   observeEvent(input$dark_mode_on, {
     if (isTRUE(input$dark_mode_on)) {
       session$setCurrentTheme(dark_mode)
@@ -11,37 +8,112 @@ server <- function(input, output, session) {
     }
   }, ignoreInit = TRUE)
   
-  ################################################################
-  #equation modals
-  ################################################################
   observeEvent(input$eq_prop1, {
+    is_one <- isTRUE(input$prop_design == "one_arm")
+    
     showModal(modalDialog(
       title = "Proportions: Δ vs total sample size",
-      tags$p("Hypotheses (risk difference):"),
-      tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
-      tags$p("How N is computed in this app:"),
-      tags$ul(
-        tags$li("If Method = 'Z (power formula)': analytic z approximation using the power slider."),
-        tags$li("Otherwise: CI-rule + simulation to hit target power (power slider).")
-      ),
-      tags$p("CI-rule used for simulation methods (conservative):"),
-      tags$pre("Compute CI(p0) and CI(p1) using chosen method.\nLower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ."),
+      if (!is_one) {
+        tagList(
+          tags$p("Hypotheses (risk difference):"),
+          tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
+          tags$p("How N is computed in this app:"),
+          tags$ul(
+            tags$li("If Method = 'Z (power formula)': analytic z approximation using the power slider."),
+            tags$li("Otherwise: CI-rule + simulation to hit target power (power slider).")
+          ),
+          tags$p("CI-rule used for simulation methods (conservative):"),
+          tags$pre("Compute CI(p0) and CI(p1) using chosen method.\nLower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ.")
+        )
+      } else {
+        tagList(
+          tags$p("Hypotheses (single-arm vs benchmark):"),
+          tags$pre("H0: p ≤ (p0 − Δ)\nH1: p > (p0 − Δ)"),
+          tags$p("How N is computed in this app:"),
+          tags$ul(
+            tags$li("If Method = 'Z (power formula)': analytic z approximation using the power slider."),
+            tags$li("Otherwise: CI-rule + simulation to hit target power (power slider).")
+          ),
+          tags$p("Decision rule for simulation methods:"),
+          tags$pre("Compute CI(p) using chosen method.\nDeclare NI if Lower(p) > (p0 − Δ).")
+        )
+      },
       easyClose = TRUE,
       footer = modalButton("Close")
     ))
   })
   
   observeEvent(input$eq_prop2, {
+    is_one <- isTRUE(input$prop_design == "one_arm")
+    
     showModal(modalDialog(
       title = "Proportions: p₁ vs total sample size",
-      tags$p("Hypotheses (risk difference):"),
-      tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
-      tags$p("What changes in this plot:"),
-      tags$pre("p1 varies; Δ and p0 are held fixed."),
-      tags$p("Decision rule for simulation methods:"),
-      tags$pre("Lower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ."),
+      if (!is_one) {
+        tagList(
+          tags$p("Hypotheses (risk difference):"),
+          tags$pre("H0: (p1 − p0) ≤ −Δ\nH1: (p1 − p0) > −Δ"),
+          tags$p("What changes in this plot:"),
+          tags$pre("p1 varies; Δ and p0 are held fixed."),
+          tags$p("Decision rule for simulation methods:"),
+          tags$pre("Lower(RD) = Lower(p1) − Upper(p0).\nDeclare NI if Lower(RD) > −Δ.")
+        )
+      } else {
+        tagList(
+          tags$p("Hypotheses (single-arm vs benchmark):"),
+          tags$pre("H0: p ≤ (p0 − Δ)\nH1: p > (p0 − Δ)"),
+          tags$p("What changes in this plot:"),
+          tags$pre("p1 varies; Δ and p0 are held fixed."),
+          tags$p("Decision rule for simulation methods:"),
+          tags$pre("Declare NI if Lower(p) > (p0 − Δ).")
+        )
+      },
       easyClose = TRUE,
       footer = modalButton("Close")
+    ))
+  })
+  
+  observeEvent(input$eq_ci_prop, {
+    showModal(modalDialog(
+      title = "Proportions: confidence interval methods (what they mean)",
+      tags$p("These affect the CI bounds used in the simulation-based sizing methods found under 'more options' in tab 2."),
+      tags$hr(),
+      
+      tags$h4("Common methods"),
+      tags$ul(
+        tags$li(tags$b("wilson:"), "Wilson score interval. Usually a strong default: good coverage, behaves well for small n and p near 0/1."),
+        tags$li(tags$b("exact (Clopper–Pearson):"), "Inverts the binomial test. Guaranteed conservative (often wider CI → larger N)."),
+        tags$li(tags$b("ac (Agresti–Coull):"), "Adds a small correction ('add 2 successes + 2 failures'). Often close to Wilson, more stable than Wald."),
+        tags$li(tags$b("asymptotic (Wald):"), "Simple normal approximation p ± z*SE. Can be inaccurate for small n or extreme p (often too narrow).")
+      ),
+      
+      tags$h4("Test-based interval"),
+      tags$ul(
+        tags$li(tags$b("prop.test:"), "Score/chi-squared based interval (like R’s prop.test). Generally better than Wald; still approximation-based.")
+      ),
+      
+      tags$h4("Model-based intervals"),
+      tags$ul(
+        tags$li(tags$b("logit:"), "CI formed on log-odds scale then transformed back. Can behave better near 0/1."),
+        tags$li(tags$b("probit:"), "Same idea but using probit link."),
+        tags$li(tags$b("cloglog:"), "Complementary log-log link. Sometimes used for skewed risk shapes; can behave differently near extremes.")
+      ),
+      
+      tags$h4("Bayesian-style option"),
+      tags$ul(
+        tags$li(tags$b("bayes:"), "Uses a Bayesian credible interval (depends on the prior used by the method). Often reasonable, but it’s not a frequentist CI.")
+      ),
+      
+      tags$hr(),
+      tags$p(tags$b("Rule-of-thumb:")),
+      tags$ul(
+        tags$li("If you want conservative planning: use Exact."),
+        tags$li("If you want a balanced default: use Wilson (or Agresti–Coull)."),
+        tags$li("Avoid Wald when n is small or p is near 0 or 1.")
+      ),
+      
+      easyClose = TRUE,
+      footer = modalButton("Close"),
+      size = "l"
     ))
   })
   
@@ -78,10 +150,62 @@ server <- function(input, output, session) {
     ))
   })
   
-  ################################################################
-  #helpers
-  ################################################################
+  output$delta_slider_prop <- renderUI({
+    lab <- if (isTRUE(input$prop_design == "one_arm")) {
+      "Non-inferiority margin (Δ, against benchmark):"
+    } else {
+      "Non-inferiority margin (Δ, risk difference):"
+    }
+    
+    sliderInput(
+      "p1.tolerable",
+      lab,
+      min = 0.01, max = 0.20, step = 0.01,
+      value = if (is.null(input$p1.tolerable)) 0.05 else input$p1.tolerable
+    )
+  })
+  
+  output$p0_slider <- renderUI({
+    lab <- if (isTRUE(input$prop_design == "one_arm")) {
+      "Benchmark / performance goal (p0):"
+    } else {
+      "Control event rate (p0):"
+    }
+    
+    sliderInput(
+      "p0.expected",
+      lab,
+      min = 0.01, max = 0.99, step = 0.01,
+      value = if (is.null(input$p0.expected)) 0.10 else input$p0.expected
+    )
+  })
+  
   prop_total_n <- function(p0, p1, delta) {
+    
+    if (isTRUE(input$prop_design == "one_arm")) {
+      
+      if (isTRUE(input$ci_method_prop == "z_power")) {
+        return(total_sample_size_prop_1arm(
+          p0 = p0,
+          p1 = p1,
+          delta = delta,
+          sig.level = as.numeric(input$sig.level),
+          power = input$power
+        ))
+      }
+      
+      return(total_sample_size_prop_ci_power_1arm(
+        p0 = p0,
+        p1 = p1,
+        delta = delta,
+        alpha = as.numeric(input$sig.level),
+        power = input$power,
+        ci_method = input$ci_method_prop,
+        nsim = as.numeric(input$sim_quality),
+        seed = as.numeric(input$sim_seed)
+      ))
+    }
+    
     if (isTRUE(input$ci_method_prop == "z_power")) {
       return(total_sample_size_prop(
         p0 = p0,
@@ -114,9 +238,6 @@ server <- function(input, output, session) {
     )
   }
   
-  ################################################################
-  #proportions: data
-  ################################################################
   prop_df_delta <- reactive({
     window <- as.numeric(input$WindowMargin)
     
@@ -143,9 +264,6 @@ server <- function(input, output, session) {
     prop_total_n(input$p0.expected, input$p1.expected, input$p1.tolerable)
   })
   
-  ################################################################
-  #proportions: n box
-  ################################################################
   output$n_box_prop <- renderUI({
     if (!isTRUE(input$showNBox_prop)) return(NULL)
     
@@ -172,9 +290,6 @@ server <- function(input, output, session) {
     box_ui("N at chosen margin (Δ)", msg)
   })
   
-  ################################################################
-  #proportions: plots
-  ################################################################
   output$plot1 <- renderPlotly({
     df <- prop_df_delta()
     
@@ -211,9 +326,6 @@ server <- function(input, output, session) {
       config(displaylogo = FALSE)
   })
   
-  ################################################################
-  #proportions: tables + downloads
-  ################################################################
   output$dataTable <- renderDT({
     if (!isTRUE(input$showTable)) return(NULL)
     
@@ -256,9 +368,6 @@ server <- function(input, output, session) {
     }
   )
   
-  ################################################################
-  #continuous: data
-  ################################################################
   cont_df_delta <- reactive({
     req(input$mu0, input$mu1, input$sd, input$delta, input$power, input$sig.level, input$r)
     
@@ -313,9 +422,6 @@ server <- function(input, output, session) {
     )
   })
   
-  ################################################################
-  #continuous: n box
-  ################################################################
   output$n_box_mean <- renderUI({
     if (!isTRUE(input$showNBox_mean)) return(NULL)
     
@@ -335,9 +441,6 @@ server <- function(input, output, session) {
     box_ui("N at chosen margin (Δ)", msg)
   })
   
-  ################################################################
-  #continuous: plots
-  ################################################################
   output$plot_mean <- renderPlotly({
     df <- cont_df_delta()
     
@@ -374,9 +477,6 @@ server <- function(input, output, session) {
       config(displaylogo = FALSE)
   })
   
-  ################################################################
-  #continuous: tables + downloads
-  ################################################################
   output$dataTable_mean <- renderDT({
     if (!isTRUE(input$showTable_mean)) return(NULL)
     

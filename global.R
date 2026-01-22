@@ -154,6 +154,108 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
 }
 
 ################################################################
+#proportions: single-arm NI vs benchmark (analytic z power)
+################################################################
+total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
+  
+  #p0 = benchmark/performance goal
+  #p1 = expected device event rate
+  #NI threshold = p0 - delta
+  #H0: p <= p0 - delta  vs  H1: p > p0 - delta
+  
+  if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
+  if (is.na(power) || power <= 0 || power >= 1) return(Inf)
+  
+  if (p0 <= 0 || p0 >= 1) return(Inf)
+  if (p1 <= 0 || p1 >= 1) return(Inf)
+  if (delta <= 0) return(Inf)
+  
+  p_thr <- p0 - delta
+  if (p_thr <= 0 || p_thr >= 1) return(Inf)
+  
+  eff <- p1 - p_thr
+  if (eff <= 0) return(Inf)
+  
+  z_alpha <- stats::qnorm(1 - sig.level)
+  z_beta  <- stats::qnorm(power)
+  
+  #variance under H0 uses p_thr, under H1 uses p1
+  v0 <- p_thr * (1 - p_thr)
+  v1 <- p1   * (1 - p1)
+  
+  n <- ((z_alpha * sqrt(v0) + z_beta * sqrt(v1))^2) / (eff^2)
+  ceiling(n)
+}
+
+################################################################
+#proportions: single-arm NI vs benchmark (CI + simulation power)
+################################################################
+prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
+                                   ci_method = "wilson",
+                                   n,
+                                   nsim = 1000,
+                                   seed = 1) {
+  
+  #decision rule: lower CI(p) > (p0 - delta)
+  #using two-sided CI at level (1 - 2*alpha), same convention as your 2-arm rule
+  
+  if (is.infinite(n) || is.na(n) || n < 2) return(0)
+  
+  if (is.na(alpha) || alpha <= 0 || alpha >= 0.5) return(0)
+  
+  if (p0 <= 0 || p0 >= 1) return(0)
+  if (p1 <= 0 || p1 >= 1) return(0)
+  if (delta <= 0) return(0)
+  
+  p_thr <- p0 - delta
+  if (p_thr <= 0 || p_thr >= 1) return(0)
+  
+  conf.level <- 1 - 2 * alpha
+  
+  set.seed(seed)
+  
+  x <- stats::rbinom(n = nsim, size = n, prob = p1)
+  ci <- prop_ci_vec(x, n, conf.level, ci_method)
+  
+  mean(ci$lower > p_thr)
+}
+
+total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
+                                                 ci_method = "wilson",
+                                                 nsim = 1000, seed = 1,
+                                                 n_max = 200000) {
+  
+  if (is.na(power) || power <= 0 || power >= 1) return(Inf)
+  
+  p_hi <- prop_power_ci_sim_1arm(
+    p0 = p0, p1 = p1, delta = delta, alpha = alpha,
+    ci_method = ci_method, n = n_max, nsim = nsim, seed = seed + 999
+  )
+  if (p_hi < power) return(Inf)
+  
+  lo <- 2
+  hi <- n_max
+  
+  while (lo < hi) {
+    mid <- floor((lo + hi) / 2)
+    
+    p_mid <- prop_power_ci_sim_1arm(
+      p0 = p0, p1 = p1, delta = delta, alpha = alpha,
+      ci_method = ci_method, n = mid, nsim = nsim, seed = seed + mid
+    )
+    
+    if (p_mid >= power) {
+      hi <- mid
+    } else {
+      lo <- mid + 1
+    }
+  }
+  
+  lo
+}
+
+
+################################################################
 #continuous: analytic z power formula (fast)
 ################################################################
 total_sample_size_mean <- function(mu0, mu1, sd, delta, sigma, power, r = 1) {

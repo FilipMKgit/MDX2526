@@ -50,6 +50,15 @@ ui <- fluidPage(
           tags$hr(),
           h4("Trial design settings"),
           selectInput(
+            "prop_design",
+            "Design",
+            choices = c(
+              "Two-arm NI (treatment vs control)" = "two_arm",
+              "Single-arm NI (treatment vs benchmark)" = "one_arm"
+            ),
+            selected = "two_arm"
+          ),
+          selectInput(
             "sig.level",
             "Significance level (one-sided α)",
             choices = c("0.025" = 0.025, "0.05" = 0.05),
@@ -110,6 +119,7 @@ ui <- fluidPage(
           h4("Equations"),
           tags$div(
             style = "display:flex; flex-wrap:wrap; gap:10px;",
+            actionButton("eq_ci_prop", "Proportions: CI methods", class = "btn-sm btn-outline-primary", style = "width:220px;"),
             actionButton("eq_prop1", "Proportions: Δ plot", class = "btn-sm btn-outline-primary", style = "width:220px;"),
             actionButton("eq_prop2", "Proportions: p₁ plot", class = "btn-sm btn-outline-primary", style = "width:220px;"),
             actionButton("eq_mean1", "Continuous: Δ plot", class = "btn-sm btn-outline-primary", style = "width:220px;"),
@@ -149,14 +159,18 @@ ui <- fluidPage(
       title = "Proportions",
       sidebarLayout(
         sidebarPanel(
-          sliderInput("p0.expected", "Control event rate (p0):", min = 0.01, max = 0.99, step = 0.01, value = 0.10),
+          
+          uiOutput("p0_slider"),
           sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.01, max = 0.99, step = 0.01, value = 0.10),
-          sliderInput("p1.tolerable", "Non-inferiority margin (Δ, risk difference):", min = 0.01, max = 0.20, step = 0.01, value = 0.05),
+          uiOutput("delta_slider_prop"),
+          
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
+          
           tags$div(
             checkboxInput("showExtras_prop", "More Options", value = FALSE),
             style = "margin-top:15px;"
           ),
+          
           conditionalPanel(
             condition = "input.showExtras_prop == true",
             tags$hr(),
