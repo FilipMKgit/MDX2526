@@ -170,6 +170,18 @@ server <- function(input, output, session) {
   }, ignoreInit = FALSE)
   
   
+  n_1arm_z_superiority <- function(p0, p1, alpha, power) {
+    
+    if (p1 <= p0) return(Inf)  #can't beat the benchmark on average
+    
+    z_alpha <- qnorm(1 - alpha)       #one-sided alpha
+    z_beta  <- qnorm(power)           #power target
+    
+    num <- (z_alpha * sqrt(p0 * (1 - p0)) + z_beta * sqrt(p1 * (1 - p1)))^2
+    den <- (p1 - p0)^2
+    
+    ceiling(num / den)
+  }
 
   
   prop_total_n <- function(p0, p1, delta) {
@@ -177,14 +189,27 @@ server <- function(input, output, session) {
     if (isTRUE(input$prop_design == "one_arm")) {
       
       if (isTRUE(input$ci_method_prop == "z_power")) {
+        
+        alpha <- as.numeric(input$sig.level)
+        
+        if (isTRUE(all.equal(delta, 0))) {
+          return(n_1arm_z_superiority(
+            p0 = p0,
+            p1 = p1,
+            alpha = alpha,
+            power = input$power
+          ))
+        }
+        
         return(total_sample_size_prop_1arm(
           p0 = p0,
           p1 = p1,
           delta = delta,
-          sig.level = as.numeric(input$sig.level),
+          sig.level = alpha,
           power = input$power
         ))
       }
+      
       
       return(total_sample_size_prop_ci_power_1arm(
         p0 = p0,
@@ -257,7 +282,8 @@ server <- function(input, output, session) {
   })
   
   output$n_box_prop <- renderUI({
-    if (!isTRUE(input$showNBox_prop)) return(NULL)
+    show_box <- if (is.null(input$showNBox_prop)) TRUE else isTRUE(input$showNBox_prop)
+    if (!show_box) return(NULL)
     
     n_out <- prop_n_at_delta()
     

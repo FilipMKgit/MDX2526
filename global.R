@@ -35,7 +35,7 @@ total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
   
   if (p0 <= 0 || p0 >= 1) return(Inf)
   if (p1 <= 0 || p1 >= 1) return(Inf)
-  if (delta <= 0) return(Inf)
+  if (is.na(delta) || delta < 0) return(Inf)
   
   z_alpha <- stats::qnorm(1 - sig.level)
   z_beta  <- stats::qnorm(power)
@@ -62,8 +62,10 @@ total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
 
 prop_ci_vec <- function(x, n, conf.level, method) {
   
-  #used inside simulation sizing when Method != "Z (power formula)"
-  #this returns CI bounds for each simulated x
+  #make n same length as x for binom.confint
+  if (length(n) == 1 && length(x) > 1) {
+    n <- rep(n, length(x))
+  }
   
   if (method == "z") {
     p_hat <- x / n
@@ -94,7 +96,7 @@ prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
   
   if (p0 <= 0 || p0 >= 1) return(0)
   if (p1 <= 0 || p1 >= 1) return(0)
-  if (delta <= 0) return(0)
+  if (is.na(delta) || delta < 0) return(0)
   
   conf.level <- 1 - 2 * alpha
   n1 <- ceiling(r * n0)
@@ -108,7 +110,9 @@ prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
   ci1 <- prop_ci_vec(x1, n1, conf.level, ci_method)
   
   rd_lower <- ci1$lower - ci0$upper
-  mean(rd_lower > -delta)
+  hit <- (rd_lower > -delta)
+  hit[is.na(hit)] <- FALSE
+  mean(hit)
 }
 
 total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
@@ -138,12 +142,15 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
       ci_method = ci_method, n0 = mid, nsim = nsim, seed = seed + mid
     )
     
+    if (is.na(p_mid)) p_mid <- 0
+    
     if (p_mid >= power) {
       hi <- mid
     } else {
       lo <- mid + 1
     }
   }
+  
   
   n0 <- lo
   n1 <- ceiling(r * n0)
@@ -164,7 +171,8 @@ total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
   
   if (p0 <= 0 || p0 >= 1) return(Inf)
   if (p1 <= 0 || p1 >= 1) return(Inf)
-  if (delta <= 0) return(Inf)
+  if (is.na(delta) || delta < 0) return(Inf)
+  
   
   p_thr <- p0 - delta
   if (p_thr <= 0 || p_thr >= 1) return(Inf)
@@ -200,7 +208,7 @@ prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
   
   if (p0 <= 0 || p0 >= 1) return(0)
   if (p1 <= 0 || p1 >= 1) return(0)
-  if (delta <= 0) return(0)
+  if (is.na(delta) || delta < 0) return(0)
   
   p_thr <- p0 - delta
   if (p_thr <= 0 || p_thr >= 1) return(0)
@@ -212,7 +220,9 @@ prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
   x <- stats::rbinom(n = nsim, size = n, prob = p1)
   ci <- prop_ci_vec(x, n, conf.level, ci_method)
   
-  mean(ci$lower > p_thr)
+  hit <- (ci$lower > p_thr)
+  hit[is.na(hit)] <- FALSE
+  mean(hit)
 }
 
 total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
@@ -226,6 +236,8 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
     p0 = p0, p1 = p1, delta = delta, alpha = alpha,
     ci_method = ci_method, n = n_max, nsim = nsim, seed = seed + 999
   )
+  
+  if (is.na(p_hi)) p_hi <- 0
   if (p_hi < power) return(Inf)
   
   lo <- 2
@@ -239,12 +251,13 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
       ci_method = ci_method, n = mid, nsim = nsim, seed = seed + mid
     )
     
+    if (is.na(p_mid)) p_mid <- 0
+    
     if (p_mid >= power) {
       hi <- mid
     } else {
       lo <- mid + 1
     }
-  }
   
   lo
 }
