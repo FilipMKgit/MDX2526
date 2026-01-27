@@ -150,35 +150,27 @@ server <- function(input, output, session) {
     ))
   })
   
-  output$delta_slider_prop <- renderUI({
-    lab <- if (isTRUE(input$prop_design == "one_arm")) {
-      "Non-inferiority margin (Δ, against benchmark):"
-    } else {
-      "Non-inferiority margin (Δ, risk difference):"
-    }
-    
-    sliderInput(
-      "p1.tolerable",
-      lab,
-      min = 0.00, max = 0.20, step = 0.01,
-      value = if (is.null(input$p1.tolerable)) 0.05 else input$p1.tolerable
-    )
-  })
-  
-  output$p0_slider <- renderUI({
-    lab <- if (isTRUE(input$prop_design == "one_arm")) {
+  observeEvent(input$prop_design, {
+    p0_lab <- if (isTRUE(input$prop_design == "one_arm")) {
       "Benchmark / performance goal (p0):"
     } else {
       "Control event rate (p0):"
     }
     
-    sliderInput(
-      "p0.expected",
-      lab,
-      min = 0.00, max = 1.00, step = 0.01,
-      value = if (is.null(input$p0.expected)) 0.90 else input$p0.expected
-    )
-  })
+    updateSliderInput(session, "p0.expected", label = p0_lab)
+    
+    delta_lab <- if (isTRUE(input$prop_design == "one_arm")) {
+      "Non-inferiority margin (Δ, against benchmark):"
+    } else {
+      "Non-inferiority margin (Δ, risk difference):"
+    }
+    
+    updateSliderInput(session, "p1.tolerable", label = delta_lab)
+    
+  }, ignoreInit = FALSE)
+  
+  
+
   
   prop_total_n <- function(p0, p1, delta) {
     

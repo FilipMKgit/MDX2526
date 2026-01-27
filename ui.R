@@ -59,7 +59,7 @@ ui <- fluidPage(
           selectInput(
             "sig.level",
             "Significance level (one-sided α)",
-            choices = c("0.025" = 0.025, "0.4" = 0.4, "0.05" = 0.05),
+            choices = c("0.025" = 0.025, "0.04" = 0.04, "0.05" = 0.05),
             selected = 0.025
           ),
           sliderInput(
@@ -158,9 +158,19 @@ ui <- fluidPage(
       sidebarLayout(
         sidebarPanel(
           
-          uiOutput("p0_slider"),
+          sliderInput(
+            "p0.expected",
+            "Control event rate (p0):",
+            min = 0.00, max = 1.00, step = 0.01,
+            value = 0.90
+          ),
           sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.00, max = 1.00, step = 0.01, value = 0.80),
-          uiOutput("delta_slider_prop"),
+          sliderInput(
+            "p1.tolerable",
+            "Non-inferiority margin (Δ):",
+            min = 0.00, max = 0.20, step = 0.01,
+            value = 0.05
+          ),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
           
