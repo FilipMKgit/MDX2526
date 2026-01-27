@@ -1,9 +1,9 @@
 ui <- fluidPage(
   theme = default_mode,
   
-  ################################################################
+
   #header
-  ################################################################
+ 
   tags$div(
     style = "
       display:flex;
@@ -24,7 +24,7 @@ ui <- fluidPage(
         "
       ),
       tags$h4(
-        "Your wish for small N — granted, with conditions",
+        "Your wish for small N — granted.",
         style = "
           color:#666666;
           font-weight:300;
@@ -34,12 +34,10 @@ ui <- fluidPage(
     )
   ),
   
-  ################################################################
-  #tabs
-  ################################################################
+
   tabsetPanel(
     
-    ################################################################
+    
     #tab 1: set up
     ################################################################
     tabPanel(
@@ -61,7 +59,7 @@ ui <- fluidPage(
           selectInput(
             "sig.level",
             "Significance level (one-sided α)",
-            choices = c("0.025" = 0.025, "0.05" = 0.05),
+            choices = c("0.025" = 0.025, "0.4" = 0.4, "0.05" = 0.05),
             selected = 0.025
           ),
           sliderInput(
@@ -80,7 +78,7 @@ ui <- fluidPage(
             "WindowMargin",
             "Sensitivity window for NI margin (±)",
             choices = c("0.01" = 0.01, "0.02" = 0.02, "0.05" = 0.05),
-            selected = 0.02
+            selected = 0.05
           )
         ),
         mainPanel(
@@ -152,7 +150,7 @@ ui <- fluidPage(
       )
     ),
     
-    ################################################################
+    
     #tab 2: proportions
     ################################################################
     tabPanel(
@@ -161,7 +159,7 @@ ui <- fluidPage(
         sidebarPanel(
           
           uiOutput("p0_slider"),
-          sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.01, max = 0.99, step = 0.01, value = 0.10),
+          sliderInput("p1.expected", "Expected experimental event rate (p1):", min = 0.00, max = 1.00, step = 0.01, value = 0.80),
           uiOutput("delta_slider_prop"),
           
           helpText("Note: Alpha, power and allocation ratio can be changed in the set up tab."),
@@ -220,7 +218,7 @@ ui <- fluidPage(
       )
     ),
     
-    ################################################################
+    
     #tab 3: continuous
     ################################################################
     tabPanel(

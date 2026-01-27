@@ -160,7 +160,7 @@ server <- function(input, output, session) {
     sliderInput(
       "p1.tolerable",
       lab,
-      min = 0.01, max = 0.20, step = 0.01,
+      min = 0.00, max = 0.20, step = 0.01,
       value = if (is.null(input$p1.tolerable)) 0.05 else input$p1.tolerable
     )
   })
@@ -175,8 +175,8 @@ server <- function(input, output, session) {
     sliderInput(
       "p0.expected",
       lab,
-      min = 0.01, max = 0.99, step = 0.01,
-      value = if (is.null(input$p0.expected)) 0.10 else input$p0.expected
+      min = 0.00, max = 1.00, step = 0.01,
+      value = if (is.null(input$p0.expected)) 0.90 else input$p0.expected
     )
   })
   
@@ -241,7 +241,7 @@ server <- function(input, output, session) {
   prop_df_delta <- reactive({
     window <- as.numeric(input$WindowMargin)
     
-    x_min <- max(0.01, input$p1.tolerable - window)
+    x_min <- max(0.00, input$p1.tolerable - window)
     x_max <- min(0.20, input$p1.tolerable + window)
     
     x <- seq(from = x_min, to = x_max, by = 0.005)
