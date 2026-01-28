@@ -1,5 +1,3 @@
-#packages
-
 library(shiny)
 library(ggplot2)
 library(bslib)
@@ -7,8 +5,6 @@ library(DT)
 library(thematic)
 library(binom)
 library(plotly)
-
-#themes + plot theme
 
 default_mode <- bs_theme(bootswatch = "flatly")
 dark_mode <- bs_theme(bootswatch = "darkly")
@@ -23,12 +19,7 @@ plot_theme_large <- theme(
 
 thematic_shiny()
 
-#proportions: analytic z power formula 
-
 total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
-  
-  #used when Method = "Z (power formula)" in the proportions tab
-  
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   if (is.na(r) || r <= 0) return(Inf)
@@ -57,12 +48,7 @@ total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
   n0 + n1
 }
 
-
-#proportions: CI + simulation power sizing
-
 prop_ci_vec <- function(x, n, conf.level, method) {
-  
-  #make n same length as x for binom.confint
   if (length(n) == 1 && length(x) > 1) {
     n <- rep(n, length(x))
   }
@@ -76,8 +62,16 @@ prop_ci_vec <- function(x, n, conf.level, method) {
     return(list(lower = lower, upper = upper))
   }
   
-  out <- binom::binom.confint(x = x, n = n, conf.level = conf.level, methods = method)
-  list(lower = out$lower, upper = out$upper)
+  out <- tryCatch(
+    binom::binom.confint(x = x, n = n, conf.level = conf.level, methods = method),
+    error = function(e) NULL
+  )
+  
+  if (is.null(out)) {
+    return(list(lower = rep(NA_real_, length(x)), upper = rep(NA_real_, length(x))))
+  }
+  
+  list(lower = as.numeric(out$lower), upper = as.numeric(out$upper))
 }
 
 prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
@@ -85,10 +79,6 @@ prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
                               n0,
                               nsim = 1000,
                               seed = 1) {
-  
-  #estimates power for the CI rule at a fixed n0
-  #decision rule is lower(p1) - upper(p0) > -delta
-  
   if (is.infinite(n0) || is.na(n0) || n0 < 2) return(0)
   
   if (is.na(alpha) || alpha <= 0 || alpha >= 0.5) return(0)
@@ -119,16 +109,14 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
                                             r = 1, ci_method = "wilson",
                                             nsim = 1000, seed = 1,
                                             n0_max = 200000) {
-  
-  #used when Method != "Z (power formula)" in the proportions tab
-  #binary search on n0 until simulated power hits the target
-  
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   
   p_hi <- prop_power_ci_sim(
     p0 = p0, p1 = p1, delta = delta, alpha = alpha, r = r,
     ci_method = ci_method, n0 = n0_max, nsim = nsim, seed = seed + 999
   )
+  
+  if (is.na(p_hi)) p_hi <- 0
   if (p_hi < power) return(Inf)
   
   lo <- 2
@@ -151,28 +139,18 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
     }
   }
   
-  
   n0 <- lo
   n1 <- ceiling(r * n0)
   n0 + n1
 }
 
-
-#proportions: single-arm NI vs benchmark (analytic z power)
 total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
-  
-  #p0 = benchmark/performance goal
-  #p1 = expected device event rate
-  #NI threshold = p0 - delta
-  #H0: p <= p0 - delta  vs  H1: p > p0 - delta
-  
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   
   if (p0 <= 0 || p0 >= 1) return(Inf)
   if (p1 <= 0 || p1 >= 1) return(Inf)
   if (is.na(delta) || delta < 0) return(Inf)
-  
   
   p_thr <- p0 - delta
   if (p_thr <= 0 || p_thr >= 1) return(Inf)
@@ -183,7 +161,6 @@ total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
   z_alpha <- stats::qnorm(1 - sig.level)
   z_beta  <- stats::qnorm(power)
   
-  #variance under H0 uses p_thr, under H1 uses p1
   v0 <- p_thr * (1 - p_thr)
   v1 <- p1   * (1 - p1)
   
@@ -191,17 +168,11 @@ total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
   ceiling(n)
 }
 
-
-#proportions: single-arm NI vs benchmark (CI + simulation power)
 prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
                                    ci_method = "wilson",
                                    n,
                                    nsim = 1000,
                                    seed = 1) {
-  
-  #decision rule: lower CI(p) > (p0 - delta)
-  #using two-sided CI at level (1 - 2*alpha), same convention as the 2-arm rule
-  
   if (is.infinite(n) || is.na(n) || n < 2) return(0)
   
   if (is.na(alpha) || alpha <= 0 || alpha >= 0.5) return(0)
@@ -229,7 +200,6 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
                                                  ci_method = "wilson",
                                                  nsim = 1000, seed = 1,
                                                  n_max = 200000) {
-  
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   
   p_hi <- prop_power_ci_sim_1arm(
@@ -258,18 +228,12 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
     } else {
       lo <- mid + 1
     }
+  }
   
   lo
 }
 
-
-
-#continuous: analytic z power formula (fast)
-
 total_sample_size_mean <- function(mu0, mu1, sd, delta, sigma, power, r = 1) {
-  
-  #used in the continuous tab plots + the "N at chosen Δ" box
-  
   if (is.na(sigma) || sigma <= 0 || sigma >= 1) return(Inf)
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   if (is.na(r) || r <= 0) return(Inf)

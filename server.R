@@ -1,5 +1,20 @@
 server <- function(input, output, session) {
   
+  endpoint_defaults <- list(
+    efficacy = list(p0 = 0.88, p1 = 0.93, delta = 0.05, window = 0.05),
+    safety   = list(p0 = 0.95, p1 = 0.97, delta = 0.02, window = 0.02)
+  )
+  
+  observeEvent(input$endpoint, {
+    d <- endpoint_defaults[[input$endpoint]]
+    if (is.null(d)) return(NULL)
+    
+    updateSliderInput(session, "p0.expected", value = d$p0)
+    updateSliderInput(session, "p1.expected", value = d$p1)
+    updateSliderInput(session, "p1.tolerable", value = d$delta)
+    updateSelectInput(session, "WindowMargin", selected = as.character(d$window))
+  }, ignoreInit = TRUE)
+  
   observeEvent(input$dark_mode_on, {
     if (isTRUE(input$dark_mode_on)) {
       session$setCurrentTheme(dark_mode)
@@ -166,30 +181,20 @@ server <- function(input, output, session) {
     }
     
     updateSliderInput(session, "p1.tolerable", label = delta_lab)
-    
   }, ignoreInit = FALSE)
   
-  
   n_1arm_z_superiority <- function(p0, p1, alpha, power) {
-    
-    if (p1 <= p0) return(Inf)  #can't beat the benchmark on average
-    
-    z_alpha <- qnorm(1 - alpha)       #one-sided alpha
-    z_beta  <- qnorm(power)           #power target
-    
+    if (p1 <= p0) return(Inf)
+    z_alpha <- qnorm(1 - alpha)
+    z_beta  <- qnorm(power)
     num <- (z_alpha * sqrt(p0 * (1 - p0)) + z_beta * sqrt(p1 * (1 - p1)))^2
     den <- (p1 - p0)^2
-    
     ceiling(num / den)
   }
-
   
   prop_total_n <- function(p0, p1, delta) {
-    
     if (isTRUE(input$prop_design == "one_arm")) {
-      
       if (isTRUE(input$ci_method_prop == "z_power")) {
-        
         alpha <- as.numeric(input$sig.level)
         
         if (isTRUE(all.equal(delta, 0))) {
@@ -209,7 +214,6 @@ server <- function(input, output, session) {
           power = input$power
         ))
       }
-      
       
       return(total_sample_size_prop_ci_power_1arm(
         p0 = p0,
@@ -257,23 +261,18 @@ server <- function(input, output, session) {
   
   prop_df_delta <- reactive({
     window <- as.numeric(input$WindowMargin)
-    
     x_min <- max(0.00, input$p1.tolerable - window)
     x_max <- min(0.20, input$p1.tolerable + window)
-    
     x <- seq(from = x_min, to = x_max, by = 0.005)
     y <- sapply(x, function(d) prop_total_n(input$p0.expected, input$p1.expected, d))
-    
     data.frame(x = x, y = y)
   })
   
   prop_df_p1 <- reactive({
     x_min <- max(0.001, input$p1.expected - 0.10)
     x_max <- min(0.999, input$p1.expected + 0.10)
-    
     x <- seq(from = x_min, to = x_max, by = 0.005)
     y <- sapply(x, function(p1i) prop_total_n(input$p0.expected, p1i, input$p1.tolerable))
-    
     data.frame(x = x, y = y)
   })
   

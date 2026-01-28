@@ -56,6 +56,19 @@ ui <- fluidPage(
             ),
             selected = "two_arm"
           ),
+          
+          selectInput(
+            "endpoint",
+            "Endpoint",
+            choices = c(
+              "Efficacy" = "efficacy",
+              "Safety" = "safety"
+            ),
+            selected = "efficacy"
+          ),
+          
+          
+          
           selectInput(
             "sig.level",
             "Significance level (one-sided α)",
