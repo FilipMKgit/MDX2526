@@ -200,10 +200,10 @@ ui <- fluidPage(
               "Method (drives the sample size)",
               choices = c(
                 "Z (power formula)" = "z_power",
-                "exact (Clopper-Pearson)" = "exact",
-                "ac (Agresti-Coull)" = "ac",
+                "Wilson Score Interval" = "wilson",
+                "Clopper-Pearson ('exact')" = "exact",
+                "Agresti-Coull" = "ac",
                 "asymptotic (Wald, binom)" = "asymptotic",
-                "wilson" = "wilson",
                 "prop.test" = "prop.test",
                 "bayes" = "bayes",
                 "logit" = "logit",
