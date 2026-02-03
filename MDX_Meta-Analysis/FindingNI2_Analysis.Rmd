@@ -1,0 +1,323 @@
+---
+title: "BioMimics 3D Stent Pivotal Study"
+author: "Klosowski, Filip. 
+        Glynn, Aine."
+date: "2026-01-22"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Prior to being available on the market and to ensure patient safety, all medical products must obtain approval from the relevant regulatory authority. This is done through a series of clinical studies where the medical product is monitored for safety and effectiveness.
+
+Initially, a feasibility study is conducted. This is typically a small, single-arm prospective study for a narrowly defined patient population, designed to ensure preliminary safety and device performance. If successful, a pivotal clinical study is proposed. Pivotal studies are typically randomized control trials with pre-specified and approved primary efficacy and safety endpoints. These endpoints must be statistically justified, adequately powered, and grounded in clinical evidence of safety and benefit in the target population. Due to blinding & randomization problems non-inferiority medical products can be single arm trials, which is what we are running. Yet the only difference is instead of using an active control to set our safety & efficacy endpoints, these endpoints will be set as objective performance goals. 
+
+The research statistician’s role is to justify these endpoints which then are reviewed by the relevant authority body. Following review, the regulatory authority may accept, modify, or reject these endpoints, therefore its critical for them to be sound and justifiable.
+
+To determine appropriate safety and efficiency endpoints for The Biomimics Pivotal study we conducted a targeted literature review of clinical trials previously run involving peripheral vascular devices (referenced below). This included a meta-analysis which we analysed & utilized at an individual participant data (IPD) level to justify our chosen endpoints. 
+
+#### **Proposed Safety & Efficacy Report for BioMimics 3D Stent Pivotal Study**
+
+##### This document provides & justifies safety and efficacy clinical endpoints for the BioMimics 3D Stent Pivotal Study. This is based on previous data collected with the 'Performance Goals and Endpoint Assessments for Clinical Trials of Femoropopliteal Bare Nitinol Stents in Patients With Symptomatic Peripheral Arterial Disease' trial conducted in 2007. 
+```{r, include=FALSE}
+#Loading Libraries 
+library(boot)
+library(ggplot2)
+library(boot)
+library(readxl)
+library(meta)
+library(dplyr)
+library(forestplot)
+library(kableExtra)
+```
+#### Saftey:
+Safety Endpoint: Must be able to identify potential harm, including any adverse events (AEs), serious adverse events (SAEs), lab abnormalities, or physical changes (FDA). We have categorized our safety endpoints under four headings each measured at 30-days: 
+ 1. 30 Day Composite (Death, Amputation, TVR),
+ 2. 30 Day Deaths,
+ 3. 30 Day Amputation,
+ 4. 30 Day TVR
+
+##### 30 Day Composite (Death, Amputation, TVR)
+The first primary safety endpoint is freedom from a 30-day composite of all-cause mortality, major amputation, and target vessel revascularization (TVR). 
+```{r, echo=FALSE}
+#Loading in the data:
+ThirtyDayComposite <- read_excel("AdverseEvents.xlsx",
+                           sheet ='30_day_composite')
+
+names(ThirtyDayComposite) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(ThirtyDayComposite) %>%
+  kable(caption = "Thirty Day Composite") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+For this analysis we used proportions as it is a time to event effect. Study measure (SM) was used to pool (statistically combine) the studies. We applied a Logit transformation to stabilize the variance, thereby improving the reliability of confidence intervals. This is important because the dataset contains several extreme proportions (0s and 1s), which would create highly skewed distributions. We employed an inverse Generalized Linear Method (GLMM) which models the counts using a binomial distribution. GLMM was chosen due to its ability to handle small sample sizes and extreme proportions. Choosing common = FALSE allows each study to calculate its variance using their observed proportion, rather than assuming homogeneity across studies.    
+
+```{r, echo=FALSE}
+ThirtyDayComposite <- metaprop(
+  event = Events,
+  n = Total,
+  data = ThirtyDayComposite,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+ThirtyDayComposite
+forest(ThirtyDayComposite, 
+       col.square = "purple",   
+       col.diamond = "purple",     
+       col.study = "black", 
+       main = "Thirty-Day Composite Outcomes Forest Plot")       
+
+```
+
+The pooled analysis obtained a 30-day composite event proportion of 0.0603, 95%CI:[0.0290; 0.1212]. This demonstrated an expected event rate of approximately 6%, ranging from 3% to 12%. Due to the small number of studies & sample sizes, we recommended for the performance goal of 30-day composite clinical to be set at 12%, to account for expected variation.
+
+
+##### 30 Day Amputation:
+The second primary safety endpoint is freedom from amputation at day 30.
+```{r, echo=FALSE}
+#Loading in the data:
+ThirtyDayAmputation <- read_excel("AdverseEvents.xlsx",
+                           sheet ='ThirtyDayAmputation')
+
+names(ThirtyDayAmputation) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(ThirtyDayAmputation) %>%
+  kable(caption = "Thirty Day Amputation") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+ThirtyDayAmputation = metaprop(
+  event = Events,
+  n = Total,
+  data = ThirtyDayAmputation,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+ThirtyDayAmputation
+forest(ThirtyDayAmputation, 
+       col.square = "purple",   
+       col.diamond = "purple",     
+       col.study = "black", 
+       main = "Thirty-Day Amputation Outcomes Forest Plot")    
+
+```
+The pooled analysis obtained a 30-day amputation event proportion of 0.0000, 95%CI:[0.0000; 1.0000]. This demonstrated an expected event rate of approximately 0%, ranging from 0% to 1%. Due to the small number of studies & sample sizes, we recommended that the performance goal of 30-day amputation to be set at 1%, to account for expected variation.
+
+
+##### 30 Day Deaths:  
+The third primary safety endpoint is freedom from death at day 30.
+```{r, echo=FALSE}
+ThirtyDayDeaths = read_excel("AdverseEvents.xlsx",
+                                  sheet ='ThirtyDayAmputation')
+
+names(ThirtyDayDeaths) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(ThirtyDayDeaths) %>%
+  kable(caption = "Thirty Day Deaths") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+ThirtyDayDeaths = metaprop(
+  event = Events,
+  n = Total,
+  data = ThirtyDayDeaths,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+ThirtyDayDeaths
+forest(ThirtyDayDeaths, 
+       col.square = "purple",   
+       col.diamond = "purple",     
+       col.study = "black", 
+       main = "Thirty-Day Death Outcomes Forest Plot") 
+```
+The pooled analysis obtained a 30-day death event proportion of 0.0000, 95%CI:[0.0000; 1.0000]. This demonstrated an expected event rate of approximately 0%, ranging from 0% to 1%. Due to the small number of studies & sample sizes, we recommended that the performance goal of 30-day death to be set at 1%, to account for expected variation.
+
+
+##### 30 Day TVR:
+The fourth primary safety endpoint is freedom from Target Vessel Re-vascularization (TVR) at day 30.
+```{r, echo=FALSE}
+ThirtyDayTVR <- read_excel("AdverseEvents.xlsx",
+                                 sheet ='ThirtyDayTVR')
+
+names(ThirtyDayTVR) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(ThirtyDayTVR) %>%
+  kable(caption = "Thirty-Day TVR") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+ThirtyDayTVR = metaprop(
+  event = Events,
+  n = Total,
+  data = ThirtyDayTVR,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+ThirtyDayTVR
+forest(ThirtyDayTVR, 
+       col.square = "purple",   
+       col.diamond = "purple",     
+       col.study = "black", 
+       main = "Thirty-Day TVR Outcomes Forest Plot") 
+```
+The pooled analysis obtained a 30-day TVR event proportion of 0.0517, 95%CI:[0.0234; 0.1104]. This demonstrated an expected event rate of approximately 5%, ranging from 2% to 11%. Due to the small number of studies & sample sizes, we recommended that the performance goal of 30-day revascularization to be set at 11%, to account for expected variation.
+
+
+#### Efficacy: 
+A treatment's capacity to produce a desired, measurable, and beneficial therapeutic effect under ideal and strictly controlled conditions (FDA). 
+Efficacy endpoints were categorized into 4 categories and measured at 12months:
+12 Month Amputation
+12 Month TVR
+12 Month Composite
+Rutherford classification change at 12 months
+-Improved or no change
+-Increase by 1
+-Increase by 2
+
+
+##### 12 Month Amputation:
+The first primary efficacy endpoint is freedom amputation by month 12. This reflects whether the PVAD has achieved limb preservation by month 12. 
+```{r, echo=FALSE}
+#Loading in the data:
+TweleveMonthAmputation <- read_excel("AdverseEvents.xlsx",
+                                 sheet ='TweleveMonthAmputation')
+
+names(TweleveMonthAmputation) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(TweleveMonthAmputation) %>%
+  kable(caption = "Tweleve-Month Amputation") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+TweleveMonthAmputation = metaprop(
+  event = Events,
+  n = Total,
+  data = TweleveMonthAmputation,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+TweleveMonthAmputation
+forest(TweleveMonthAmputation, 
+       col.square = "goldenrod2",   
+       col.diamond = "goldenrod2",     
+       col.study = "black", 
+       main = "Tweleve-Month Amputation Outcomes Forest Plot") 
+```
+The pooled analysis obtained an amputation event proportion of 0.0119 by month 12, 95%CI:[0.0017; 0.0797]. This demonstrated an expected event rate of approximately 1%, ranging from 0% to 7%. Due to the small number of studies & sample sizes, we recommended that the performance goal for 12 month amputation to be set at 7%, to account for expected variation.
+
+##### 12 Month TVR:
+The second primary efficacy endpoint is freedom Target Vessel Revascularization (TVR) by month 12. This reflects whether the PVAD has reduced requiring repeat intervention by month 12. 
+```{r, echo=FALSE}
+TwelveMonthTVR = read_excel("AdverseEvents.xlsx",
+                                  sheet ='TwelveMonthTVR')
+
+names(TwelveMonthTVR) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(TwelveMonthTVR) %>%
+  kable(caption = "Twelve-Month TVR") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+TwelveMonthTVR = metaprop(
+  event = Events,
+  n = Total,
+  data = TwelveMonthTVR,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+TwelveMonthTVR
+forest(TwelveMonthTVR, 
+       col.square = "goldenrod2",   
+       col.diamond = "goldenrod2",     
+       col.study = "black", 
+       main = "Twelve-Month TVR Outcomes Forest Plot") 
+```
+The pooled analysis obtained a TVR event proportion of 0.2872 by month 12, 95%CI:[0.2050; 0.3865]. This demonstrated an expected event rate of approximately 29%, ranging from 20% to 39%. Due to the small number of studies & sample sizes, we recommended that the performance goal for 12 month TVR to be set at 39%, to account for expected variation.
+
+##### 12 Month Composite  (Acute death, 12 m TVR, 12 m amputation)
+The third primary efficacy endpoint is freedom for Composite (Acute death, 12m TVR, 12m amputation) by month 12. 
+```{r, echo=FALSE}
+TwelveMonthComposite = read_excel("AdverseEvents.xlsx",
+                                  sheet ='TwelveMonthComposite')
+
+names(TwelveMonthComposite) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(TwelveMonthComposite) %>%
+  kable(caption = "Twelve-Month Composite") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+TwelveMonthComposite = metaprop(
+  event = Events,
+  n = Total,
+  data = TwelveMonthComposite,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+TwelveMonthComposite
+forest(TwelveMonthComposite, 
+       col.square = "goldenrod2",   
+       col.diamond = "goldenrod2",     
+       col.study = "black", 
+       main = "Twelve-Month Composite Forest Plot") 
+
+```
+The pooled analysis obtained a composite (acute death, 12m TVR, 12m amputation) event proportion of 0.3053 by month 12, 95%CI:[0.2211; 0.4048]. This demonstrated an expected event rate of approximately 30%, ranging from 22% to 40%. Due to the small number of studies & sample sizes, we recommended that the performance goal for 12 month composite to be set at 40%, to account for expected variation.
+
+##### Rutherford classification change at 12 months:
+Rutherford classification categorizes PAD symptom severity and is quantified as 1. Improved or no change: symptoms improved or are equivalent throughout the 12month period, 2. Increase by 1: Symptoms have worsened by one category in the 12 month period, or 3. Increase by 2: Symptoms have worsened by two categories in the 12 month period.
+
+RCC: 1. Improved or No Change:
+```{r, echo=FALSE}
+#Loading in the data:
+RCCImproved <- read_excel("AdverseEvents.xlsx",
+                           sheet ='RCC-Improved')
+
+names(RCCImproved) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(RCCImproved) %>%
+  kable(caption = "RCC Improved") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+RCCImproved = metaprop(
+  event = Events,
+  n = Total,
+  data = RCCImproved,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+RCCImproved
+forest(RCCImproved, 
+       col.square = "goldenrod2",   
+       col.diamond = "goldenrod2",     
+       col.study = "black", 
+       main = "RCC Improved Forest Plot") 
+```
+The pooled analysis obtained a Rutherford classification score for 1(Improved or No Change) proportion of 0.9583 by month 12, 95%CI:[0.8786; 0.9865]. This demonstrated an expected event rate of approximately 95%, ranging from 88% to 98%. Due to the small number of studies & sample sizes, we recommended that the performance goal for Rutherford classification score 1 to be set at 88%, to account for expected variation.
+
+
+##### RCC 2. Increase by 1:
+```{r, echo=FALSE}
+RCCIncreasedByOne = read_excel("AdverseEvents.xlsx",
+                                  sheet ='RCC-IncreasedByOne')
+
+names(RCCIncreasedByOne) = c("Trial", "Events", "Total")# Name each column (Just for organisation)
+head(RCCIncreasedByOne) %>%
+  kable(caption = "RCC Increased By One") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+RCCIncreasedByOne = RCCIncreasedByOne[-2, ]
+head(RCCIncreasedByOne)
+RCCIncreasedByOne = metaprop(
+  event = Events,
+  n = Total,
+  data = RCCIncreasedByOne,    
+  sm = "PLOGIT",
+  method = "GLMM",
+  common = FALSE
+)
+RCCIncreasedByOne
+forest(RCCIncreasedByOne, 
+       col.square = "goldenrod2",   
+       col.diamond = "goldenrod2",     
+       col.study = "black", 
+       main = "RCC Increased By One Forest Plot") 
+```
+The pooled analysis obtained a Rutherford classification score for 2(Increase by 1 category) proportion of 0.0441 by month 12, 95%CI:[0.0143; 0.1280]. This demonstrated an expected event rate of approximately 4%, ranging from 1% to 13%. Due to the small number of studies & sample sizes, we recommended that the performance goal for Rutherford classification score 2 to be set at 1%, to account for expected variation.
+
+
+There were no participants categorized Within the Rutherford classification score 3. Increase by 2: Symptoms have worsened by two categories in the 12 month period. Therefore we recommend this to be set at 0%. 
