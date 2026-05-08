@@ -384,4 +384,38 @@ server <- function(input, output, session) {
       write.csv(df, file, row.names = FALSE)
     }
   )
+
+  # ── Word summary download ──────────────────────────────────────────────────
+  output$downloadWord <- downloadHandler(
+    filename    = function() paste0("PGPower_summary_", Sys.Date(), ".docx"),
+    contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    content     = function(file) {
+      if (!requireNamespace("officer", quietly = TRUE))
+        stop("Please install the 'officer' package: install.packages('officer')")
+
+      n_val <- prop_n_at_delta()
+
+      summary_df <- data.frame(
+        "p0"    = format(input$p0.expected,          nsmall = 2),
+        "p1"    = format(input$p1.expected,          nsmall = 2),
+        "Delta" = sprintf("%.3f", input$p1.tolerable),
+        "Alpha" = format(as.numeric(input$sig.level)),
+        "Power" = format(input$power,                nsmall = 2),
+        "N"     = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark = ","),
+        check.names      = FALSE,
+        stringsAsFactors = FALSE
+      )
+      colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N")
+
+      doc <- officer::read_docx()
+      doc <- officer::body_add_par(doc, "PG-Power — Trial Summary", style = "heading 1")
+      doc <- officer::body_add_par(doc, paste("Generated:", format(Sys.Date(), "%d %B %Y")), style = "Normal")
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+      doc <- officer::body_add_table(doc, summary_df, style = "Table Grid")
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+
+      print(doc, target = file)
+    }
+  )
 }
+

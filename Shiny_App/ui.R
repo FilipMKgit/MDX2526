@@ -185,6 +185,12 @@ ui <- fluidPage(
                  class = "pgp-help-text"),
 
           tags$div(
+            style = "margin-top:14px;",
+            downloadButton("downloadWord", "↓ Download summary (.docx)",
+                           class = "btn-sm btn-outline-secondary pgp-btn")
+          ),
+
+          tags$div(
             style = "margin-top:18px;",
             checkboxInput("showExtras_prop", "More Options", value = FALSE)
           ),
