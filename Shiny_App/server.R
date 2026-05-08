@@ -395,24 +395,48 @@ server <- function(input, output, session) {
 
       n_val <- prop_n_at_delta()
 
+      ci_labels <- c(
+        z_power    = "Z (Power Formula)",
+        wilson     = "Wilson Score Interval",
+        exact      = "Clopper-Pearson (Exact)",
+        ac         = "Agresti-Coull",
+        asymptotic = "Asymptotic (Wald)",
+        prop.test  = "prop.test",
+        bayes      = "Bayes",
+        logit      = "Logit",
+        cloglog    = "Cloglog",
+        probit     = "Probit"
+      )
+      ci_label <- unname(ci_labels[input$ci_method_prop])
+      if (is.na(ci_label)) ci_label <- input$ci_method_prop
+
       summary_df <- data.frame(
-        "p0"    = format(input$p0.expected,          nsmall = 2),
-        "p1"    = format(input$p1.expected,          nsmall = 2),
-        "Delta" = sprintf("%.3f", input$p1.tolerable),
-        "Alpha" = format(as.numeric(input$sig.level)),
-        "Power" = format(input$power,                nsmall = 2),
-        "N"     = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark = ","),
+        "p0"        = format(input$p0.expected, nsmall = 2),
+        "p1"        = format(input$p1.expected, nsmall = 2),
+        "Delta"     = sprintf("%.3f", input$p1.tolerable),
+        "Alpha"     = format(as.numeric(input$sig.level)),
+        "Power"     = format(input$power, nsmall = 2),
+        "N"         = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark = ","),
+        "CI Method" = ci_label,
         check.names      = FALSE,
         stringsAsFactors = FALSE
       )
-      colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N")
+      colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N", "CI Method")
 
       doc <- officer::read_docx()
       doc <- officer::body_add_par(doc, "PG-Power — Trial Summary", style = "heading 1")
       doc <- officer::body_add_par(doc, paste("Generated:", format(Sys.Date(), "%d %B %Y")), style = "Normal")
+      doc <- officer::body_add_par(doc, paste("CI Method:", ci_label), style = "Normal")
       doc <- officer::body_add_par(doc, "", style = "Normal")
-      doc <- officer::body_add_table(doc, summary_df, style = "Table Grid")
+      doc <- officer::body_add_table(doc, summary_df)
       doc <- officer::body_add_par(doc, "", style = "Normal")
+      doc <- officer::body_add_par(doc, "Represented Values:", style = "Normal")
+      doc <- officer::body_add_par(doc, "p₀: Required proportion of favorable outcomes in the control group. The trial must outperform this value.", style = "List Bullet")
+      doc <- officer::body_add_par(doc, "p₁: Expected proportion of favorable outcomes in the trial.", style = "List Bullet")
+      doc <- officer::body_add_par(doc, "Δ NI Margin: The pre-specified maximum allowable difference in efficacy between a new treatment and an active comparator.", style = "List Bullet")
+      doc <- officer::body_add_par(doc, "α: Significance Level: The trial’s risk of a false positive.", style = "List Bullet")
+      doc <- officer::body_add_par(doc, "Power: The trial’s ability to demonstrate efficacy, if correct.", style = "List Bullet")
+      doc <- officer::body_add_par(doc, "N: Minimal Sample Size required to correctly power the trial.", style = "List Bullet")
 
       print(doc, target = file)
     }
