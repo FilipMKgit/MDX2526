@@ -390,10 +390,17 @@ server <- function(input, output, session) {
     filename    = function() paste0("PGPower_summary_", Sys.Date(), ".docx"),
     contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     content     = function(file) {
+      tryCatch({
       if (!requireNamespace("officer", quietly = TRUE))
         stop("Please install the 'officer' package: install.packages('officer')")
 
-      n_val <- prop_n_at_delta()
+      ci_method_used <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
+      n_val <- prop_total_n(
+        input$p0.expected, input$p1.expected, input$p1.tolerable,
+        ci_method = ci_method_used,
+        sim_n     = if (is.null(input$sim_quality)) 1000 else as.numeric(input$sim_quality),
+        seed      = if (is.null(input$sim_seed))    1    else as.numeric(input$sim_seed)
+      )
 
       ci_labels <- c(
         z_power    = "Z (Power Formula)",
@@ -407,7 +414,7 @@ server <- function(input, output, session) {
         cloglog    = "Cloglog",
         probit     = "Probit"
       )
-      ci_label <- unname(ci_labels[input$ci_method_prop])
+      ci_label <- unname(ci_labels[ci_method_used])
       if (is.na(ci_label)) ci_label <- input$ci_method_prop
 
       summary_df <- data.frame(
@@ -423,22 +430,42 @@ server <- function(input, output, session) {
       )
       colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N", "CI Method")
 
+      blue     <- "#2E74B5"
+      title_fp <- officer::fp_text(bold = TRUE,  font.size = 18, color = blue,  font.family = "Calibri")
+      sub_fp   <- officer::fp_text(bold = FALSE, font.size = 11, color = "#404040", font.family = "Calibri")
+      bold_fp  <- officer::fp_text(bold = TRUE,  font.size = 11, color = "#1a1a1a", font.family = "Calibri")
+      norm_fp  <- officer::fp_text(bold = FALSE, font.size = 11, color = "#1a1a1a", font.family = "Calibri")
+      centre   <- officer::fp_par(text.align = "center")
+      left_par <- officer::fp_par(text.align = "left")
+      bord     <- officer::fp_border(color = blue, width = 2)
+
       doc <- officer::read_docx()
-      doc <- officer::body_add_par(doc, "PG-Power — Trial Summary", style = "heading 1")
-      doc <- officer::body_add_par(doc, paste("Generated:", format(Sys.Date(), "%d %B %Y")), style = "Normal")
-      doc <- officer::body_add_par(doc, paste("CI Method:", ci_label), style = "Normal")
-      doc <- officer::body_add_par(doc, "", style = "Normal")
-      doc <- officer::body_add_table(doc, summary_df)
-      doc <- officer::body_add_par(doc, "", style = "Normal")
-      doc <- officer::body_add_par(doc, "Represented Values:", style = "Normal")
-      doc <- officer::body_add_par(doc, "p₀: Required proportion of favorable outcomes in the control group. The trial must outperform this value.", style = "List Bullet")
-      doc <- officer::body_add_par(doc, "p₁: Expected proportion of favorable outcomes in the trial.", style = "List Bullet")
-      doc <- officer::body_add_par(doc, "Δ NI Margin: The pre-specified maximum allowable difference in efficacy between a new treatment and an active comparator.", style = "List Bullet")
-      doc <- officer::body_add_par(doc, "α: Significance Level: The trial’s risk of a false positive.", style = "List Bullet")
-      doc <- officer::body_add_par(doc, "Power: The trial’s ability to demonstrate efficacy, if correct.", style = "List Bullet")
-      doc <- officer::body_add_par(doc, "N: Minimal Sample Size required to correctly power the trial.", style = "List Bullet")
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("PG-Power — Trial Summary", title_fp), fp_p = centre))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext(paste("Generated:", format(Sys.Date(), "%d %B %Y")), sub_fp), fp_p = centre))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext(paste("CI Method:", ci_label), sub_fp), fp_p = centre))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("", norm_fp),
+          fp_p = officer::fp_par(padding.bottom = 6, border.bottom = bord)))
+      doc <- officer::body_add_table(doc, summary_df, align = "center")
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("", norm_fp),
+          fp_p = officer::fp_par(padding.top = 6, border.top = bord)))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("Represented Values:", bold_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  p₀: Required proportion of favorable outcomes in the control group. The trial must outperform this value.", norm_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  p₁: Expected proportion of favorable outcomes in the trial.", norm_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  Δ NI Margin: The pre-specified maximum allowable difference in efficacy between a new treatment and an active comparator.", norm_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  α: Significance Level: The trial’s risk of a false positive.", norm_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  Power: The trial’s ability to demonstrate efficacy, if correct.", norm_fp), fp_p = left_par))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("•  N: Minimal Sample Size required to correctly power the trial.", norm_fp), fp_p = left_par))
 
       print(doc, target = file)
+      }, error = function(e) {
+        message("downloadWord ERROR: ", conditionMessage(e))
+      })
     }
   )
 }
