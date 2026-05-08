@@ -430,14 +430,60 @@ server <- function(input, output, session) {
       )
       colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N", "CI Method")
 
+      blue_col  <- "#2E74B5"
+      title_fmt <- officer::fp_text(bold = TRUE, font.size = 18, color = blue_col)
+      centre_p  <- officer::fp_par(text.align = "center")
+      border_p  <- officer::fp_par(
+        border.bottom = officer::fp_border(color = blue_col, width = 2)
+      )
+
       doc <- officer::read_docx()
-      doc <- officer::body_add_par(doc, "PG-Power — Trial Summary", style = "heading 1")
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("PG-Power — Trial Summary", title_fmt), fp_p = centre_p))
       doc <- officer::body_add_par(doc, paste("Generated:", format(Sys.Date(), "%d %B %Y")), style = "centered")
       doc <- officer::body_add_par(doc, paste("CI Method:", ci_label), style = "centered")
-      doc <- officer::body_add_par(doc, "", style = "Normal")
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
       doc <- officer::body_add_table(doc, summary_df, align_table = "center")
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+
+      # ── All-methods comparison table ───────────────────────────────────────
+      all_methods <- c(
+        "Z (Power Formula)"       = "z_power",
+        "Wilson Score Interval"   = "wilson",
+        "Clopper-Pearson (Exact)" = "exact",
+        "Agresti-Coull"           = "ac",
+        "Asymptotic (Wald)"       = "asymptotic",
+        "prop.test"               = "prop.test",
+        "Bayes"                   = "bayes",
+        "Logit"                   = "logit",
+        "Cloglog"                 = "cloglog",
+        "Probit"                  = "probit"
+      )
+      method_ns <- sapply(all_methods, function(m) {
+        n <- prop_total_n(
+          input$p0.expected, input$p1.expected, input$p1.tolerable,
+          ci_method = m, sim_n = 400, seed = 1
+        )
+        if (is.infinite(n)) "Not achievable" else format(n, big.mark = ",")
+      })
+      methods_df <- data.frame(
+        "CI Method" = names(all_methods),
+        "N"         = unname(method_ns),
+        check.names = FALSE, stringsAsFactors = FALSE
+      )
+
       doc <- officer::body_add_par(doc, "", style = "Normal")
-      doc <- officer::body_add_par(doc, "Represented Values:", style = "heading 3")
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("Sample Size by CI Method", title_fmt), fp_p = centre_p))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_table(doc, methods_df, align_table = "center")
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+
+      # ── Represented Values ─────────────────────────────────────────────────
+      bold_p <- officer::fp_par(text.align = "left")
+      bold_t <- officer::fp_text(bold = TRUE, font.size = 12)
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("Represented Values:", bold_t), fp_p = bold_p))
       doc <- officer::body_add_par(doc, "•  p₀: Required proportion of favorable outcomes in the control group. The trial must outperform this value.", style = "Normal")
       doc <- officer::body_add_par(doc, "•  p₁: Expected proportion of favorable outcomes in the trial.", style = "Normal")
       doc <- officer::body_add_par(doc, "•  Δ NI Margin: The pre-specified maximum allowable difference in efficacy between a new treatment and an active comparator.", style = "Normal")
