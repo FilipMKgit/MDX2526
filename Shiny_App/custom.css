@@ -1,0 +1,365 @@
+/* ═══════════════════════════════════════════════════════════
+   PG-Power  ·  custom.css
+   Aesthetic: precise scientific instrument — clean, trustworthy,
+   quietly authoritative. Not clinical-white; warm near-whites
+   with teal accents and a single orange highlight.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Variables ──────────────────────────────────────────────── */
+:root {
+  --teal:        #18bdb9;
+  --teal-light:  #e6f8f8;
+  --teal-mid:    #b2e8e7;
+  --orange:      #e07b39;
+  --ink:         #1a2e35;
+  --ink-mid:     #4a5568;
+  --ink-light:   #718096;
+  --surface:     #f7f8fa;
+  --card-bg:     #ffffff;
+  --border:      #e2e7ed;
+  --radius:      10px;
+  --radius-sm:   6px;
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md:   0 3px 12px rgba(0,0,0,0.08);
+  --font-body:   'DM Sans', system-ui, sans-serif;
+  --font-mono:   'DM Mono', 'Courier New', monospace;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+/* !important here survives bootswatch theme switches (incl. darkly) */
+body,
+body * {
+  font-family: var(--font-body) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mono elements opt back out of the wildcard above */
+pre, code, kbd, samp,
+.n-result-msg,
+.pgp-pre,
+.compare-params,
+.irs--shiny .irs-single,
+.irs--shiny .irs-from,
+.irs--shiny .irs-to {
+  font-family: var(--font-mono) !important;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+
+/* ── Page container ─────────────────────────────────────────── */
+.container-fluid {
+  padding-top: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.pgp-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 22px 14px;
+  margin-bottom: 12px;
+  background: var(--card-bg);
+  border-bottom: 3px solid var(--teal);
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.pgp-title {
+  color: var(--teal);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 0;
+  line-height: 1;
+}
+
+.pgp-subtitle {
+  color: var(--ink-light);
+  font-size: 14px;
+  font-weight: 300;
+  margin: 5px 0 0;
+  letter-spacing: 0.01em;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+.nav-tabs {
+  border-bottom: 2px solid var(--border);
+}
+
+.nav-tabs > li > a {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid);
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 10px 18px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-tabs > li > a:hover {
+  color: var(--teal);
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  color: var(--teal);
+  border: none;
+  border-bottom: 2px solid var(--teal);
+  background: transparent;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.pgp-sidebar.well {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 18px;
+}
+
+.sidebar-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 12px;
+}
+
+/* ── Main panel ─────────────────────────────────────────────── */
+.pgp-main {
+  padding-left: 24px;
+}
+
+/* ── Info cards (Set up tab) ────────────────────────────────── */
+.info-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.info-card h5 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.info-card p, .info-card li {
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.65;
+}
+
+.pgp-footer-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.pgp-footer-card p {
+  font-size: 13px;
+  color: var(--ink-light);
+  margin: 0 0 6px;
+}
+
+.pgp-footer-card a {
+  font-size: 13px;
+  color: var(--teal);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pgp-footer-card a:hover {
+  text-decoration: underline;
+}
+
+/* ── Equation button row ────────────────────────────────────── */
+.eq-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Download button column ─────────────────────────────────── */
+.dl-btn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.pgp-btn.btn-outline-primary,
+.btn-outline-primary.pgp-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border-radius: var(--radius-sm);
+  border-color: var(--teal);
+  color: var(--teal);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.pgp-btn.btn-outline-primary:hover {
+  background-color: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+/* ── Sliders ────────────────────────────────────────────────── */
+.irs--shiny .irs-bar {
+  background: var(--teal);
+  border-top-color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+.irs--shiny .irs-handle {
+  border-color: var(--teal);
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(24,189,185,0.3);
+}
+
+.irs--shiny .irs-single,
+.irs--shiny .irs-from,
+.irs--shiny .irs-to {
+  background: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ── Select inputs ──────────────────────────────────────────── */
+.selectize-input {
+  border-color: var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-body);
+  font-size: 14px;
+  box-shadow: none !important;
+}
+
+.selectize-input.focus {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px rgba(24,189,185,0.15) !important;
+}
+
+/* ── N-result box ───────────────────────────────────────────── */
+.n-result-box {
+  background: linear-gradient(135deg, #f0fbfb 0%, #e6f8f8 100%);
+  border-left: 4px solid var(--teal);
+  border: 1px solid var(--teal-mid);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.n-result-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+
+.n-result-msg {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+/* ── Pre / code blocks ──────────────────────────────────────── */
+.pgp-pre,
+pre {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: #f4f7f9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+/* ── HR dividers ────────────────────────────────────────────── */
+.pgp-hr {
+  border-color: var(--border);
+  margin: 14px 0;
+}
+
+/* ── Help text ──────────────────────────────────────────────── */
+.pgp-help-text {
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-top: 6px;
+}
+
+/* ── DT tables ──────────────────────────────────────────────── */
+table.dataTable {
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+table.dataTable thead th {
+  background-color: var(--teal-light);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--teal) !important;
+}
+
+table.dataTable tbody tr:hover {
+  background-color: var(--teal-light) !important;
+}
+
+/* ── CI comparison header ───────────────────────────────────── */
+.compare-header {
+  margin: 18px 0 10px;
+}
+
+.compare-header h5 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.compare-params {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-light);
+  margin: 0;
+}
+
+/* ── Checkbox inputs ────────────────────────────────────────── */
+input[type="checkbox"] {
+  accent-color: var(--teal);
+}
+
+/* ── Dark mode overrides ────────────────────────────────────── */
+.dark .pgp-header { background: #1e2b2f; border-color: var(--teal); }
+.dark .info-card  { background: #243035; border-color: #334; }
+.dark .n-result-box { background: #1e3535; }
