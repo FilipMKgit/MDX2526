@@ -415,81 +415,185 @@ server <- function(input, output, session) {
         probit     = "Probit"
       )
       ci_label <- unname(ci_labels[ci_method_used])
-      if (is.na(ci_label)) ci_label <- input$ci_method_prop
+      if (is.na(ci_label)) ci_label <- ci_method_used
+
+      # ── Derived values ─────────────────────────────────────────────────────
+      p_thr       <- as.numeric(input$p0.expected) - as.numeric(input$p1.tolerable)
+      z_alpha_c   <- qnorm(1 - as.numeric(input$sig.level))
+      n_successes <- if (is.infinite(n_val)) NA_integer_ else
+        ceiling(n_val * p_thr + z_alpha_c * sqrt(n_val * p_thr * (1 - p_thr)))
+      n_dropout   <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val / 0.9)
+      n_fmt       <- if (is.infinite(n_val)) "Not achievable" else format(n_val,       big.mark = ",")
+      ns_fmt      <- if (is.na(n_successes)) "—" else format(n_successes, big.mark = ",")
+      nd_fmt      <- if (is.na(n_dropout))   "—" else format(n_dropout,   big.mark = ",")
 
       summary_df <- data.frame(
-        "p0"        = format(input$p0.expected, nsmall = 2),
-        "p1"        = format(input$p1.expected, nsmall = 2),
-        "Delta"     = sprintf("%.3f", input$p1.tolerable),
-        "Alpha"     = format(as.numeric(input$sig.level)),
-        "Power"     = format(input$power, nsmall = 2),
-        "N"         = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark = ","),
-        "CI Method" = ci_label,
+        "Power"       = format(input$power, nsmall = 2),
+        "N"           = n_fmt,
+        "N-Successes" = ns_fmt,
+        "10% Dropout" = nd_fmt,
+        "p0"          = format(input$p0.expected, nsmall = 2),
+        "p1"          = format(input$p1.expected, nsmall = 2),
+        "Delta"       = sprintf("%.3f", input$p1.tolerable),
+        "Alpha"       = format(as.numeric(input$sig.level)),
+        "CI Method"   = ci_label,
         check.names      = FALSE,
         stringsAsFactors = FALSE
       )
-      colnames(summary_df) <- c("p₀", "p₁", "Δ", "α", "Power", "N", "CI Method")
+      colnames(summary_df) <- c("Power", "N", "N-Successes", "10% Dropout",
+                                "p₀", "p₁", "Δ", "α", "CI Method")
 
+      # ── Formatting helpers ─────────────────────────────────────────────────
       blue_col  <- "#2E74B5"
-      title_fmt <- officer::fp_text(bold = TRUE, font.size = 18, color = blue_col)
-      centre_p  <- officer::fp_par(text.align = "center")
+      title_fmt <- officer::fp_text(bold = TRUE,  font.size = 12, color = blue_col)
+      h2_fmt    <- officer::fp_text(bold = FALSE, font.size = 10, color = blue_col)
+      sub_fmt   <- officer::fp_text(font.size = 8,  color = "#444444")
+      body_fmt  <- officer::fp_text(font.size = 9)
+      mono_fmt  <- officer::fp_text(font.family = "Courier New", font.size = 8, color = "#1a1a2e")
+      def_term  <- officer::fp_text(bold = TRUE,  font.size = 9)
+      def_body  <- officer::fp_text(bold = FALSE, font.size = 9)
+      hyp_fmt   <- officer::fp_text(font.size = 9, color = "#444444")
+      tight_p   <- officer::fp_par(text.align = "left")
+      left_p    <- officer::fp_par(text.align = "left")
       border_p  <- officer::fp_par(
-        border.bottom = officer::fp_border(color = blue_col, width = 2)
+        text.align = "left",
+        border.bottom = officer::fp_border(color = blue_col, width = 1)
       )
 
       doc <- officer::read_docx()
-      doc <- officer::body_add_fpar(doc,
-        officer::fpar(officer::ftext("PG-Power — Trial Summary", title_fmt), fp_p = centre_p))
-      doc <- officer::body_add_par(doc, paste("Generated:", format(Sys.Date(), "%d %B %Y")), style = "centered")
-      doc <- officer::body_add_par(doc, paste("CI Method:", ci_label), style = "centered")
-      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
-      doc <- officer::body_add_table(doc, summary_df, align_table = "center")
-      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
 
-      # ── All-methods comparison table ───────────────────────────────────────
+      # ── Title block ────────────────────────────────────────────────────────
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("PG-Power — Clear, Fast, Flexible", title_fmt),
+                      fp_p = tight_p))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(
+          officer::ftext(
+            paste0("Generated: ", format(Sys.Date(), "%d %B %Y"), "  |  Method: ", ci_label),
+            sub_fmt),
+          fp_p = tight_p))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+
+      # ── Results ───────────────────────────────────────────────────────────
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("Results", h2_fmt), fp_p = tight_p))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(
+          officer::ftext("H₀: p ≤ (p₀ − Δ)  vs.  H₁: p > (p₀ − Δ)  —  One-Sided",
+                         hyp_fmt),
+          fp_p = tight_p))
+      doc <- officer::body_add_table(doc, summary_df, align_table = "left")
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+
+      # ── Interpretation ─────────────────────────────────────────────────────
+      if (!is.infinite(n_val) && !is.na(n_successes)) {
+        p0_pct  <- round(as.numeric(input$p0.expected) * 100)
+        p1_pct  <- round(as.numeric(input$p1.expected) * 100)
+        pwr_pct <- round(input$power * 100)
+        interp  <- paste0(
+          "A total of ", n_fmt, " evaluable patients are required to demonstrate, with ",
+          pwr_pct, "% power, that the device success rate exceeds the performance goal of ",
+          p0_pct, "%, assuming a true success rate of ", p1_pct, "%. ",
+          "Allowing for 10% dropout, the study should enroll ", nd_fmt, " patients. ",
+          "The study will be deemed successful if at least ", ns_fmt, " out of ", n_fmt,
+          " evaluable patients are free from a major adverse event at 12 months."
+        )
+        doc <- officer::body_add_fpar(doc,
+          officer::fpar(officer::ftext("Interpretation", h2_fmt), fp_p = tight_p))
+        doc <- officer::body_add_fpar(doc,
+          officer::fpar(officer::ftext(interp, body_fmt), fp_p = tight_p))
+        doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+      }
+
+      # ── Definitions ────────────────────────────────────────────────────────
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("Definitions", h2_fmt), fp_p = tight_p))
+      defs <- list(
+        list("Power: ",                    "Probability of correctly rejecting a false null hypothesis."),
+        list("N: ",                        "Minimum number of evaluable patients required."),
+        list("N-Successes: ",              "Minimum number of successful outcomes required to meet the primary endpoint."),
+        list("p₀: Performance Goal: ","The benchmark proportion the device must exceed."),
+        list("p₁: ",                  "Anticipated true success rate of the device."),
+        list("Δ: Non-Inferiority Margin: ", "The maximum allowable shortfall below the performance goal."),
+        list("α: Significance Level: ","Probability of a false positive result."),
+        list("CI Method: ",                "Method used to estimate the confidence interval.")
+      )
+      for (d in defs)
+        doc <- officer::body_add_fpar(doc,
+          officer::fpar(
+            officer::ftext(paste0("•  ", d[[1]]), def_term),
+            officer::ftext(d[[2]], def_body),
+            fp_p = tight_p))
+      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+
+      # ── Sample size by CI method (two 5-column tables) ─────────────────────
       all_methods <- c(
-        "Z (Power Formula)"       = "z_power",
-        "Wilson Score Interval"   = "wilson",
-        "Clopper-Pearson (Exact)" = "exact",
-        "Agresti-Coull"           = "ac",
-        "Asymptotic (Wald)"       = "asymptotic",
-        "prop.test"               = "prop.test",
-        "Bayes"                   = "bayes",
-        "Logit"                   = "logit",
-        "Cloglog"                 = "cloglog",
-        "Probit"                  = "probit"
+        "Z (Power)"     = "z_power",
+        "Wilson"        = "wilson",
+        "Exact (C-P)"   = "exact",
+        "Agresti-Coull" = "ac",
+        "Wald"          = "asymptotic",
+        "prop.test"     = "prop.test",
+        "Bayes"         = "bayes",
+        "Logit"         = "logit",
+        "Cloglog"       = "cloglog",
+        "Probit"        = "probit"
       )
       method_ns <- sapply(all_methods, function(m) {
         n <- prop_total_n(
           input$p0.expected, input$p1.expected, input$p1.tolerable,
           ci_method = m, sim_n = 400, seed = 1
         )
-        if (is.infinite(n)) "Not achievable" else format(n, big.mark = ",")
+        if (is.infinite(n)) "—" else format(n, big.mark = ",")
       })
-      methods_df <- data.frame(
-        "CI Method" = names(all_methods),
-        "N"         = unname(method_ns),
-        check.names = FALSE, stringsAsFactors = FALSE
-      )
+      ns_vec <- unname(method_ns)
+      nm_vec <- names(all_methods)
+      sens_df1 <- as.data.frame(matrix(ns_vec[1:5],  nrow = 1), stringsAsFactors = FALSE)
+      sens_df2 <- as.data.frame(matrix(ns_vec[6:10], nrow = 1), stringsAsFactors = FALSE)
+      colnames(sens_df1) <- nm_vec[1:5]
+      colnames(sens_df2) <- nm_vec[6:10]
 
-      doc <- officer::body_add_par(doc, "", style = "Normal")
       doc <- officer::body_add_fpar(doc,
-        officer::fpar(officer::ftext("Sample Size by CI Method", title_fmt), fp_p = centre_p))
-      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
-      doc <- officer::body_add_table(doc, methods_df, align_table = "center")
+        officer::fpar(officer::ftext("Sample Size by CI Method", h2_fmt), fp_p = tight_p))
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(
+          officer::ftext(
+            paste0("p₀ = ", input$p0.expected,
+                   "  |  p₁ = ", input$p1.expected,
+                   "  |  Δ = ", input$p1.tolerable,
+                   "  |  α = ", input$sig.level,
+                   "  |  Power = ", input$power),
+            hyp_fmt),
+          fp_p = tight_p))
+      doc <- officer::body_add_table(doc, sens_df1, align_table = "left")
+      doc <- officer::body_add_table(doc, sens_df2, align_table = "left")
       doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
       doc <- officer::body_add_par(doc, "", style = "Normal")
 
-      # ── Represented Values ─────────────────────────────────────────────────
-      bold_p <- officer::fp_par(text.align = "left")
-      bold_t <- officer::fp_text(bold = TRUE, font.size = 12)
-      doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext("Represented Values:", bold_t), fp_p = bold_p))
-      doc <- officer::body_add_par(doc, "•  p₀: Required proportion of favorable outcomes in the control group. The trial must outperform this value.", style = "Normal")
-      doc <- officer::body_add_par(doc, "•  p₁: Expected proportion of favorable outcomes in the trial.", style = "Normal")
-      doc <- officer::body_add_par(doc, "•  Δ NI Margin: The pre-specified maximum allowable difference in efficacy between a new treatment and an active comparator.", style = "Normal")
-      doc <- officer::body_add_par(doc, "•  α: Significance Level: The trial’s risk of a false positive.", style = "Normal")
-      doc <- officer::body_add_par(doc, "•  Power: The trial’s ability to demonstrate efficacy, if correct.", style = "Normal")
-      doc <- officer::body_add_par(doc, "•  N: Minimal Sample Size required to correctly power the trial.", style = "Normal")
+      # ── Calculation ────────────────────────────────────────────────────────
+      doc <- officer::body_add_fpar(doc,
+        officer::fpar(officer::ftext("Calculation", h2_fmt), fp_p = tight_p))
+      code_lines <- c(
+        "# One-arm performance goal test",
+        "# H0: p <= p0 - delta   vs   H1: p > p0 - delta",
+        "total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {",
+        "  p_thr   <- p0 - delta",
+        "  z_alpha <- qnorm(1 - sig.level)",
+        "  z_beta  <- qnorm(power)",
+        "  ceiling(",
+        "    (z_alpha * sqrt(p_thr * (1 - p_thr)) +",
+        "     z_beta  * sqrt(p1   * (1 - p1  )))^2 /",
+        "    (p1 - p_thr)^2",
+        "  )",
+        "}"
+      )
+      for (line in code_lines)
+        doc <- officer::body_add_fpar(doc,
+          officer::fpar(officer::ftext(line, mono_fmt), fp_p = tight_p))
 
       print(doc, target = file)
       }, error = function(e) {
