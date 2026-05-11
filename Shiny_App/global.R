@@ -6,9 +6,9 @@ library(thematic)
 library(binom)
 library(plotly)
 library(shinybusy)
+library(base64enc)
 
 default_mode <- bs_theme(bootswatch = "litera")
-dark_mode    <- bs_theme(bootswatch = "darkly")
 
 plot_theme_large <- theme_minimal(base_size = 14) +
   theme(
@@ -25,7 +25,7 @@ plot_theme_large <- theme_minimal(base_size = 14) +
 
 thematic_shiny(font = NA)
 
-# ── UI helper ──────────────────────────────────────────────────────────────────
+# -- UI helper: result box ---------------------------------------------------
 box_ui <- function(title, msg) {
   tags$div(
     class = "n-result-box",
@@ -34,7 +34,24 @@ box_ui <- function(title, msg) {
   )
 }
 
-# ── Proportion CI helper ───────────────────────────────────────────────────────
+# -- UI helper: accordion panel ----------------------------------------------
+# Used in both ui.R (at build time) and referenced in server for consistency.
+acc_panel <- function(id, heading, open = FALSE, ...) {
+  body_class <- if (open) "pgp-accordion-body open" else "pgp-accordion-body"
+  hdr_class  <- if (open) "pgp-accordion-header open" else "pgp-accordion-header"
+  tags$div(
+    id    = id,
+    class = "pgp-accordion",
+    tags$div(
+      class = hdr_class,
+      tags$span(heading),
+      tags$span("\u25be", class = "pgp-accordion-chevron")
+    ),
+    tags$div(class = body_class, ...)
+  )
+}
+
+# -- Proportion CI helper ----------------------------------------------------
 prop_ci_vec <- function(x, n, conf.level, method) {
   if (length(n) == 1 && length(x) > 1) n <- rep(n, length(x))
   
@@ -58,7 +75,7 @@ prop_ci_vec <- function(x, n, conf.level, method) {
   list(lower = as.numeric(out$lower), upper = as.numeric(out$upper))
 }
 
-# ── Two-arm analytic N ─────────────────────────────────────────────────────────
+# -- Two-arm analytic N ------------------------------------------------------
 total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
   if (is.na(power)    || power    <= 0 || power    >= 1) return(Inf)
@@ -80,7 +97,7 @@ total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
   ceiling(n0) + ceiling(r * n0)
 }
 
-# ── Two-arm simulation power ───────────────────────────────────────────────────
+# -- Two-arm simulation power ------------------------------------------------
 prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
                               ci_method = "wilson", n0,
                               nsim = 1000, seed = 1) {
@@ -129,7 +146,7 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
   n0 + ceiling(r * n0)
 }
 
-# ── Single-arm analytic N ──────────────────────────────────────────────────────
+# -- Single-arm analytic N ----------------------------------------------------
 total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
   if (is.na(power)    || power    <= 0 || power    >= 1) return(Inf)
@@ -150,7 +167,7 @@ total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
               z_beta  * sqrt(p1   * (1 - p1)))^2) / eff^2)
 }
 
-# ── Single-arm simulation power ────────────────────────────────────────────────
+# -- Single-arm simulation power ----------------------------------------------
 prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
                                    ci_method = "wilson", n,
                                    nsim = 1000, seed = 1) {
