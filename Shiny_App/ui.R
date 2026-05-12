@@ -383,6 +383,16 @@ ui <- fluidPage(
                              class = "btn-sm btn-outline-primary pgp-btn"),
               downloadButton("downloadData_plot2", "\u2193 Download p\u2081 table",
                              class = "btn-sm btn-outline-primary pgp-btn")
+            ),
+            
+            tags$div(
+              style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
+                onclick = "pgpResetCalculator();",
+                "\u21ba Reset to defaults"
+              )
             )
           )
         ),
@@ -451,15 +461,71 @@ ui <- fluidPage(
         acc_panel(
           id = "acc_rpt_header", heading = "Title & Header", open = FALSE,
           
+          # -- Title template picker ------------------------------------------
+          tags$div(
+            style = "display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
+            tags$div(
+              style = "flex:1 1 auto; min-width:180px;",
+              tags$label(
+                style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                "Title template"
+              ),
+              tags$select(
+                id    = "title_template_select",
+                class = "form-control",
+                style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                tags$option(value = "default",  "Default \u2014 PG-Power Sample Size Report"),
+                tags$option(value = "study",    "Study protocol title"),
+                tags$option(value = "clinical", "Clinical investigation title"),
+                tags$option(value = "stats",    "Statistical analysis plan title"),
+                tags$option(value = "blank",    "Blank \u2014 enter your own")
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpLoadTitleTemplate();",
+                "\u21ba Load"
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpRestoreTitleDefault();",
+                "\u21ba Restore"
+              )
+            )
+          ),
+          
           textInput(
             "rpt_title", label = "Report title",
             value = "PG-Power \u2014 Sample Size Report",
             placeholder = "Report title..."
           ),
+          
+          # -- Checkboxes row --------------------------------------------------
           tags$div(
-            style = "display:flex; gap:24px;",
+            style = "display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
             checkboxInput("rpt_include_date",   "Include generation date", value = TRUE),
-            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE)
+            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE),
+            checkboxInput("rpt_include_author", "Include author name",     value = FALSE)
+          ),
+          
+          # -- Author name (shown when checkbox ticked) ------------------------
+          conditionalPanel(
+            condition = "input.rpt_include_author == true",
+            textInput(
+              "rpt_author_name", label = NULL,
+              value = "", placeholder = "Author name..."
+            )
           )
         ),
         
@@ -489,7 +555,8 @@ ui <- fluidPage(
                   tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
                   tags$option(value = "two_arm",    "Two-arm \u2014 risk difference framing"),
                   tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
-                  tags$option(value = "safety",     "Safety endpoint \u2014 complication rate")
+                  tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
+                  tags$option(value = "blank",      "Blank \u2014 start from scratch")
                 )
               ),
               tags$div(
@@ -587,6 +654,15 @@ ui <- fluidPage(
               tags$span("CI bands on plots", tags$span(" \u2014 coming soon", class = "rc-soon")),
               value = FALSE
             )
+          ),
+          tags$div(
+            style = "margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;",
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpRestoreIncludes();",
+              "\u21ba Restore defaults"
+            )
           )
         )
       )
@@ -596,8 +672,63 @@ ui <- fluidPage(
   # -- Accordion + textarea JS --------------------------------------------------
   tags$script(HTML('
 
-    // Interpretation templates - stored on window so inline onclick can reach them
+    // Title templates
+    window.titleTemplates = {
+      "default":  "PG-Power — Sample Size Report",
+      "study":    "Sample Size Calculation — Study Protocol",
+      "clinical": "Clinical Investigation: Sample Size Justification",
+      "stats":    "Statistical Analysis Plan — Sample Size Section",
+      "blank":    ""
+    };
+
+    // Set the Shiny textInput for report title
+    window.pgpSetTitle = function(txt) {
+      var el = document.getElementById("rpt_title");
+      if (!el) return;
+      el.value = txt;
+      if (window.Shiny) Shiny.setInputValue("rpt_title", txt, {priority: "event"});
+      // Also trigger the native input event so Shiny picks it up
+      el.dispatchEvent(new Event("input", {bubbles: true}));
+    };
+
+    window.pgpLoadTitleTemplate = function() {
+      var sel = document.getElementById("title_template_select");
+      var key = sel ? sel.value : "default";
+      var txt = window.titleTemplates[key];
+      if (txt === undefined) txt = window.titleTemplates["default"];
+      window.pgpSetTitle(txt);
+    };
+
+    window.pgpRestoreTitleDefault = function() {
+      window.pgpSetTitle(window.titleTemplates["default"]);
+      var sel = document.getElementById("title_template_select");
+      if (sel) sel.value = "default";
+    };
+
+    // Restore Include-in-Report checkboxes to their defaults
+    window.pgpRestoreIncludes = function() {
+      var defaults = {
+        "rpt_results":     true,
+        "rpt_interp_inc":  true,
+        "rpt_ci_compare":  false,
+        "rpt_definitions": true,
+        "rpt_calc_code":   true,
+        "rpt_plots":       false,
+        "rpt_tables":      false
+      };
+      Object.keys(defaults).forEach(function(id) {
+        var cb = document.getElementById(id);
+        if (!cb) return;
+        cb.checked = defaults[id];
+        // Shiny checkboxInputs listen on the parent span checkbox
+        // The actual input is inside a label; trigger change event
+        if (window.Shiny) Shiny.setInputValue(id, defaults[id], {priority: "event"});
+      });
+    };
+
+        // Interpretation templates - stored on window so inline onclick can reach them
     window.interpTemplates = {
+      "blank":      "",
       "default":    "A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device success rate exceeds the performance goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. Allowing for 10% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients are free from a major adverse event at 12 months.",
       "concise":    "A sample size of {n} patients provides {power_pct}% power (one-sided \u03b1 = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, with an NI margin of \u0394 = {delta}, assuming a true device success rate of {p1_pct}%.",
       "two_arm":    "A total of {n} patients are required to demonstrate non-inferiority of the treatment versus the control, with {power_pct}% power and a one-sided significance level of {alpha}. The assumed event rates are {p1_pct}% (treatment) and {p0_pct}% (control), with a non-inferiority margin of {delta} on the risk difference scale. Allowing for 10% dropout, {n_dropout} patients should be enrolled.",
@@ -617,7 +748,9 @@ ui <- fluidPage(
     window.pgpLoadTemplate = function() {
       var sel = document.getElementById("interp_template_select");
       var key = sel ? sel.value : "default";
-      var txt = window.interpTemplates[key] || window.interpTemplates["default"];
+      var txt = (window.interpTemplates[key] !== undefined)
+                  ? window.interpTemplates[key]
+                  : window.interpTemplates["default"];
       window.pgpSetInterp(txt);
     };
 
@@ -626,6 +759,37 @@ ui <- fluidPage(
       window.pgpSetInterp(window.interpTemplates["default"]);
       var sel = document.getElementById("interp_template_select");
       if (sel) sel.value = "default";
+    };
+
+    // Reset all Calculator inputs to their defaults
+    window.pgpResetCalculator = function() {
+      var S = window.Shiny;
+      if (!S) return;
+
+      // Design & display
+      S.setInputValue("prop_design",     "one_arm",  {priority: "event"});
+      S.setInputValue("endpoint",        "efficacy", {priority: "event"});
+      S.setInputValue("sig.level",       "0.025",    {priority: "event"});
+      S.setInputValue("power",           0.80,       {priority: "event"});
+      S.setInputValue("r",               "1",        {priority: "event"});
+      S.setInputValue("ci_method_prop",  "wilson",   {priority: "event"});
+      S.setInputValue("showCompare",     false,      {priority: "event"});
+
+      // Proportions
+      S.setInputValue("p0.expected",     0.88,  {priority: "event"});
+      S.setInputValue("p1.expected",     0.93,  {priority: "event"});
+      S.setInputValue("p1.tolerable",    0.05,  {priority: "event"});
+      S.setInputValue("WindowMargin",    "0.05",{priority: "event"});
+
+      // Simulation
+      S.setInputValue("sim_quality",     "1000",{priority: "event"});
+      S.setInputValue("sim_seed",        1,     {priority: "event"});
+
+      // Other settings
+      S.setInputValue("showNBox_prop",   true,  {priority: "event"});
+      S.setInputValue("showVline",       false, {priority: "event"});
+      S.setInputValue("showTable",       false, {priority: "event"});
+      S.setInputValue("showTable2",      false, {priority: "event"});
     };
 
     // Accordion toggle

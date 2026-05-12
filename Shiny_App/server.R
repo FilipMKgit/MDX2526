@@ -646,7 +646,13 @@ server <- function(input, output, session) {
         
         rpt_title_val <- if (!is.null(input$rpt_title) && nchar(trimws(input$rpt_title)) > 0)
           input$rpt_title else "PG-Power \u2014 Sample Size Report"
+        author_name <- if (!is.null(input$rpt_author_name) &&
+                           isTRUE(input$rpt_include_author) &&
+                           nchar(trimws(input$rpt_author_name)) > 0)
+          trimws(input$rpt_author_name) else NULL
         sub_parts <- c(
+          if (!is.null(author_name))
+            paste0("Author: ", author_name) else NULL,
           if (isTRUE(input$rpt_include_date   != FALSE))
             paste0("Generated: ", format(Sys.Date(), "%d %B %Y")) else NULL,
           if (isTRUE(input$rpt_include_method != FALSE))
@@ -772,7 +778,13 @@ server <- function(input, output, session) {
         # Title block
         word_title <- if (!is.null(input$rpt_title) && nchar(trimws(input$rpt_title)) > 0)
           input$rpt_title else "PG-Power \u2014 Sample Size Report"
+        author_name_w <- if (!is.null(input$rpt_author_name) &&
+                             isTRUE(input$rpt_include_author) &&
+                             nchar(trimws(input$rpt_author_name)) > 0)
+          trimws(input$rpt_author_name) else NULL
         sub_word_parts <- c(
+          if (!is.null(author_name_w))
+            paste0("Author: ", author_name_w) else NULL,
           if (isTRUE(input$rpt_include_date   != FALSE))
             paste0("Generated: ", format(Sys.Date(), "%d %B %Y")) else NULL,
           if (isTRUE(input$rpt_include_method != FALSE))
