@@ -391,7 +391,7 @@ ui <- fluidPage(
                 class   = "btn btn-sm btn-outline-secondary",
                 style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
                 onclick = "pgpResetCalculator();",
-                "\u21ba Reset to defaults"
+                "\u21ba Defaults"
               )
             )
           )
@@ -500,7 +500,7 @@ ui <- fluidPage(
                 style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
                            color:#374151; white-space:nowrap;",
                 onclick = "pgpRestoreTitleDefault();",
-                "\u21ba Restore"
+                "\u21ba Defaults"
               )
             )
           ),
@@ -578,7 +578,7 @@ ui <- fluidPage(
                   style = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
                            color:#374151; white-space:nowrap;",
                   onclick = "pgpRestoreDefault();",
-                  "\u21ba Restore default"
+                  "\u21ba Defaults"
                 )
               )
             ),
@@ -661,7 +661,7 @@ ui <- fluidPage(
               class   = "btn btn-sm btn-outline-secondary",
               style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
               onclick = "pgpRestoreIncludes();",
-              "\u21ba Restore defaults"
+              "\u21ba Defaults"
             )
           )
         )
