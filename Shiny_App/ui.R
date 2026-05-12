@@ -27,10 +27,8 @@ ui <- fluidPage(
     ),
     tags$link(rel = "stylesheet", href = "custom.css"),
     
-    # -- Accordion CSS ----------------------------------------------------------
     tags$style(HTML("
       /* \u2500\u2500 Accordion \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
-      /* overflow:visible so select dropdowns are NOT clipped by the container */
       .pgp-accordion { margin-bottom: 10px; border-radius: 8px; overflow: visible;
                         border: 1px solid #e2e8f0; position: relative; }
       .pgp-accordion-header {
@@ -45,7 +43,6 @@ ui <- fluidPage(
       .pgp-accordion-header.open  { background: #eef3f8; border-bottom-color: #e2e8f0; }
       .pgp-accordion-chevron { font-size: 11px; transition: transform 0.2s; color: #64748b; }
       .pgp-accordion-header.open .pgp-accordion-chevron { transform: rotate(180deg); }
-      /* overflow:visible critical \u2014 lets select menus render above siblings */
       .pgp-accordion-body { padding: 14px 16px; background: #fff;
                              display: none; font-size: 13px; color: #374151;
                              overflow: visible; border-radius: 0 0 8px 8px;
@@ -64,7 +61,6 @@ ui <- fluidPage(
       .report-group .form-group { margin-bottom: 10px; }
       .report-dl-btn { margin-top: 8px; }
       .report-note { font-size: 11.5px; color: #94a3b8; margin-top: 6px; }
-      /* Live contents list */
       .report-contents { list-style: none; padding: 0; margin: 0; }
       .report-contents li { display: flex; align-items: baseline; gap: 8px;
                              padding: 5px 0; font-size: 12.5px; color: #374151;
@@ -82,14 +78,13 @@ ui <- fluidPage(
                       font-size: 12px; color: #1a2e35; margin-top: 8px; }
       .ov-card a { color: #18bdb9; }
 
-      /* \u2500\u2500 Header: subtitle italic, inline layout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+      /* \u2500\u2500 Header \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
       .pgp-header-text { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
       .pgp-subtitle { font-style: italic; }
 
       /* \u2500\u2500 Main tab two-column layout \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
       .main-left  { padding-right: 10px; }
       .main-right { padding-left:  10px; }
-
 
       /* \u2500\u2500 Report variable chips \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
       .var-chip {
@@ -109,11 +104,11 @@ ui <- fluidPage(
       .interp-textarea:focus { border-color: #18bdb9; outline: none;
                                 box-shadow: 0 0 0 2px rgba(24,189,185,0.15); }
 
-      /* \u2500\u2500 Export row \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+      /* \u2500\u2500 Export row (NOW TOP of report tab) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
       .report-export-row {
         display: flex; gap: 20px; align-items: flex-start;
         background: #f8fafc; border: 1px solid #e2e8f0;
-        border-radius: 10px; padding: 18px 20px; margin-top: 4px;
+        border-radius: 10px; padding: 18px 20px; margin-bottom: 18px;
       }
       .report-export-left  { flex: 1 1 60%; }
       .report-export-right { flex: 1 1 40%; }
@@ -137,9 +132,6 @@ ui <- fluidPage(
     )
   ),
   
-  # -- Helper: accordion builder -------------------------------------------------
-  # (inline JS toggler injected once at the bottom of the page)
-  
   # -- Tabs ---------------------------------------------------------------------
   tabsetPanel(
     id = "main_tabs",
@@ -153,7 +145,6 @@ ui <- fluidPage(
       tags$div(
         style = "max-width: 720px; margin: 28px auto; padding: 0 16px;",
         
-        # -- How to use ------------------------------------------------------
         acc_panel(
           id      = "acc_howto",
           heading = "How to use",
@@ -173,7 +164,6 @@ ui <- fluidPage(
           )
         ),
         
-        # -- Confidence Intervals ---------------------------------------------
         acc_panel(
           id      = "acc_ci",
           heading = "Confidence Intervals",
@@ -196,22 +186,23 @@ ui <- fluidPage(
             tags$pre("Lower(RD) = Lower(p\u2081) \u2212 Upper(p\u2080)\nDeclare NI if Lower(RD) > \u2212\u0394"),
             tags$p("Single-arm:"),
             tags$pre("Declare NI if Lower(p) > p\u2080 \u2212 \u0394"),
-            tags$hr(class = "pgp-hr"),
-            tags$p(tags$b("Rule of thumb:")),
-            tags$ul(
-              tags$li("Conservative planning \u2192 Exact (Clopper\u2013Pearson)"),
-              tags$li("Balanced default     \u2192 Wilson or Agresti\u2013Coull"),
-              tags$li("Avoid Wald when n is small or p is near 0 or 1")
-            ),
-            tags$p(
-              style = "margin-top:10px; font-size:12px; color:#64748b;",
-              tags$span("Read more about CI methods here", style = "color:#94a3b8; cursor:not-allowed; text-decoration:underline; text-decoration-style:dotted;"),
-              tags$span(" (link coming soon)", style = "font-size:10.5px; color:#cbd5e1;")
+            tags$div(
+              style = "margin-top:14px; background:#eef9f9; border:1px solid #18bdb9; border-radius:8px; padding:11px 14px; display:flex; align-items:center; gap:10px;",
+              tags$span("\U0001F4D6", style = "font-size:18px; flex-shrink:0;"),
+              tags$div(
+                tags$p(style = "margin:0 0 2px; font-size:12px; font-weight:700; color:#0f7f7c; letter-spacing:0.02em;",
+                       "Want to learn more about choosing a CI method?"),
+                tags$a(
+                  href   = "https://filipmkgit.github.io/Small-Proportions-and-Confidence-Intervals-Analysis/small_proportions_ci.html",
+                  target = "_blank",
+                  style  = "font-size:12px; color:#18bdb9; font-weight:600;",
+                  "Read: Small Proportions and Confidence Intervals \u2197"
+                )
+              )
             )
           )
         ),
         
-        # -- Generate Report Info ---------------------------------------------
         acc_panel(
           id      = "acc_report_info",
           heading = "Generate Report Info",
@@ -224,13 +215,12 @@ ui <- fluidPage(
                       tags$code("pagedown"), " package."),
               tags$li(tags$b("Title & Header:"), " Set a custom report title and toggle the date and CI method in the header."),
               tags$li(tags$b("Interpretation:"), " Edit the interpretation paragraph and insert live variable values using the tag buttons (e.g. {n}, {power_pct})."),
-              tags$li(tags$b("Include in Report:"), " Toggle individual sections \u2014 results table, interpretation, CI method comparison, definitions, calculation code, and sensitivity plots."),
-              tags$li(tags$b("Report Contents:"), " Live checklist on the right updates as you tick and untick options.")
+              tags$li(tags$b("Include in Report:"), " Toggle individual sections \u2014 results table, interpretation, CI method comparison, definitions, calculation code, sensitivity plots, and sensitivity tables."),
+              tags$li(tags$b("Report Contents:"), " Live checklist at the top updates as you tick and untick options.")
             )
           )
         ),
         
-        # -- Credits ----------------------------------------------------------
         acc_panel(
           id      = "acc_credits",
           heading = "Credits",
@@ -253,7 +243,7 @@ ui <- fluidPage(
     ),
     
     # --------------------------------------------------------------------------
-    # Tab 2 - Main
+    # Tab 2 - Main Calculator
     # --------------------------------------------------------------------------
     tabPanel(
       title = "Calculator",
@@ -261,7 +251,7 @@ ui <- fluidPage(
       fluidRow(
         style = "margin: 18px 8px 0;",
         
-        # -- Left column: settings accordions ------------------------------
+        # -- Left column: settings accordions ----------------------------------
         column(
           width = 4,
           class = "main-left",
@@ -290,7 +280,7 @@ ui <- fluidPage(
             selectInput(
               "sig.level", "Significance level (one-sided \u03b1)",
               choices = c("0.025" = 0.025, "0.04" = 0.04, "0.05" = 0.05),
-              selected = 0.04
+              selected = 0.025   # <-- default changed to 0.025
             ),
             
             sliderInput(
@@ -336,16 +326,16 @@ ui <- fluidPage(
             open    = TRUE,
             
             sliderInput("p0.expected",
-                        "Control / benchmark event rate (p\u2080):",
+                        "Benchmark / performance goal (p\u2080):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.88),
             
             sliderInput("p1.expected",
-                        "Expected device / experimental event rate (p\u2081):",
-                        min = 0.00, max = 1.00, step = 0.01, value = 0.98),
+                        "Expected device event rate (p\u2081):",
+                        min = 0.00, max = 1.00, step = 0.01, value = 0.93),
             
             sliderInput("p1.tolerable",
                         "Non-inferiority margin (\u0394):",
-                        min = 0.00, max = 0.20, step = 0.01, value = 0.00),
+                        min = 0.00, max = 0.20, step = 0.01, value = 0.05),
             
             selectInput(
               "WindowMargin", "Sensitivity window for NI margin (\u00b1)",
@@ -381,10 +371,10 @@ ui <- fluidPage(
             heading = "Other Settings",
             open    = FALSE,
             
-            checkboxInput("showNBox_prop",  "Show n at chosen \u0394",              value = TRUE),
-            checkboxInput("showVline",     "Show vertical marker on plots",    value = FALSE),
-            checkboxInput("showTable",     "Show \u0394 sensitivity table",         value = FALSE),
-            checkboxInput("showTable2",    "Show p\u2081 sensitivity table",        value = FALSE),
+            checkboxInput("showNBox_prop",  "Show n at chosen \u0394",           value = TRUE),
+            checkboxInput("showVline",      "Show vertical marker on plots",     value = FALSE),
+            checkboxInput("showTable",      "Show \u0394 sensitivity table",     value = FALSE),
+            checkboxInput("showTable2",     "Show p\u2081 sensitivity table",    value = FALSE),
             
             tags$div(
               class = "dl-btn-col",
@@ -393,11 +383,21 @@ ui <- fluidPage(
                              class = "btn-sm btn-outline-primary pgp-btn"),
               downloadButton("downloadData_plot2", "\u2193 Download p\u2081 table",
                              class = "btn-sm btn-outline-primary pgp-btn")
+            ),
+            
+            tags$div(
+              style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
+                onclick = "pgpResetCalculator();",
+                "\u21ba Defaults"
+              )
             )
           )
         ),
         
-        # -- Right column: plots + outputs ----------------------------------
+        # -- Right column: plots + outputs ------------------------------------
         column(
           width = 8,
           class = "main-right pgp-main",
@@ -422,34 +422,172 @@ ui <- fluidPage(
       tags$div(
         class = "report-panel",
         
-        # -- Title & Header accordion ------------------------------------------
+        # ── TOP: Export row + live contents list ────────────────────────────
+        tags$div(
+          class = "report-export-row",
+          
+          # Download controls (left)
+          tags$div(
+            class = "report-export-left",
+            tags$div(
+              style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
+              radioButtons(
+                "report_format", label = NULL,
+                choices  = c("Word (.docx)" = "docx", "PDF (.pdf)" = "pdf"),
+                selected = "docx", inline = TRUE
+              ),
+              uiOutput("report_download_ui")
+            ),
+            tags$p(
+              class = "report-note",
+              style = "margin-top:6px;",
+              "Report is built from your current Calculator tab inputs."
+            )
+          ),
+          
+          # Live contents (right)
+          tags$div(
+            class = "report-export-right",
+            tags$p(style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                            letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
+                   "Report contents"),
+            uiOutput("report_contents_ui")
+          )
+        ),
+        
+        # ── BELOW: Configuration accordions ─────────────────────────────────
+        
+        # Title & Header accordion
         acc_panel(
           id = "acc_rpt_header", heading = "Title & Header", open = FALSE,
+          
+          # -- Title template picker ------------------------------------------
+          tags$div(
+            style = "display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
+            tags$div(
+              style = "flex:1 1 auto; min-width:180px;",
+              tags$label(
+                style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                "Title template"
+              ),
+              tags$select(
+                id    = "title_template_select",
+                class = "form-control",
+                style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                tags$option(value = "default",  "Default \u2014 PG-Power Sample Size Report"),
+                tags$option(value = "study",    "Study protocol title"),
+                tags$option(value = "clinical", "Clinical investigation title"),
+                tags$option(value = "stats",    "Statistical analysis plan title"),
+                tags$option(value = "blank",    "Blank \u2014 enter your own")
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpLoadTitleTemplate();",
+                "\u21ba Load"
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpRestoreTitleDefault();",
+                "\u21ba Defaults"
+              )
+            )
+          ),
           
           textInput(
             "rpt_title", label = "Report title",
             value = "PG-Power \u2014 Sample Size Report",
             placeholder = "Report title..."
           ),
+          
+          # -- Checkboxes row --------------------------------------------------
           tags$div(
-            style = "display:flex; gap:24px;",
+            style = "display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
             checkboxInput("rpt_include_date",   "Include generation date", value = TRUE),
-            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE)
+            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE),
+            checkboxInput("rpt_include_author", "Include author name",     value = FALSE)
+          ),
+          
+          # -- Author name (shown when checkbox ticked) ------------------------
+          conditionalPanel(
+            condition = "input.rpt_include_author == true",
+            textInput(
+              "rpt_author_name", label = NULL,
+              value = "", placeholder = "Author name..."
+            )
           )
         ),
         
-        # -- Interpretation accordion ------------------------------------------
+        # Interpretation accordion
         acc_panel(
           id = "acc_rpt_interp", heading = "Interpretation", open = FALSE,
           
           tags$div(
             style = "margin-top:4px;",
+            
+            # -- Template picker row -----------------------------------------
+            tags$div(
+              style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
+              tags$div(
+                style = "flex:1 1 auto; min-width:180px;",
+                tags$label(
+                  style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                            letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                  "Template"
+                ),
+                tags$select(
+                  id    = "interp_template_select",
+                  class = "form-control",
+                  style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                           border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                  tags$option(value = "default",    "Default \u2014 single-arm, device success rate"),
+                  tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
+                  tags$option(value = "two_arm",    "Two-arm \u2014 risk difference framing"),
+                  tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
+                  tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
+                  tags$option(value = "blank",      "Blank \u2014 start from scratch")
+                )
+              ),
+              tags$div(
+                style = "flex:0 0 auto; padding-top:20px;",
+                tags$button(
+                  id    = "interp_load_template",
+                  class = "btn btn-sm btn-outline-secondary",
+                  style = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                  onclick = "pgpLoadTemplate();",
+                  "\u21ba Load template"
+                )
+              ),
+              tags$div(
+                style = "flex:0 0 auto; padding-top:20px;",
+                tags$button(
+                  id    = "interp_restore_default",
+                  class = "btn btn-sm btn-outline-secondary",
+                  style = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                  onclick = "pgpRestoreDefault();",
+                  "\u21ba Defaults"
+                )
+              )
+            ),
+            
+            # -- Variable tag chips ------------------------------------------
             tags$p(
               style = "font-size:11.5px; color:#64748b; margin-bottom:6px;",
-              "Edit the interpretation text below. Use the variable tags to insert",
-              " live values from your current inputs:"
+              "Insert live values into your text using these tags:"
             ),
-            # Variable tag chips
             tags$div(
               style = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;",
               lapply(
@@ -479,6 +617,8 @@ ui <- fluidPage(
                 }
               )
             ),
+            
+            # -- Editable textarea -------------------------------------------
             tags$textarea(
               id          = "rpt_interp_text",
               class       = "form-control interp-textarea",
@@ -496,16 +636,17 @@ ui <- fluidPage(
           )
         ),
         
-        # -- Include in Report accordion ---------------------------------------
+        # Include in Report accordion
         acc_panel(
           id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
           
-          checkboxInput("rpt_results",    "Results table",              value = TRUE),
-          checkboxInput("rpt_interp_inc", "Interpretation paragraph",   value = TRUE),
-          checkboxInput("rpt_ci_compare", "CI method comparison table", value = FALSE),
-          checkboxInput("rpt_definitions","Definitions glossary",       value = TRUE),
-          checkboxInput("rpt_calc_code",  "Calculation code",           value = TRUE),
-          checkboxInput("rpt_plots",      "Sensitivity plots",          value = FALSE),
+          checkboxInput("rpt_results",      "Results table",                value = TRUE),
+          checkboxInput("rpt_interp_inc",   "Interpretation paragraph",     value = TRUE),
+          checkboxInput("rpt_ci_compare",   "CI method comparison table",   value = FALSE),
+          checkboxInput("rpt_definitions",  "Definitions glossary",         value = TRUE),
+          checkboxInput("rpt_calc_code",    "Calculation code",             value = TRUE),
+          checkboxInput("rpt_plots",        "Sensitivity plots",            value = FALSE),
+          checkboxInput("rpt_tables",       "Sensitivity tables",           value = FALSE),
           tags$div(
             style = "opacity:0.55; pointer-events:none;",
             checkboxInput(
@@ -513,38 +654,15 @@ ui <- fluidPage(
               tags$span("CI bands on plots", tags$span(" \u2014 coming soon", class = "rc-soon")),
               value = FALSE
             )
-          )
-        ),
-        
-        # -- Export row + live contents ----------------------------------------
-        tags$div(
-          class = "report-export-row",
-          
-          # Export controls (left)
-          tags$div(
-            class = "report-export-left",
-            tags$div(
-              style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
-              radioButtons(
-                "report_format", label = NULL,
-                choices  = c("Word (.docx)" = "docx", "PDF (.pdf)" = "pdf"),
-                selected = "docx", inline = TRUE
-              ),
-              uiOutput("report_download_ui")
-            ),
-            tags$p(
-              class = "report-note",
-              style = "margin-top:6px;",
-              "Report is built from your current Calculator tab inputs."
-            )
           ),
-          
-          # Live contents (right)
           tags$div(
-            class = "report-export-right",
-            tags$p(style = "font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
-                   "Report contents"),
-            uiOutput("report_contents_ui")
+            style = "margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;",
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpRestoreIncludes();",
+              "\u21ba Defaults"
+            )
           )
         )
       )
@@ -571,6 +689,11 @@ ui <- fluidPage(
 
             numericInput("interim_n", "Patients enrolled so far (n):",
                          value = 0, min = 0, step = 1),
+            conditionalPanel(
+              condition = "input.prop_design == 'two_arm'",
+              tags$p("(n is per arm — equal allocation assumed)",
+                     style = "font-size:11px; color:#94a3b8; margin:-6px 0 8px;")
+            ),
             numericInput("interim_x", "Events observed (treatment arm, x₁):",
                          value = 0, min = 0, step = 1),
 
@@ -593,35 +716,172 @@ ui <- fluidPage(
           width = 8,
           class = "main-right pgp-main",
 
+          # Orientation note
+          uiOutput("interim_orientation_text"),
+          tags$div(style = "height:10px;"),
+
           uiOutput("interim_status_box"),
           tags$div(style = "height:14px;"),
           plotlyOutput("interim_position_plot", height = "260px"),
+          # Plot legend
+          tags$p(
+            style = "font-size:11px; color:#718096; margin: 4px 0 18px; line-height:1.6;",
+            HTML(paste0(
+              "<span style='color:#e07b39; font-weight:600;'>--- NI boundary</span>",
+              "&nbsp;&nbsp;|&nbsp;&nbsp;",
+              "<span style='color:#718096;'>--- Reference (p₀ or zero diff.)</span>",
+              "&nbsp;&nbsp;|&nbsp;&nbsp;",
+              "<span style='color:#18bdb9; font-weight:600;'>● with bars</span>",
+              " = observed estimate ± 95% CI"
+            ))
+          ),
+          uiOutput("interim_calc_table"),
           tags$div(style = "height:18px;"),
-          uiOutput("interim_calc_table")
+          uiOutput("interim_ci_threshold_table")
         )
       )
     )
   ),
+  # -- Accordion + textarea JS --------------------------------------------------
+  tags$script(HTML('
 
-  # -- Accordion + textarea JS ----------------------------------------------
-  tags$script(HTML("
-    $(document).on('click', '.pgp-accordion-header', function() {
+    // Title templates
+    window.titleTemplates = {
+      "default":  "PG-Power — Sample Size Report",
+      "study":    "Sample Size Calculation — Study Protocol",
+      "clinical": "Clinical Investigation: Sample Size Justification",
+      "stats":    "Statistical Analysis Plan — Sample Size Section",
+      "blank":    ""
+    };
+
+    // Set the Shiny textInput for report title
+    window.pgpSetTitle = function(txt) {
+      var el = document.getElementById("rpt_title");
+      if (!el) return;
+      el.value = txt;
+      if (window.Shiny) Shiny.setInputValue("rpt_title", txt, {priority: "event"});
+      // Also trigger the native input event so Shiny picks it up
+      el.dispatchEvent(new Event("input", {bubbles: true}));
+    };
+
+    window.pgpLoadTitleTemplate = function() {
+      var sel = document.getElementById("title_template_select");
+      var key = sel ? sel.value : "default";
+      var txt = window.titleTemplates[key];
+      if (txt === undefined) txt = window.titleTemplates["default"];
+      window.pgpSetTitle(txt);
+    };
+
+    window.pgpRestoreTitleDefault = function() {
+      window.pgpSetTitle(window.titleTemplates["default"]);
+      var sel = document.getElementById("title_template_select");
+      if (sel) sel.value = "default";
+    };
+
+    // Restore Include-in-Report checkboxes to their defaults
+    window.pgpRestoreIncludes = function() {
+      var defaults = {
+        "rpt_results":     true,
+        "rpt_interp_inc":  true,
+        "rpt_ci_compare":  false,
+        "rpt_definitions": true,
+        "rpt_calc_code":   true,
+        "rpt_plots":       false,
+        "rpt_tables":      false
+      };
+      Object.keys(defaults).forEach(function(id) {
+        var cb = document.getElementById(id);
+        if (!cb) return;
+        cb.checked = defaults[id];
+        // Shiny checkboxInputs listen on the parent span checkbox
+        // The actual input is inside a label; trigger change event
+        if (window.Shiny) Shiny.setInputValue(id, defaults[id], {priority: "event"});
+      });
+    };
+
+        // Interpretation templates - stored on window so inline onclick can reach them
+    window.interpTemplates = {
+      "blank":      "",
+      "default":    "A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device success rate exceeds the performance goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. Allowing for 10% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients are free from a major adverse event at 12 months.",
+      "concise":    "A sample size of {n} patients provides {power_pct}% power (one-sided \u03b1 = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, with an NI margin of \u0394 = {delta}, assuming a true device success rate of {p1_pct}%.",
+      "two_arm":    "A total of {n} patients are required to demonstrate non-inferiority of the treatment versus the control, with {power_pct}% power and a one-sided significance level of {alpha}. The assumed event rates are {p1_pct}% (treatment) and {p0_pct}% (control), with a non-inferiority margin of {delta} on the risk difference scale. Allowing for 10% dropout, {n_dropout} patients should be enrolled.",
+      "regulatory": "The study is designed as a single-arm, non-inferiority study comparing the device success rate to an objective performance criterion (OPC) of {p0_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the lower bound of the {ci_method} confidence interval for the device success rate exceeds the performance goal less the non-inferiority margin ({delta}). Accounting for a 10% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve procedural success.",
+      "safety":     "A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided \u03b1 = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% and an acceptable margin of {delta}. With an anticipated dropout rate of 10%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients."
+    };
+
+    // Helper: write text into textarea and notify Shiny
+    window.pgpSetInterp = function(txt) {
+      var ta = document.getElementById("rpt_interp_text");
+      if (!ta) return;
+      ta.value = txt;
+      if (window.Shiny) Shiny.setInputValue("rpt_interp_text", txt, {priority: "event"});
+    };
+
+    // Load whichever template is selected in the dropdown
+    window.pgpLoadTemplate = function() {
+      var sel = document.getElementById("interp_template_select");
+      var key = sel ? sel.value : "default";
+      var txt = (window.interpTemplates[key] !== undefined)
+                  ? window.interpTemplates[key]
+                  : window.interpTemplates["default"];
+      window.pgpSetInterp(txt);
+    };
+
+    // Always go back to the default template
+    window.pgpRestoreDefault = function() {
+      window.pgpSetInterp(window.interpTemplates["default"]);
+      var sel = document.getElementById("interp_template_select");
+      if (sel) sel.value = "default";
+    };
+
+    // Reset all Calculator inputs to their defaults
+    window.pgpResetCalculator = function() {
+      var S = window.Shiny;
+      if (!S) return;
+
+      // Design & display
+      S.setInputValue("prop_design",     "one_arm",  {priority: "event"});
+      S.setInputValue("endpoint",        "efficacy", {priority: "event"});
+      S.setInputValue("sig.level",       "0.025",    {priority: "event"});
+      S.setInputValue("power",           0.80,       {priority: "event"});
+      S.setInputValue("r",               "1",        {priority: "event"});
+      S.setInputValue("ci_method_prop",  "wilson",   {priority: "event"});
+      S.setInputValue("showCompare",     false,      {priority: "event"});
+
+      // Proportions
+      S.setInputValue("p0.expected",     0.88,  {priority: "event"});
+      S.setInputValue("p1.expected",     0.93,  {priority: "event"});
+      S.setInputValue("p1.tolerable",    0.05,  {priority: "event"});
+      S.setInputValue("WindowMargin",    "0.05",{priority: "event"});
+
+      // Simulation
+      S.setInputValue("sim_quality",     "1000",{priority: "event"});
+      S.setInputValue("sim_seed",        1,     {priority: "event"});
+
+      // Other settings
+      S.setInputValue("showNBox_prop",   true,  {priority: "event"});
+      S.setInputValue("showVline",       false, {priority: "event"});
+      S.setInputValue("showTable",       false, {priority: "event"});
+      S.setInputValue("showTable2",      false, {priority: "event"});
+    };
+
+    // Accordion toggle
+    $(document).on("click", ".pgp-accordion-header", function() {
       var $hdr  = $(this);
-      var $body = $hdr.next('.pgp-accordion-body');
-      $hdr.toggleClass('open');
-      $body.toggleClass('open');
+      var $body = $hdr.next(".pgp-accordion-body");
+      $hdr.toggleClass("open");
+      $body.toggleClass("open");
     });
 
+    // Sync textarea to Shiny on page load and on every keystroke
     $(document).ready(function() {
-      // Textarea sync
-      var ta = document.getElementById('rpt_interp_text');
+      var ta = document.getElementById("rpt_interp_text");
       if (ta) {
-        Shiny.setInputValue('rpt_interp_text', ta.value);
-        ta.addEventListener('input', function() {
-          Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
+        Shiny.setInputValue("rpt_interp_text", ta.value);
+        ta.addEventListener("input", function() {
+          Shiny.setInputValue("rpt_interp_text", ta.value, {priority: "event"});
         });
       }
-
     });
-  "))
+  '))
 )

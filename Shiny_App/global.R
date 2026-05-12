@@ -35,7 +35,6 @@ box_ui <- function(title, msg) {
 }
 
 # -- UI helper: accordion panel ----------------------------------------------
-# Used in both ui.R (at build time) and referenced in server for consistency.
 acc_panel <- function(id, heading, open = FALSE, ...) {
   body_class <- if (open) "pgp-accordion-body open" else "pgp-accordion-body"
   hdr_class  <- if (open) "pgp-accordion-header open" else "pgp-accordion-header"
@@ -212,4 +211,28 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
   }
   
   lo
+}
+
+# -- Interim CI threshold helper -----------------------------------------------
+# For a given n and NI boundary, finds the minimum event count that achieves NI
+# (efficacy: CI lower > boundary) or maximum event count that stays NI
+# (safety: CI upper < boundary), for each CI method independently.
+# Called per-method with a scalar x, so avoids the binom.confint row-count issue.
+interim_x_threshold <- function(n, boundary, conf_level, method, is_safety) {
+  if (is.na(n) || n < 1) return(NA_integer_)
+  result <- NA_integer_
+  for (x in 0L:as.integer(n)) {
+    ci <- tryCatch(
+      prop_ci_vec(x, n, conf_level, method),
+      error = function(e) list(lower = NA_real_, upper = NA_real_)
+    )
+    if (is_safety) {
+      if (!is.na(ci$upper) && ci$upper < boundary) result <- x
+      # CI upper is monotone-increasing in x; once it exceeds boundary, done
+      else if (!is.na(ci$upper)) break
+    } else {
+      if (!is.na(ci$lower) && ci$lower > boundary) return(x)
+    }
+  }
+  result
 }
