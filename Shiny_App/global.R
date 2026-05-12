@@ -35,7 +35,6 @@ box_ui <- function(title, msg) {
 }
 
 # -- UI helper: accordion panel ----------------------------------------------
-# Used in both ui.R (at build time) and referenced in server for consistency.
 acc_panel <- function(id, heading, open = FALSE, ...) {
   body_class <- if (open) "pgp-accordion-body open" else "pgp-accordion-body"
   hdr_class  <- if (open) "pgp-accordion-header open" else "pgp-accordion-header"

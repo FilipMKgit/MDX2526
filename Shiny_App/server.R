@@ -15,7 +15,7 @@ server <- function(input, output, session) {
     )
   }
   
-  # -- Endpoint presets ------------------------------------------------------
+  # -- Endpoint presets -------------------------------------------------------
   endpoint_defaults <- list(
     efficacy = list(p0 = 0.88, p1 = 0.93, delta = 0.05, window = "0.05"),
     safety   = list(p0 = 0.95, p1 = 0.97, delta = 0.02, window = "0.02")
@@ -44,95 +44,7 @@ server <- function(input, output, session) {
       "Non-inferiority margin (\u0394, vs benchmark):" else "Non-inferiority margin (\u0394, risk difference):")
   }, ignoreInit = FALSE)
   
-  # -- Equation modals ------------------------------------------------------
-  observeEvent(input$eq_prop1, {
-    is_one <- isTRUE(input$prop_design == "one_arm")
-    showModal(modalDialog(
-      title = "Proportions: \u0394 vs total sample size",
-      if (!is_one) tagList(
-        tags$p("Hypotheses (risk difference):"),
-        tags$pre("H0: (p\u2081 \u2212 p\u2080) \u2264 \u2212\u0394\nH1: (p\u2081 \u2212 p\u2080) > \u2212\u0394"),
-        tags$p("N computation:"),
-        tags$ul(
-          tags$li("Z (power formula): analytic z-approximation."),
-          tags$li("CI methods: simulate trials at each N; increase N until simulated power \u2265 target.")
-        ),
-        tags$p("CI decision rule (simulation methods):"),
-        tags$pre("Lower(RD) = Lower(p\u2081) \u2212 Upper(p\u2080)\nDeclare NI if Lower(RD) > \u2212\u0394")
-      ) else tagList(
-        tags$p("Hypotheses (single-arm vs benchmark):"),
-        tags$pre("H0: p \u2264 (p\u2080 \u2212 \u0394)\nH1: p > (p\u2080 \u2212 \u0394)"),
-        tags$p("CI decision rule:"),
-        tags$pre("Declare NI if Lower(p) > (p\u2080 \u2212 \u0394)")
-      ),
-      easyClose = TRUE, footer = modalButton("Close")
-    ))
-  })
-  
-  observeEvent(input$eq_prop2, {
-    is_one <- isTRUE(input$prop_design == "one_arm")
-    showModal(modalDialog(
-      title = "Proportions: p\u2081 vs total sample size",
-      if (!is_one) tagList(
-        tags$p("Hypotheses (risk difference):"),
-        tags$pre("H0: (p\u2081 \u2212 p\u2080) \u2264 \u2212\u0394\nH1: (p\u2081 \u2212 p\u2080) > \u2212\u0394"),
-        tags$p("What varies: p\u2081 swept \u00b10.10 around chosen value; \u0394 and p\u2080 held fixed."),
-        tags$p("Decision rule:"),
-        tags$pre("Lower(RD) = Lower(p\u2081) \u2212 Upper(p\u2080)\nDeclare NI if Lower(RD) > \u2212\u0394")
-      ) else tagList(
-        tags$p("Hypotheses (single-arm vs benchmark):"),
-        tags$pre("H0: p \u2264 (p\u2080 \u2212 \u0394)\nH1: p > (p\u2080 \u2212 \u0394)"),
-        tags$p("What varies: p\u2081 swept \u00b10.10 around chosen value; \u0394 and p\u2080 held fixed."),
-        tags$p("Decision rule:"),
-        tags$pre("Declare NI if Lower(p) > (p\u2080 \u2212 \u0394)")
-      ),
-      easyClose = TRUE, footer = modalButton("Close")
-    ))
-  })
-  
-  observeEvent(input$eq_ci_prop, {
-    showModal(modalDialog(
-      title = "Confidence interval methods",
-      tags$p("These affect the CI bounds used in simulation-based sizing (Simulation Settings \u2192 CI method)."),
-      tags$hr(),
-      tags$h4("Common methods"),
-      tags$ul(
-        tags$li(tags$b("Wilson:"), "Good coverage, behaves well for small n and p near 0/1. Recommended default."),
-        tags$li(tags$b("Exact (Clopper\u2013Pearson):"), "Inverts the binomial test. Conservative (wider CI \u2192 larger N)."),
-        tags$li(tags$b("Agresti\u2013Coull:"), "Adds a small correction ('add 2 successes + 2 failures'). Close to Wilson."),
-        tags$li(tags$b("Asymptotic (Wald):"), "Normal approximation p \u00b1 z\u00b7SE. Avoid at small n or extreme p.")
-      ),
-      tags$h4("Test-based"),
-      tags$ul(tags$li(tags$b("prop.test:"), "Score/chi-squared based; generally better than Wald.")),
-      tags$h4("Model-based"),
-      tags$ul(
-        tags$li(tags$b("Logit:"), "CI on log-odds scale, back-transformed."),
-        tags$li(tags$b("Probit:"), "Same idea, probit link."),
-        tags$li(tags$b("Cloglog:"), "Complementary log-log link.")
-      ),
-      tags$h4("Bayesian-style"),
-      tags$ul(tags$li(tags$b("Bayes:"), "Bayesian credible interval. Not a frequentist CI.")),
-      easyClose = TRUE, footer = modalButton("Close"), size = "l"
-    ))
-  })
-  
-  observeEvent(input$eq_compare, {
-    showModal(modalDialog(
-      title = "CI method comparison",
-      tags$p("The comparison table (enable via Other Settings \u2192 'Show CI method comparison table')
-              shows required total N for Wilson, Exact, Agresti\u2013Coull, and Wald side-by-side
-              at your current inputs."),
-      tags$p("Key insight: method choice matters most when:"),
-      tags$ul(
-        tags$li("Event rates are close to 0 or 1."),
-        tags$li("Sample sizes are small (N < ~50 per arm)."),
-        tags$li("The NI margin is tight relative to p\u2081 \u2212 p\u2080.")
-      ),
-      easyClose = TRUE, footer = modalButton("Close"), size = "m"
-    ))
-  })
-  
-  # -- Core N function ------------------------------------------------------
+  # -- Core N function -------------------------------------------------------
   n_1arm_z_superiority <- function(p0, p1, alpha, power) {
     if (p1 <= p0) return(Inf)
     z_alpha <- qnorm(1 - alpha); z_beta <- qnorm(power)
@@ -220,7 +132,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # -- N box ------------------------------------------------------------------
+  # -- N box -----------------------------------------------------------------
   output$n_box_prop <- renderUI({
     show_box <- if (is.null(input$showNBox_prop)) TRUE else isTRUE(input$showNBox_prop)
     if (!show_box) return(NULL)
@@ -239,7 +151,7 @@ server <- function(input, output, session) {
     box_ui("Required sample size", msg)
   })
   
-  # -- Shared plotly finishing touch ----------------------------------------
+  # -- Shared plotly finishing touch -----------------------------------------
   finish_plotly <- function(p) {
     ggplotly(p) %>%
       layout(
@@ -251,7 +163,7 @@ server <- function(input, output, session) {
       config(displaylogo = FALSE, displayModeBar = FALSE)
   }
   
-  # -- Delta plot --------------------------------------------------------------
+  # -- Delta plot ------------------------------------------------------------
   output$plot1 <- renderPlotly({
     df <- prop_df_delta()
     
@@ -287,7 +199,7 @@ server <- function(input, output, session) {
     finish_plotly(p)
   })
   
-  # -- p1 plot -------------------------------------------------------------
+  # -- p1 plot ---------------------------------------------------------------
   output$plot2 <- renderPlotly({
     df    <- prop_df_p1()
     is_one <- isTRUE(input$prop_design == "one_arm")
@@ -380,6 +292,7 @@ server <- function(input, output, session) {
       list(label = "Definitions glossary",       on = isTRUE(input$rpt_definitions),soon = FALSE),
       list(label = "Calculation code",           on = isTRUE(input$rpt_calc_code),  soon = FALSE),
       list(label = "Sensitivity plots",          on = isTRUE(input$rpt_plots),      soon = FALSE),
+      list(label = "Sensitivity tables",         on = isTRUE(input$rpt_tables),     soon = FALSE),
       list(label = "PG-Power footer",            on = TRUE,                         soon = FALSE),
       list(label = "CI bands on plots",          on = FALSE,                        soon = TRUE)
     )
@@ -404,7 +317,7 @@ server <- function(input, output, session) {
     tags$ul(class = "report-contents", lapply(all_items, make_li))
   })
   
-  # -- Download button UI ---------------------------------------------------
+  # -- Download button UI ----------------------------------------------------
   output$report_download_ui <- renderUI({
     if (isTRUE(input$report_format == "pdf")) {
       downloadButton("downloadPDF", "\u2193 Download summary (.pdf)",
@@ -415,7 +328,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # -- Shared helper: build report data ----------------------------------------
+  # -- Shared helper: build report data --------------------------------------
   build_report_data <- function() {
     ci_method_used <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
     n_val <- prop_total_n(
@@ -446,17 +359,15 @@ server <- function(input, output, session) {
     )
   }
   
-  # -- Fixed section order --------------------------------------------------
   get_section_order <- function() {
-    c("results", "interp", "ci_compare", "definitions", "calc_code", "plots")
+    c("results", "interp", "ci_compare", "definitions", "calc_code", "plots", "tables")
   }
   
   # -- Capture plots as PNG for report ---------------------------------------
   capture_plots <- function() {
     list(
       delta = tryCatch({
-        df    <- prop_df_delta()
-        p_val <- prop_total_n(input$p0.expected, input$p1.expected, input$p1.tolerable)
+        df <- prop_df_delta()
         p <- ggplot(df, aes(x = x, y = y)) +
           geom_line(colour = "#18bdb9", linewidth = 1.1) +
           geom_point(colour = "#18bdb9", size = 2) +
@@ -468,7 +379,7 @@ server <- function(input, output, session) {
         tmp
       }, error = function(e) NULL),
       p1 = tryCatch({
-        df    <- prop_df_p1()
+        df <- prop_df_p1()
         p <- ggplot(df, aes(x = x, y = y)) +
           geom_line(colour = "#18bdb9", linewidth = 1.1) +
           geom_point(colour = "#18bdb9", size = 2) +
@@ -482,15 +393,13 @@ server <- function(input, output, session) {
     )
   }
   
-  # -- Interpretation text builder (resolves {variable} tags) ------------------
+  # -- Interpretation text builder -------------------------------------------
   build_interp_text <- function(rd) {
     n_val       <- rd$n_val
     n_fmt       <- rd$n_fmt
     ns_fmt      <- rd$ns_fmt
     nd_fmt      <- rd$nd_fmt
-    n_successes <- rd$n_successes
     
-    # Get template - fall back to default if input not yet available
     template <- if (!is.null(input$rpt_interp_text) && nchar(trimws(input$rpt_interp_text)) > 0)
       input$rpt_interp_text
     else
@@ -508,16 +417,35 @@ server <- function(input, output, session) {
     pwr_pct <- round(input$power * 100)
     
     txt <- template
-    txt <- gsub("{n}",           n_fmt,               txt, fixed = TRUE)
-    txt <- gsub("{n_dropout}",   nd_fmt,              txt, fixed = TRUE)
-    txt <- gsub("{n_successes}", ns_fmt,              txt, fixed = TRUE)
-    txt <- gsub("{power_pct}",   as.character(pwr_pct), txt, fixed = TRUE)
-    txt <- gsub("{p0_pct}",      as.character(p0_pct),  txt, fixed = TRUE)
-    txt <- gsub("{p1_pct}",      as.character(p1_pct),  txt, fixed = TRUE)
+    txt <- gsub("{n}",           n_fmt,                         txt, fixed = TRUE)
+    txt <- gsub("{n_dropout}",   nd_fmt,                        txt, fixed = TRUE)
+    txt <- gsub("{n_successes}", ns_fmt,                        txt, fixed = TRUE)
+    txt <- gsub("{power_pct}",   as.character(pwr_pct),         txt, fixed = TRUE)
+    txt <- gsub("{p0_pct}",      as.character(p0_pct),          txt, fixed = TRUE)
+    txt <- gsub("{p1_pct}",      as.character(p1_pct),          txt, fixed = TRUE)
     txt <- gsub("{alpha}",       as.character(input$sig.level), txt, fixed = TRUE)
     txt <- gsub("{delta}",       sprintf("%.3f", input$p1.tolerable), txt, fixed = TRUE)
-    txt <- gsub("{ci_method}",   rd$ci_label,         txt, fixed = TRUE)
+    txt <- gsub("{ci_method}",   rd$ci_label,                   txt, fixed = TRUE)
     txt
+  }
+  
+  # -- Helper: sensitivity table HTML (for PDF) ------------------------------
+  make_sens_table_html <- function(df, col_names, caption, blue, th_fn, td_fn) {
+    df2 <- df
+    # Replace Inf with em-dash in Total N column
+    df2[[2]] <- ifelse(is.infinite(df2[[2]]) | is.na(df2[[2]]), "\u2014",
+                       format(round(df2[[2]]), big.mark = ","))
+    header_row <- paste(sapply(col_names, th_fn), collapse = "")
+    data_rows  <- paste(apply(df2, 1, function(row) {
+      paste0("<tr>", paste(sapply(row, td_fn), collapse = ""), "</tr>")
+    }), collapse = "")
+    paste0(
+      "<p style='font-size:9px;color:#555;font-style:italic;margin:4px 0 6px;'>", caption, "</p>",
+      "<table style='border-collapse:collapse;width:100%;'>",
+      "<tr>", header_row, "</tr>",
+      data_rows,
+      "</table>"
+    )
   }
   
   # -- PDF summary download --------------------------------------------------
@@ -534,16 +462,16 @@ server <- function(input, output, session) {
         nd_fmt      <- rd$nd_fmt
         n_successes <- rd$n_successes
         
-        show_results <- !isTRUE(input$rpt_results    == FALSE)
-        show_interp  <- !isTRUE(input$rpt_interp_inc == FALSE) &&
+        show_results  <- !isTRUE(input$rpt_results    == FALSE)
+        show_interp   <- !isTRUE(input$rpt_interp_inc == FALSE) &&
           !is.infinite(n_val) && !is.na(n_successes)
-        show_ci_cmp  <- !isTRUE(input$rpt_ci_compare == FALSE)
-        show_defs    <- !isTRUE(input$rpt_definitions == FALSE)
-        show_code    <- !isTRUE(input$rpt_calc_code   == FALSE)
-        show_plots   <- isTRUE(input$rpt_plots)
+        show_ci_cmp   <- !isTRUE(input$rpt_ci_compare == FALSE)
+        show_defs     <- !isTRUE(input$rpt_definitions == FALSE)
+        show_code     <- !isTRUE(input$rpt_calc_code   == FALSE)
+        show_plots    <- isTRUE(input$rpt_plots)
+        show_tables   <- isTRUE(input$rpt_tables)
         section_order <- get_section_order()
         
-        # Capture plots if needed (done early so files exist when HTML is built)
         plot_files <- if (show_plots) capture_plots() else list(delta = NULL, p1 = NULL)
         
         blue <- "#2E74B5"
@@ -568,7 +496,7 @@ server <- function(input, output, session) {
           "</tr></table><hr style='border-color:", blue, ";margin:14px 0;'>"
         ) else ""
         
-        # Interpretation (uses editable template)
+        # Interpretation
         interp_text <- if (show_interp) build_interp_text(rd) else NULL
         interp_html <- if (show_interp) paste0(
           "<h2 style='", h2s, "'>Interpretation</h2>",
@@ -585,9 +513,8 @@ server <- function(input, output, session) {
         method_ns <- sapply(all_methods, function(m) {
           n <- prop_total_n(input$p0.expected, input$p1.expected, input$p1.tolerable,
                             ci_method = m, sim_n = 400, seed = 1)
-          if (is.infinite(n)) "&mdash;" else format(n, big.mark = ",")
+          if (is.infinite(n)) "\u2014" else format(n, big.mark = ",")
         })
-        # Wide format: method names as column headers, values in one row
         ci_header_row <- paste(sapply(names(all_methods), th), collapse = "")
         ci_data_row   <- paste(sapply(unname(method_ns),  td), collapse = "")
         ci_html <- if (show_ci_cmp) paste0(
@@ -648,7 +575,7 @@ server <- function(input, output, session) {
           "</pre>"
         ) else ""
         
-        # Assemble sections in user-defined order
+        # Sensitivity plots
         plots_html <- if (show_plots) {
           img_tag <- function(f, cap) {
             if (is.null(f) || !file.exists(f)) return("")
@@ -663,26 +590,60 @@ server <- function(input, output, session) {
           }
           paste0(
             "<h2 style='", h2s, "'>Sensitivity Plots</h2>",
-            img_tag(plot_files$delta, "NI margin vs total sample size (n)"),
-            img_tag(plot_files$p1,    "Expected event rate vs total sample size (n)"),
+            img_tag(plot_files$delta, "NI margin (\u0394) vs total sample size (n)"),
+            img_tag(plot_files$p1,    "Expected event rate (p\u2081) vs total sample size (n)"),
+            "<hr style='border-color:", blue, ";margin:14px 0;'>"
+          )
+        } else ""
+        
+        # -- Sensitivity tables -----------------------------------------------
+        tables_html <- if (show_tables) {
+          df_delta <- tryCatch(prop_df_delta(), error = function(e) NULL)
+          df_p1    <- tryCatch(prop_df_p1(),    error = function(e) NULL)
+          
+          tbl_delta <- if (!is.null(df_delta)) {
+            make_sens_table_html(
+              df_delta,
+              col_names = c("NI Margin (\u0394)", "Total N"),
+              caption   = paste0("Sensitivity: NI margin vs total sample size  (p\u2080 = ",
+                                 input$p0.expected, ", p\u2081 = ", input$p1.expected, ")"),
+              blue      = blue, th_fn = th, td_fn = td
+            )
+          } else ""
+          
+          tbl_p1 <- if (!is.null(df_p1)) {
+            make_sens_table_html(
+              df_p1,
+              col_names = c("Expected Event Rate (p\u2081)", "Total N"),
+              caption   = paste0("Sensitivity: expected event rate vs total sample size  (p\u2080 = ",
+                                 input$p0.expected, ", \u0394 = ", input$p1.tolerable, ")"),
+              blue      = blue, th_fn = th, td_fn = td
+            )
+          } else ""
+          
+          paste0(
+            "<h2 style='", h2s, "'>Sensitivity Tables</h2>",
+            tbl_delta,
+            "<br>",
+            tbl_p1,
             "<hr style='border-color:", blue, ";margin:14px 0;'>"
           )
         } else ""
         
         section_html_map <- list(
-          results    = results_html,
-          interp     = interp_html,
-          ci_compare = ci_html,
-          definitions= defs_html,
-          calc_code  = code_html,
-          plots      = plots_html
+          results     = results_html,
+          interp      = interp_html,
+          ci_compare  = ci_html,
+          definitions = defs_html,
+          calc_code   = code_html,
+          plots       = plots_html,
+          tables      = tables_html
         )
         body_html <- paste(sapply(section_order, function(s) {
           h <- section_html_map[[s]]
           if (is.null(h)) "" else h
         }), collapse = "")
         
-        # Assemble full HTML
         rpt_title_val <- if (!is.null(input$rpt_title) && nchar(trimws(input$rpt_title)) > 0)
           input$rpt_title else "PG-Power \u2014 Sample Size Report"
         sub_parts <- c(
@@ -721,7 +682,6 @@ server <- function(input, output, session) {
         } else if (requireNamespace("webshot2", quietly = TRUE)) {
           webshot2::webshot(tmp_html, file = file, vwidth = 794, vheight = 1123)
         } else {
-          # Last-resort fallback: copy HTML (user can open and print-to-PDF)
           file.copy(tmp_html, file, overwrite = TRUE)
           showNotification(
             "Install 'pagedown' for true PDF output: install.packages('pagedown')",
@@ -736,7 +696,7 @@ server <- function(input, output, session) {
     }
   )
   
-  # -- Downloads -------------------------------------------------------------
+  # -- Downloads (CSV tables) ------------------------------------------------
   output$downloadData_plot1 <- downloadHandler(
     filename = function() paste0("PGPower_NI_margin_table_", Sys.Date(), ".csv"),
     content  = function(file) {
@@ -772,9 +732,9 @@ server <- function(input, output, session) {
         nd_fmt      <- rd$nd_fmt
         n_successes <- rd$n_successes
         
-        show_plots_w   <- isTRUE(input$rpt_plots)
-        section_order_w <- get_section_order()
-        plot_files_w   <- if (show_plots_w) capture_plots() else list(delta = NULL, p1 = NULL)
+        show_plots_w  <- isTRUE(input$rpt_plots)
+        show_tables_w <- isTRUE(input$rpt_tables)
+        plot_files_w  <- if (show_plots_w) capture_plots() else list(delta = NULL, p1 = NULL)
         
         summary_df <- data.frame(
           "Power"       = format(input$power, nsmall = 2),
@@ -792,7 +752,6 @@ server <- function(input, output, session) {
         colnames(summary_df) <- c("Power", "n", "n-successes", "10% dropout",
                                   "p\u2080", "p\u2081", "\u0394", "\u03b1", "CI Method")
         
-        # -- Formatting helpers ---------------------------------------------
         blue_col  <- "#2E74B5"
         title_fmt <- officer::fp_text(bold = TRUE,  font.size = 12, color = blue_col)
         h2_fmt    <- officer::fp_text(bold = FALSE, font.size = 10, color = blue_col)
@@ -810,7 +769,7 @@ server <- function(input, output, session) {
         
         doc <- officer::read_docx()
         
-        # -- Title block ----------------------------------------------------
+        # Title block
         word_title <- if (!is.null(input$rpt_title) && nchar(trimws(input$rpt_title)) > 0)
           input$rpt_title else "PG-Power \u2014 Sample Size Report"
         sub_word_parts <- c(
@@ -829,7 +788,7 @@ server <- function(input, output, session) {
         doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
         doc <- officer::body_add_par(doc, "", style = "Normal")
         
-        # -- Results -------------------------------------------------------
+        # Results
         if (!isTRUE(input$rpt_results == FALSE)) {
           doc <- officer::body_add_fpar(doc,
                                         officer::fpar(officer::ftext("Results", h2_fmt), fp_p = tight_p))
@@ -843,7 +802,7 @@ server <- function(input, output, session) {
           doc <- officer::body_add_par(doc, "", style = "Normal")
         }
         
-        # -- Interpretation -------------------------------------------------
+        # Interpretation
         if (!is.infinite(n_val) && !is.na(n_successes) &&
             !isTRUE(input$rpt_interp_inc == FALSE)) {
           interp <- build_interp_text(rd)
@@ -855,9 +814,50 @@ server <- function(input, output, session) {
           doc <- officer::body_add_par(doc, "", style = "Normal")
         }
         
-        # -- Definitions (conditional on checkbox) --------------------------
-        include_defs <- if (is.null(input$rpt_definitions)) TRUE else isTRUE(input$rpt_definitions)
+        # CI method comparison
+        if (!isTRUE(input$rpt_ci_compare == FALSE)) {
+          all_methods <- c(
+            "Z (Power)"     = "z_power",
+            "Wilson"        = "wilson",
+            "Exact (C-P)"   = "exact",
+            "Agresti-Coull" = "ac",
+            "Wald"          = "asymptotic",
+            "prop.test"     = "prop.test",
+            "Bayes"         = "bayes",
+            "Logit"         = "logit",
+            "Cloglog"       = "cloglog",
+            "Probit"        = "probit"
+          )
+          method_ns <- sapply(all_methods, function(m) {
+            n <- prop_total_n(
+              input$p0.expected, input$p1.expected, input$p1.tolerable,
+              ci_method = m, sim_n = 400, seed = 1
+            )
+            if (is.infinite(n)) "\u2014" else format(n, big.mark = ",")
+          })
+          ci_wide_df <- as.data.frame(matrix(unname(method_ns), nrow = 1),
+                                      stringsAsFactors = FALSE)
+          colnames(ci_wide_df) <- names(all_methods)
+          
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Sample size by CI method", h2_fmt), fp_p = tight_p))
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(
+                                          officer::ftext(
+                                            paste0("p\u2080 = ", input$p0.expected,
+                                                   "  |  p\u2081 = ", input$p1.expected,
+                                                   "  |  \u0394 = ", input$p1.tolerable,
+                                                   "  |  \u03b1 = ", input$sig.level,
+                                                   "  |  Power = ", input$power),
+                                            hyp_fmt),
+                                          fp_p = tight_p))
+          doc <- officer::body_add_table(doc, ci_wide_df, align_table = "left")
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+          doc <- officer::body_add_par(doc, "", style = "Normal")
+        }
         
+        # Definitions
+        include_defs <- if (is.null(input$rpt_definitions)) TRUE else isTRUE(input$rpt_definitions)
         if (include_defs) {
           doc <- officer::body_add_fpar(doc,
                                         officer::fpar(officer::ftext("Definitions", h2_fmt), fp_p = tight_p))
@@ -881,57 +881,8 @@ server <- function(input, output, session) {
           doc <- officer::body_add_par(doc, "", style = "Normal")
         }
         
-        # -- Sample size by CI method (two 5-column tables) ------------------
-        all_methods <- c(
-          "Z (Power)"     = "z_power",
-          "Wilson"        = "wilson",
-          "Exact (C-P)"   = "exact",
-          "Agresti-Coull" = "ac",
-          "Wald"          = "asymptotic",
-          "prop.test"     = "prop.test",
-          "Bayes"         = "bayes",
-          "Logit"         = "logit",
-          "Cloglog"       = "cloglog",
-          "Probit"        = "probit"
-        )
-        method_ns <- sapply(all_methods, function(m) {
-          n <- prop_total_n(
-            input$p0.expected, input$p1.expected, input$p1.tolerable,
-            ci_method = m, sim_n = 400, seed = 1
-          )
-          if (is.infinite(n)) "\u2014" else format(n, big.mark = ",")
-        })
-        ns_vec   <- unname(method_ns)
-        nm_vec   <- names(all_methods)
-        # Single wide row: methods as columns, n values as the one data row
-        ci_wide_df <- as.data.frame(
-          matrix(ns_vec, nrow = 1), stringsAsFactors = FALSE
-        )
-        colnames(ci_wide_df) <- nm_vec
-        
-        if (!isTRUE(input$rpt_ci_compare == FALSE)) {
-          
-          doc <- officer::body_add_fpar(doc,
-                                        officer::fpar(officer::ftext("Sample size by CI method", h2_fmt), fp_p = tight_p))
-          doc <- officer::body_add_fpar(doc,
-                                        officer::fpar(
-                                          officer::ftext(
-                                            paste0("p\u2080 = ", input$p0.expected,
-                                                   "  |  p\u2081 = ", input$p1.expected,
-                                                   "  |  \u0394 = ", input$p1.tolerable,
-                                                   "  |  \u03b1 = ", input$sig.level,
-                                                   "  |  Power = ", input$power),
-                                            hyp_fmt),
-                                          fp_p = tight_p))
-          doc <- officer::body_add_table(doc, ci_wide_df, align_table = "left")
-          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
-          doc <- officer::body_add_par(doc, "", style = "Normal")
-          
-        } # end rpt_ci_compare
-        
-        # -- Calculation code (conditional on checkbox) ---------------------
+        # Calculation code
         include_code <- if (is.null(input$rpt_calc_code)) TRUE else isTRUE(input$rpt_calc_code)
-        
         if (include_code) {
           doc <- officer::body_add_fpar(doc,
                                         officer::fpar(officer::ftext("Calculation", h2_fmt), fp_p = tight_p))
@@ -952,11 +903,69 @@ server <- function(input, output, session) {
           for (line in code_lines)
             doc <- officer::body_add_fpar(doc,
                                           officer::fpar(officer::ftext(line, mono_fmt), fp_p = tight_p))
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+          doc <- officer::body_add_par(doc, "", style = "Normal")
         }
         
-        # -- Footer ------------------------------------------------------------
-        footer_fmt <- officer::fp_text(font.size = 8, color = "#94a3b8",
-                                       italic = TRUE)
+        # Sensitivity plots (Word)
+        if (show_plots_w) {
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Sensitivity Plots", h2_fmt), fp_p = tight_p))
+          for (plot_file in list(plot_files_w$delta, plot_files_w$p1)) {
+            if (!is.null(plot_file) && file.exists(plot_file)) {
+              doc <- officer::body_add_img(doc, src = plot_file, width = 5.5, height = 3.2)
+              doc <- officer::body_add_par(doc, "", style = "Normal")
+            }
+          }
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+          doc <- officer::body_add_par(doc, "", style = "Normal")
+        }
+        
+        # -- Sensitivity tables (Word) ----------------------------------------
+        if (show_tables_w) {
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Sensitivity Tables", h2_fmt), fp_p = tight_p))
+          
+          # Delta table
+          df_delta <- tryCatch(prop_df_delta(), error = function(e) NULL)
+          if (!is.null(df_delta)) {
+            df_delta_w <- df_delta
+            df_delta_w[[2]] <- ifelse(is.infinite(df_delta_w[[2]]) | is.na(df_delta_w[[2]]),
+                                      "\u2014", format(round(df_delta_w[[2]]), big.mark = ","))
+            df_delta_w[[1]] <- sprintf("%.3f", df_delta_w[[1]])
+            colnames(df_delta_w) <- c("NI Margin (\u0394)", "Total N")
+            doc <- officer::body_add_fpar(doc,
+                                          officer::fpar(officer::ftext(
+                                            paste0("NI margin sensitivity  (p\u2080 = ", input$p0.expected,
+                                                   ", p\u2081 = ", input$p1.expected, ")"),
+                                            hyp_fmt), fp_p = tight_p))
+            doc <- officer::body_add_table(doc, df_delta_w, align_table = "left")
+            doc <- officer::body_add_par(doc, "", style = "Normal")
+          }
+          
+          # p1 table
+          df_p1 <- tryCatch(prop_df_p1(), error = function(e) NULL)
+          if (!is.null(df_p1)) {
+            df_p1_w <- df_p1
+            df_p1_w[[2]] <- ifelse(is.infinite(df_p1_w[[2]]) | is.na(df_p1_w[[2]]),
+                                   "\u2014", format(round(df_p1_w[[2]]), big.mark = ","))
+            df_p1_w[[1]] <- sprintf("%.3f", df_p1_w[[1]])
+            colnames(df_p1_w) <- c("Expected Event Rate (p\u2081)", "Total N")
+            doc <- officer::body_add_fpar(doc,
+                                          officer::fpar(officer::ftext(
+                                            paste0("Event rate sensitivity  (p\u2080 = ", input$p0.expected,
+                                                   ", \u0394 = ", input$p1.tolerable, ")"),
+                                            hyp_fmt), fp_p = tight_p))
+            doc <- officer::body_add_table(doc, df_p1_w, align_table = "left")
+            doc <- officer::body_add_par(doc, "", style = "Normal")
+          }
+          
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+          doc <- officer::body_add_par(doc, "", style = "Normal")
+        }
+        
+        # Footer
+        footer_fmt <- officer::fp_text(font.size = 8, color = "#94a3b8", italic = TRUE)
         footer_p   <- officer::fp_par(
           text.align = "left",
           border.top = officer::fp_border(color = "#e2e8f0", width = 1)
@@ -967,28 +976,6 @@ server <- function(input, output, session) {
                                         officer::ftext("This report was generated by PG-Power.", footer_fmt),
                                         fp_p = footer_p
                                       ))
-        
-        # -- Sensitivity plots (Word) ----------------------------------------
-        if (show_plots_w) {
-          doc <- officer::body_add_fpar(doc,
-                                        officer::fpar(officer::ftext("Sensitivity Plots", h2_fmt), fp_p = tight_p))
-          for (plot_file in list(plot_files_w$delta, plot_files_w$p1)) {
-            if (!is.null(plot_file) && file.exists(plot_file)) {
-              doc <- officer::body_add_img(doc, src = plot_file,
-                                           width = 5.5, height = 3.2)
-              doc <- officer::body_add_par(doc, "", style = "Normal")
-            }
-          }
-          doc <- officer::body_add_fpar(doc,
-                                        officer::fpar(officer::ftext(" "), fp_p = border_p))
-          doc <- officer::body_add_par(doc, "", style = "Normal")
-        }
-        
-        # Re-order Word sections is complex; sections are added sequentially above.
-        # The ordering is honoured by rebuilding the doc in section_order_w order.
-        # For now the fixed order above already respects the default ordering.
-        # A full re-order would require restructuring the above into a list and
-        # iterating -- deferred to a future update.
         
         print(doc, target = file)
         
