@@ -991,10 +991,328 @@ server <- function(input, output, session) {
         # iterating -- deferred to a future update.
         
         print(doc, target = file)
-        
+
       }, error = function(e) {
         message("downloadWord ERROR: ", conditionMessage(e))
       })
     }
   )
+
+  # ── Interim Analysis ────────────────────────────────────────────────────────
+
+  # Core reactive: computes all interim values, direction-aware for
+  # safety (lower is better) vs efficacy (higher is better), and
+  # handles both single-arm (vs benchmark) and two-arm (vs control).
+  interim_vals <- reactive({
+    req(input$interim_n, input$interim_x,
+        input$p0.expected, input$p1.tolerable)
+    req(input$interim_n > 0)
+
+    is_two_arm <- isTRUE(input$prop_design == "two_arm")
+    is_safety  <- isTRUE(input$endpoint   == "safety")
+
+    n     <- as.integer(input$interim_n)
+    x_trt <- max(0L, min(as.integer(input$interim_x), n))
+    p0    <- input$p0.expected
+    delta <- input$p1.tolerable
+    n_planned <- prop_n_at_delta()
+
+    if (is_two_arm) {
+      # Control-arm events (default 0 if input not yet initialised)
+      x_ctrl_raw <- if (!is.null(input$interim_x_control) &&
+                        !is.na(input$interim_x_control))
+                      as.integer(input$interim_x_control) else 0L
+      x_ctrl <- max(0L, min(x_ctrl_raw, n))
+
+      p_hat1   <- x_trt  / n
+      p_hat0   <- x_ctrl / n
+      obs_diff <- p_hat1 - p_hat0
+
+      # Wald CI for risk difference
+      se_diff <- sqrt(p_hat1 * (1 - p_hat1) / n +
+                      p_hat0 * (1 - p_hat0) / n)
+      z95     <- qnorm(0.975)
+      ci_lo   <- obs_diff - z95 * se_diff
+      ci_hi   <- obs_diff + z95 * se_diff
+
+      # NI boundary on difference scale: efficacy = -Δ, safety = +Δ
+      boundary <- if (is_safety) delta else -delta
+
+      status <- if (is_safety) {
+        if (obs_diff > boundary)  "Concern"
+        else if (ci_hi > boundary) "Monitor Closely"
+        else "On Track"
+      } else {
+        if (obs_diff < boundary)  "Concern"
+        else if (ci_lo < boundary) "Monitor Closely"
+        else "On Track"
+      }
+
+      list(n = n, x = x_trt, x_ctrl = x_ctrl,
+           p_hat = obs_diff, p_hat1 = p_hat1, p_hat0 = p_hat0,
+           ci_lo = ci_lo, ci_hi = ci_hi,
+           p0 = p0, delta = delta, boundary = boundary,
+           n_planned = n_planned, status = status,
+           is_two_arm = TRUE, is_safety = is_safety)
+
+    } else {
+      p_hat    <- x_trt / n
+      # Efficacy: boundary = p0 − Δ  (want p̂ above)
+      # Safety:   boundary = p0 + Δ  (want p̂ below)
+      boundary <- if (is_safety) p0 + delta else p0 - delta
+      ci       <- prop_ci_vec(x_trt, n, 0.95, "wilson")
+
+      status <- if (is_safety) {
+        if (p_hat > boundary)        "Concern"
+        else if (ci$upper > boundary) "Monitor Closely"
+        else "On Track"
+      } else {
+        if (p_hat < boundary)        "Concern"
+        else if (ci$lower < boundary) "Monitor Closely"
+        else "On Track"
+      }
+
+      list(n = n, x = x_trt, x_ctrl = NULL,
+           p_hat = p_hat, p_hat1 = p_hat, p_hat0 = NULL,
+           ci_lo = ci$lower, ci_hi = ci$upper,
+           p0 = p0, delta = delta, boundary = boundary,
+           n_planned = n_planned, status = status,
+           is_two_arm = FALSE, is_safety = is_safety)
+    }
+  })
+
+  # Sidebar heading label (shows endpoint type)
+  output$interim_sidebar_label <- renderUI({
+    is_safety <- isTRUE(input$endpoint == "safety")
+    ep_text   <- if (is_safety) "Safety  ·  lower is better"
+                 else           "Efficacy  ·  higher is better"
+    tags$p(ep_text,
+           style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                    letter-spacing:0.06em; color:#18bdb9; margin:0 0 10px;")
+  })
+
+  # Sidebar: pulled Calculator values
+  output$interim_pulled_vals <- renderUI({
+    v        <- interim_vals()
+    bnd_sign <- if (v$is_safety) "+" else "−"
+    bnd_text <- if (v$is_two_arm) {
+      paste0("NI boundary (diff) = ",
+             bnd_sign, round(abs(v$boundary), 3))
+    } else {
+      paste0("NI boundary = p₀ ", bnd_sign,
+             " Δ = ", round(v$boundary, 3))
+    }
+    tags$div(
+      style = "font-size:12px; color:#4a5568; line-height:1.8;",
+      tags$p(paste0("p₀ = ", v$p0, "  ·  Δ = ", v$delta)),
+      tags$p(bnd_text),
+      tags$p(paste0("Planned N = ",
+                    if (is.infinite(v$n_planned)) "Not achievable"
+                    else format(v$n_planned, big.mark = ",")))
+    )
+  })
+
+  # Colour-coded status box
+  output$interim_status_box <- renderUI({
+    v <- interim_vals()
+    col <- switch(v$status,
+      "On Track"        = "#18bdb9",
+      "Monitor Closely" = "#e07b39",
+      "Concern"         = "#c0392b"
+    )
+    ep_badge   <- if (v$is_safety) "Safety endpoint  ·  lower is better"
+                  else             "Efficacy endpoint  ·  higher is better"
+    est_label  <- if (v$is_two_arm) "Observed difference p̂₁ − p̂₀"
+                  else             "Observed rate p̂"
+    bnd_label  <- if (v$is_two_arm) "NI boundary (diff)"
+                  else             "NI boundary (p₀ ± Δ)"
+
+    tags$div(
+      style = paste0(
+        "background:", col, "15;",
+        "border:1px solid ", col, ";",
+        "border-left-width:4px;",
+        "border-radius:10px;",
+        "padding:14px 18px;"
+      ),
+      tags$div(
+        style = paste0("color:", col, "; font-weight:700; font-size:11px;",
+                       " letter-spacing:0.1em; text-transform:uppercase;",
+                       " margin-bottom:4px;"),
+        v$status
+      ),
+      tags$div(
+        style = "font-size:11px; color:#718096; margin-bottom:8px;",
+        ep_badge
+      ),
+      tags$div(
+        style = "font-size:13px; color:#1a2e35; line-height:1.8;",
+        paste0(est_label, " = ", round(v$p_hat, 3),
+               "   (95% CI: ", round(v$ci_lo, 3),
+               " – ", round(v$ci_hi, 3), ")"),
+        tags$br(),
+        paste0(bnd_label, " = ", round(v$boundary, 3),
+               "   ·   Distance from boundary: ",
+               round(v$p_hat - v$boundary, 3)),
+        tags$br(),
+        if (!is.infinite(v$n_planned))
+          paste0("Enrolled: ", v$n, " of planned ",
+                 format(v$n_planned, big.mark = ","),
+                 "  (", round(100 * v$n / v$n_planned, 1), "%)")
+        else
+          paste0("Enrolled: ", v$n)
+      )
+    )
+  })
+
+  # Position plot: CI bar vs NI boundary.
+  # 1-arm: x-axis = proportion; 2-arm: x-axis = risk difference.
+  output$interim_position_plot <- renderPlotly({
+    v <- interim_vals()
+
+    # Axis limits
+    if (v$is_two_arm) {
+      xlo <- min(v$boundary - 0.15, v$ci_lo - 0.05, -0.25)
+      xhi <- max(v$boundary + 0.15, v$ci_hi + 0.05,  0.25)
+    } else {
+      xlo <- max(0, min(v$boundary - 0.15, v$ci_lo - 0.05))
+      xhi <- min(1, max(v$p0 + 0.10,       v$ci_hi + 0.05))
+    }
+
+    # Shaded "good zone": right of boundary for efficacy, left for safety
+    good_lo <- if (v$is_safety) xlo       else v$boundary
+    good_hi <- if (v$is_safety) v$boundary else xhi
+
+    # Labels
+    y_label   <- if (v$is_two_arm) "Difference (p̂₁ − p̂₀)"
+                 else              "Current p̂"
+    x_label   <- if (v$is_two_arm) "Risk difference" else "Proportion"
+    plt_title <- if (v$is_two_arm) "Observed risk difference vs NI boundary"
+                 else              "Current observed rate vs NI boundary"
+    ref_x     <- if (v$is_two_arm) 0 else v$p0
+    ref_label <- if (v$is_two_arm) "No difference (0)"
+                 else              paste0("p₀ = ", v$p0)
+
+    df_pt <- data.frame(label = y_label,
+                        est = v$p_hat, lo = v$ci_lo, hi = v$ci_hi)
+
+    p <- ggplot(df_pt, aes(x = est, y = label)) +
+      annotate("rect", xmin = good_lo, xmax = good_hi,
+               ymin = -Inf, ymax = Inf, fill = "#18bdb9", alpha = 0.08) +
+      geom_vline(xintercept = v$boundary, linetype = "dashed",
+                 colour = "#e07b39", linewidth = 0.9) +
+      geom_vline(xintercept = ref_x, linetype = "dashed",
+                 colour = "#718096", linewidth = 0.7) +
+      geom_errorbarh(aes(xmin = lo, xmax = hi),
+                     height = 0.15, colour = "#1a2e35", linewidth = 0.9) +
+      geom_point(size = 4, colour = "#18bdb9") +
+      scale_x_continuous(limits = c(xlo, xhi)) +
+      labs(title = plt_title, x = x_label, y = NULL) +
+      plot_theme_large +
+      theme(axis.text.y = element_text(size = 12))
+
+    bnd_anchor <- if (v$is_safety) "right" else "left"
+
+    ggplotly(p) %>%
+      layout(
+        hovermode     = "x unified",
+        paper_bgcolor = "transparent",
+        plot_bgcolor  = "white",
+        font          = list(family = "DM Sans, sans-serif"),
+        annotations   = list(
+          list(x = v$boundary, y = 1.08, yref = "paper",
+               text = paste0("NI boundary (", round(v$boundary, 3), ")"),
+               showarrow = FALSE, xanchor = bnd_anchor,
+               font = list(color = "#e07b39", size = 11)),
+          list(x = ref_x, y = 0.80, yref = "paper",
+               text = ref_label,
+               showarrow = FALSE, xanchor = "left",
+               font = list(color = "#718096", size = 11))
+        )
+      ) %>%
+      config(displaylogo = FALSE, displayModeBar = FALSE)
+  })
+
+  # Calculation table: shows every step behind the status box numbers
+  output$interim_calc_table <- renderUI({
+    v        <- interim_vals()
+    bnd_sign <- if (v$is_safety) "+" else "−"
+
+    rows <- if (v$is_two_arm) {
+      list(
+        c("Enrolled per arm (n)",
+          as.character(v$n)),
+        c("Treatment events (x₁)",
+          as.character(v$x)),
+        c("Control events (x₀)",
+          as.character(v$x_ctrl)),
+        c("p̂₁ = x₁ ÷ n",
+          paste0(v$x, " ÷ ", v$n, " = ", round(v$p_hat1, 4))),
+        c("p̂₀ = x₀ ÷ n",
+          paste0(v$x_ctrl, " ÷ ", v$n, " = ", round(v$p_hat0, 4))),
+        c("Difference = p̂₁ − p̂₀",
+          paste0(round(v$p_hat1, 4), " − ", round(v$p_hat0, 4),
+                 " = ", round(v$p_hat, 4))),
+        c("95% CI (Wald, difference)",
+          paste0("[", round(v$ci_lo, 4), ",  ", round(v$ci_hi, 4), "]")),
+        c(paste0("NI boundary = ", bnd_sign, "Δ"),
+          paste0(bnd_sign, round(abs(v$boundary), 4))),
+        c("Distance = estimate − boundary",
+          paste0(round(v$p_hat, 4), " − (", round(v$boundary, 4),
+                 ") = ", round(v$p_hat - v$boundary, 4)))
+      )
+    } else {
+      list(
+        c("Enrolled (n)",
+          as.character(v$n)),
+        c("Events (x)",
+          as.character(v$x)),
+        c("p̂ = x ÷ n",
+          paste0(v$x, " ÷ ", v$n, " = ", round(v$p_hat, 4))),
+        c("95% CI (Wilson)",
+          paste0("[", round(v$ci_lo, 4), ",  ", round(v$ci_hi, 4), "]")),
+        c("p₀",
+          as.character(v$p0)),
+        c("Δ",
+          as.character(v$delta)),
+        c(paste0("NI boundary = p₀ ", bnd_sign, " Δ"),
+          paste0(v$p0, " ", bnd_sign, " ", v$delta,
+                 " = ", round(v$boundary, 4))),
+        c("Distance = p̂ − boundary",
+          paste0(round(v$p_hat, 4), " − ", round(v$boundary, 4),
+                 " = ", round(v$p_hat - v$boundary, 4)))
+      )
+    }
+
+    tbl_rows <- lapply(rows, function(r) {
+      tags$tr(
+        tags$td(style = "padding:5px 10px; font-weight:600; font-size:12px;
+                         border:1px solid #e2e8f0; white-space:nowrap;
+                         font-family:'DM Mono',monospace; color:#1a2e35;",
+                r[1]),
+        tags$td(style = "padding:5px 10px; font-size:12px;
+                         border:1px solid #e2e8f0; color:#4a5568;
+                         font-family:'DM Mono',monospace;",
+                r[2])
+      )
+    })
+
+    tags$div(
+      style = "overflow-x:auto;",
+      tags$table(
+        style = "border-collapse:collapse; width:100%;",
+        tags$thead(tags$tr(
+          tags$th(style = "padding:5px 10px; background:#eef3f8;
+                           border:1px solid #e2e8f0; font-size:11px;
+                           letter-spacing:0.06em; text-transform:uppercase;
+                           color:#64748b;", "Calculation"),
+          tags$th(style = "padding:5px 10px; background:#eef3f8;
+                           border:1px solid #e2e8f0; font-size:11px;
+                           letter-spacing:0.06em; text-transform:uppercase;
+                           color:#64748b;", "Value")
+        )),
+        tags$tbody(tbl_rows)
+      )
+    )
+  })
 }

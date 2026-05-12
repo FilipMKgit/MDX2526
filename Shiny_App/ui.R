@@ -548,9 +548,61 @@ ui <- fluidPage(
           )
         )
       )
+    ),
+
+    # --------------------------------------------------------------------------
+    # Tab 4 - Interim Analysis
+    # --------------------------------------------------------------------------
+    tabPanel(
+      title = "Interim Analysis",
+
+      fluidRow(
+        style = "margin: 18px 8px 0;",
+
+        # -- Left column: inputs ----------------------------------------------
+        column(
+          width = 4,
+          class = "main-left",
+
+          acc_panel(
+            id = "acc_interim_inputs", heading = "Interim Analysis", open = TRUE,
+
+            uiOutput("interim_sidebar_label"),
+
+            numericInput("interim_n", "Patients enrolled so far (n):",
+                         value = 0, min = 0, step = 1),
+            numericInput("interim_x", "Events observed (treatment arm, x₁):",
+                         value = 0, min = 0, step = 1),
+
+            # Control arm events — only shown for two-arm design
+            conditionalPanel(
+              condition = "input.prop_design == 'two_arm'",
+              numericInput("interim_x_control",
+                           "Events observed (control arm, x₀):",
+                           value = 0, min = 0, step = 1)
+            ),
+
+            tags$hr(class = "pgp-hr"),
+            tags$p("Values", class = "sidebar-section-label"),
+            uiOutput("interim_pulled_vals")
+          )
+        ),
+
+        # -- Right column: outputs --------------------------------------------
+        column(
+          width = 8,
+          class = "main-right pgp-main",
+
+          uiOutput("interim_status_box"),
+          tags$div(style = "height:14px;"),
+          plotlyOutput("interim_position_plot", height = "260px"),
+          tags$div(style = "height:18px;"),
+          uiOutput("interim_calc_table")
+        )
+      )
     )
   ),
-  
+
   # -- Accordion + textarea JS ----------------------------------------------
   tags$script(HTML("
     $(document).on('click', '.pgp-accordion-header', function() {
