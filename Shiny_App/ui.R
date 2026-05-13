@@ -227,24 +227,6 @@ ui <- fluidPage(
           )
         ),
         
-        # Generate Report Info
-        acc_panel(
-          id      = "acc_report_info",
-          heading = "Generate Report",
-          open    = FALSE,
-          tags$div(
-            class = "ov-card",
-            tags$p("The Generate Report tab builds a formatted summary from your current Calculator inputs."),
-            tags$ul(
-              tags$li(tags$b("Format:"), " Word (.docx) or PDF (requires the ", tags$code("pagedown"), " package)."),
-              tags$li(tags$b("Title & Header:"), " Set a custom title; optionally include date, CI method, and author name."),
-              tags$li(tags$b("Interpretation:"), " Edit a free-text paragraph and insert live variable values using tag buttons (e.g. {n}, {power_pct}). Choose from built-in templates or start blank."),
-              tags$li(tags$b("Include in Report:"), " Toggle individual sections \u2014 results table, interpretation, CI comparison, definitions, calculation code, sensitivity plots, sensitivity tables, and interim analysis summary."),
-              tags$li(tags$b("Report contents:"), " Live checklist at the top of the tab updates as you tick options.")
-            )
-          )
-        ),
-        
         # Interim Analysis Info
         acc_panel(
           id      = "acc_interim_info",
@@ -264,6 +246,24 @@ ui <- fluidPage(
             tags$p(style = "font-size:12px; color:#94a3b8; margin-top:10px;",
                    "Note: The interim tool is descriptive, not a formal interim analysis with alpha-spending.
                     It does not adjust for multiplicity. Consult a statistician before making stopping decisions.")
+          )
+        ),
+        
+        # Generate Report Info
+        acc_panel(
+          id      = "acc_report_info",
+          heading = "Generate Report",
+          open    = FALSE,
+          tags$div(
+            class = "ov-card",
+            tags$p("The Generate Report tab builds a formatted summary from your current Calculator inputs."),
+            tags$ul(
+              tags$li(tags$b("Format:"), " Word (.docx) or PDF (requires the ", tags$code("pagedown"), " package)."),
+              tags$li(tags$b("Title & Header:"), " Set a custom title; optionally include date, CI method, and author name."),
+              tags$li(tags$b("Interpretation:"), " Edit a free-text paragraph and insert live variable values using tag buttons (e.g. {n}, {power_pct}). Choose from built-in templates or start blank."),
+              tags$li(tags$b("Include in Report:"), " Toggle individual sections \u2014 results table, interpretation, CI comparison, definitions, calculation code, sensitivity plots, sensitivity tables, and interim analysis summary."),
+              tags$li(tags$b("Report contents:"), " Live checklist at the top of the tab updates as you tick options.")
+            )
           )
         ),
         
@@ -608,6 +608,7 @@ ui <- fluidPage(
     ),
     
     # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Tab 4 - Generate Report
     # --------------------------------------------------------------------------
     tabPanel(
@@ -625,8 +626,8 @@ ui <- fluidPage(
               style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
               radioButtons(
                 "report_format", label = NULL,
-                choices  = c("Word (.docx)" = "docx", "PDF (.pdf)" = "pdf"),
-                selected = "docx", inline = TRUE
+                choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
+                selected = "pdf", inline = TRUE
               ),
               uiOutput("report_download_ui")
             ),
@@ -678,7 +679,7 @@ ui <- fluidPage(
                 style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
                            color:#374151; white-space:nowrap;",
                 onclick = "pgpLoadTitleTemplate();",
-                "\u21ba Load"
+                "\u21ba Load template"
               )
             ),
             tags$div(
@@ -711,6 +712,71 @@ ui <- fluidPage(
             textInput(
               "rpt_author_name", label = NULL,
               value = "", placeholder = "Author name..."
+            )
+          )
+        ),
+        
+        # Include in Report
+        acc_panel(
+          id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
+          
+          # ── General ─────────────────────────────────────────────────────
+          tags$p("General",
+                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
+          tags$div(
+            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_results",     "Results table",         value = TRUE),
+            checkboxInput("rpt_interp_inc",  "Interpretation",        value = TRUE),
+            checkboxInput("rpt_definitions", "Definitions",           value = TRUE),
+            checkboxInput("rpt_calc_code",   "Calculation code",      value = TRUE),
+            checkboxInput("rpt_ci_compare",  "CI comparison table",   value = FALSE)
+          ),
+          
+          # ── Sensitivity ──────────────────────────────────────────────────
+          tags$p("Sensitivity",
+                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
+          tags$div(
+            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_plot_delta",  "Δ plot",            value = FALSE),
+            checkboxInput("rpt_plot_p1",     "p₁ plot",           value = FALSE),
+            checkboxInput("rpt_table_delta", "Δ table",           value = FALSE),
+            checkboxInput("rpt_table_p1",    "p₁ table",          value = FALSE)
+          ),
+          
+          # ── Interim analysis ─────────────────────────────────────────────
+          tags$p("Interim Analysis",
+                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
+          tags$div(
+            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_interim_summ",  "Data summary",        value = FALSE),
+            checkboxInput("rpt_interim_interp","Interpretation",      value = FALSE),
+            checkboxInput("rpt_interim_ci",    "CI comparison",       value = FALSE),
+            checkboxInput("rpt_interim_plot",  "Position plot",       value = FALSE)
+          ),
+          
+          tags$div(
+            style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
+                     display:flex; gap:6px; flex-wrap:wrap;",
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpRestoreIncludes();",
+              "\u21ba Defaults"
+            ),
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpTickAllIncludes();",
+              "\u2713 Tick all"
+            ),
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpUntickAllIncludes();",
+              "\u2715 Untick all"
             )
           )
         ),
@@ -815,71 +881,6 @@ ui <- fluidPage(
                 "The study will be deemed successful if at least {n_successes} out of {n} ",
                 "evaluable patients are free from a major adverse event at 12 months."
               )
-            )
-          )
-        ),
-        
-        # Include in Report
-        acc_panel(
-          id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
-          
-          # ── General ─────────────────────────────────────────────────────
-          tags$p("General",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
-          tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_results",     "Results table",         value = TRUE),
-            checkboxInput("rpt_interp_inc",  "Interpretation",        value = TRUE),
-            checkboxInput("rpt_definitions", "Definitions",           value = TRUE),
-            checkboxInput("rpt_calc_code",   "Calculation code",      value = TRUE),
-            checkboxInput("rpt_ci_compare",  "CI comparison table",   value = FALSE)
-          ),
-          
-          # ── Sensitivity ──────────────────────────────────────────────────
-          tags$p("Sensitivity",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
-          tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_plot_delta",  "Δ plot",            value = FALSE),
-            checkboxInput("rpt_plot_p1",     "p₁ plot",           value = FALSE),
-            checkboxInput("rpt_table_delta", "Δ table",           value = FALSE),
-            checkboxInput("rpt_table_p1",    "p₁ table",          value = FALSE)
-          ),
-          
-          # ── Interim analysis ─────────────────────────────────────────────
-          tags$p("Interim Analysis",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
-          tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_interim_summ",  "Data summary",        value = FALSE),
-            checkboxInput("rpt_interim_interp","Interpretation",      value = FALSE),
-            checkboxInput("rpt_interim_ci",    "CI comparison",       value = FALSE),
-            checkboxInput("rpt_interim_plot",  "Position plot",       value = FALSE)
-          ),
-          
-          tags$div(
-            style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
-                     display:flex; gap:6px; flex-wrap:wrap;",
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpRestoreIncludes();",
-              "\u21ba Defaults"
-            ),
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpTickAllIncludes();",
-              "\u2713 Tick all"
-            ),
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpUntickAllIncludes();",
-              "\u2715 Untick all"
             )
           )
         )
@@ -1029,7 +1030,7 @@ ui <- fluidPage(
       S.setInputValue("rpt_include_date",   true,  {priority: "event"});
       S.setInputValue("rpt_include_method", true,  {priority: "event"});
       S.setInputValue("rpt_include_author", false, {priority: "event"});
-      S.setInputValue("report_format",      "docx",{priority: "event"});
+      S.setInputValue("report_format",      "pdf", {priority: "event"});
 
       // Interim analysis inputs
       S.setInputValue("interim_n",         0, {priority: "event"});
