@@ -1034,19 +1034,25 @@ server <- function(input, output, session) {
     conf_level <- 1 - 2 * alpha_used
 
     if (is_two_arm) {
+      # Allocation ratio from Calculator (treatment : control)
+      r_alloc <- as.numeric(input$r)
+      if (is.na(r_alloc) || r_alloc <= 0) r_alloc <- 1
+      # n is treatment arm enrolled; control arm = n / r_alloc
+      n_ctrl  <- max(1L, as.integer(round(n / r_alloc)))
+
       # Control-arm events (default 0 if input not yet initialised)
       x_ctrl_raw <- if (!is.null(input$interim_x_control) &&
                         !is.na(input$interim_x_control))
                       as.integer(input$interim_x_control) else 0L
-      x_ctrl <- max(0L, min(x_ctrl_raw, n))
+      x_ctrl <- max(0L, min(x_ctrl_raw, n_ctrl))
 
-      p_hat1   <- x_trt  / n
-      p_hat0   <- x_ctrl / n
+      p_hat1   <- x_trt  / n        # treatment rate
+      p_hat0   <- x_ctrl / n_ctrl   # control rate (respects r_alloc)
       obs_diff <- p_hat1 - p_hat0
 
       # Wald CI for risk difference
       se_diff <- sqrt(p_hat1 * (1 - p_hat1) / n +
-                      p_hat0 * (1 - p_hat0) / n)
+                      p_hat0 * (1 - p_hat0) / n_ctrl)
       z95     <- qnorm(0.975)
       ci_lo   <- obs_diff - z95 * se_diff
       ci_hi   <- obs_diff + z95 * se_diff
@@ -1054,24 +1060,25 @@ server <- function(input, output, session) {
       # NI boundary on difference scale: efficacy = -Δ, safety = +Δ
       boundary <- if (is_safety) delta else -delta
 
+      # Binary: NI demonstrated only when CI bound clears boundary
+      # Efficacy: CI lower must exceed boundary (-Δ)
+      # Safety:   CI upper must be below boundary (+Δ)
       status <- if (is_safety) {
-        if (obs_diff > boundary)  "Concern"
-        else if (ci_hi > boundary) "Monitor Closely"
-        else "On Track"
+        if (ci_hi < boundary) "On Track" else "Concern"
       } else {
-        if (obs_diff < boundary)  "Concern"
-        else if (ci_lo < boundary) "Monitor Closely"
-        else "On Track"
+        if (ci_lo > boundary) "On Track" else "Concern"
       }
 
-      list(n = n, x = x_trt, x_ctrl = x_ctrl,
+      list(n = n, n_ctrl = n_ctrl, x = x_trt, x_ctrl = x_ctrl,
            p_hat = obs_diff, p_hat1 = p_hat1, p_hat0 = p_hat0,
            ci_lo = ci_lo, ci_hi = ci_hi,
            p0 = p0, delta = delta, boundary = boundary,
            n_planned = n_planned, status = status,
            is_two_arm = TRUE, is_safety = is_safety,
            ci_method = ci_method, conf_level = conf_level,
-           alpha_used = alpha_used)
+           alpha_used = alpha_used, r_alloc = r_alloc,
+           x_thresh = NA_integer_,
+           ci_thresh_lo = NA_real_, ci_thresh_hi = NA_real_)
 
     } else {
       p_hat    <- x_trt / n
@@ -1080,14 +1087,29 @@ server <- function(input, output, session) {
       boundary <- if (is_safety) p0 + delta else p0 - delta
       ci       <- prop_ci_vec(x_trt, n, conf_level, ci_method)
 
+      # Binary: NI demonstrated only when CI bound clears boundary
+      # Efficacy: CI lower must exceed boundary (p0 − Δ)
+      # Safety:   CI upper must be below boundary (p0 + Δ)
       status <- if (is_safety) {
-        if (p_hat > boundary)        "Concern"
-        else if (ci$upper > boundary) "Monitor Closely"
-        else "On Track"
+        if (ci$upper < boundary) "On Track" else "Concern"
       } else {
-        if (p_hat < boundary)        "Concern"
-        else if (ci$lower < boundary) "Monitor Closely"
-        else "On Track"
+        if (ci$lower > boundary) "On Track" else "Concern"
+      }
+
+      # Threshold events at current n for the chosen CI method,
+      # plus the CI at that threshold x (so the status box can show it)
+      x_thresh <- tryCatch(
+        interim_x_threshold(n, boundary, conf_level, ci_method, is_safety),
+        error = function(e) NA_integer_
+      )
+      ci_thresh_lo <- NA_real_; ci_thresh_hi <- NA_real_
+      if (!is.na(x_thresh)) {
+        ct <- tryCatch(
+          prop_ci_vec(x_thresh, n, conf_level, ci_method),
+          error = function(e) list(lower = NA_real_, upper = NA_real_)
+        )
+        ci_thresh_lo <- ct$lower
+        ci_thresh_hi <- ct$upper
       }
 
       list(n = n, x = x_trt, x_ctrl = NULL,
@@ -1097,7 +1119,9 @@ server <- function(input, output, session) {
            n_planned = n_planned, status = status,
            is_two_arm = FALSE, is_safety = is_safety,
            ci_method = ci_method, conf_level = conf_level,
-           alpha_used = alpha_used)
+           alpha_used = alpha_used,
+           x_thresh = x_thresh,
+           ci_thresh_lo = ci_thresh_lo, ci_thresh_hi = ci_thresh_hi)
     }
   })
 
@@ -1168,17 +1192,30 @@ server <- function(input, output, session) {
   # Colour-coded status box
   output$interim_status_box <- renderUI({
     v <- interim_vals()
-    col <- switch(v$status,
-      "On Track"        = "#18bdb9",
-      "Monitor Closely" = "#e07b39",
-      "Concern"         = "#c0392b"
-    )
-    ep_badge   <- if (v$is_safety) "Safety endpoint  ·  lower is better"
-                  else             "Efficacy endpoint  ·  higher is better"
-    est_label  <- if (v$is_two_arm) "Observed difference p̂₁ − p̂₀"
-                  else             "Observed rate p̂"
-    bnd_label  <- if (v$is_two_arm) "NI boundary (diff)"
-                  else             "NI boundary (p₀ ± Δ)"
+    col <- if (v$status == "On Track") "#18bdb9" else "#c0392b"
+
+    ep_badge  <- if (v$is_safety) "Safety endpoint  ·  lower is better"
+                 else             "Efficacy endpoint  ·  higher is better"
+    est_label <- if (v$is_two_arm) "Observed difference p̂₁ − p̂₀"
+                 else              "Observed rate p̂"
+    bnd_label <- if (v$is_two_arm) "NI boundary (diff)"
+                 else              "NI boundary (p₀ ± Δ)"
+    ci_pct    <- round(v$conf_level * 100, 1)
+
+    # The CI bound that determines the NI decision
+    deciding_bound <- if (v$is_safety) round(v$ci_hi, 3) else round(v$ci_lo, 3)
+    bound_label    <- if (v$is_safety) "CI upper" else "CI lower"
+    direction_word <- if (v$is_safety) "below" else "above"
+
+    ni_verdict <- if (v$status == "On Track") {
+      paste0("NI formally demonstrated  —  ",
+             bound_label, " (", deciding_bound, ") is ",
+             direction_word, " boundary (", round(v$boundary, 3), ")")
+    } else {
+      paste0("Currently failing NI  —  ",
+             bound_label, " (", deciding_bound, ") must be ",
+             direction_word, " boundary (", round(v$boundary, 3), ") to pass")
+    }
 
     tags$div(
       style = paste0(
@@ -1195,19 +1232,37 @@ server <- function(input, output, session) {
         v$status
       ),
       tags$div(
+        style = paste0("font-size:11px; color:", col, "; margin-bottom:6px;",
+                       " font-style:italic;"),
+        ni_verdict
+      ),
+      tags$div(
         style = "font-size:11px; color:#718096; margin-bottom:8px;",
         ep_badge
       ),
       tags$div(
         style = "font-size:13px; color:#1a2e35; line-height:1.8;",
         paste0(est_label, " = ", round(v$p_hat, 3),
-               "   (95% CI: ", round(v$ci_lo, 3),
+               "   (", ci_pct, "% CI: ", round(v$ci_lo, 3),
                " – ", round(v$ci_hi, 3), ")"),
         tags$br(),
-        paste0(bnd_label, " = ", round(v$boundary, 3),
-               "   ·   Margin to boundary: ",
-               round(v$p_hat - v$boundary, 3),
-               if (v$is_safety) "  (− = safe side)" else "  (+ = safe side)"),
+        paste0(bnd_label, " = ", round(v$boundary, 3)),
+        tags$br(),
+        # For 1-arm: show threshold event count + CI at that threshold
+        # For 2-arm: threshold not computed (Wald difference only)
+        if (!v$is_two_arm && !is.na(v$x_thresh)) {
+          thresh_type <- if (v$is_safety) "Max events allowed" else "Min events needed"
+          paste0(thresh_type, " at n = ", v$n, ":  ", v$x_thresh,
+                 "   CI at threshold: [",
+                 round(v$ci_thresh_lo, 3), ",  ",
+                 round(v$ci_thresh_hi, 3), "]")
+        } else if (!v$is_two_arm) {
+          "Threshold not achievable at current n"
+        } else {
+          paste0("Margin to boundary: ",
+                 round(v$p_hat - v$boundary, 3),
+                 if (v$is_safety) "  (− = safe side)" else "  (+ = safe side)")
+        },
         tags$br(),
         if (!is.infinite(v$n_planned))
           paste0("Enrolled: ", v$n, " of planned ",
@@ -1294,16 +1349,18 @@ server <- function(input, output, session) {
 
     rows <- if (v$is_two_arm) {
       list(
-        c("Enrolled per arm (n)",
+        c(paste0("Treatment enrolled (n₁)  [r = ", v$r_alloc, ":1]"),
           as.character(v$n)),
+        c("Control enrolled (n₀ = n₁ ÷ r)",
+          as.character(v$n_ctrl)),
         c("Treatment events (x₁)",
           as.character(v$x)),
         c("Control events (x₀)",
           as.character(v$x_ctrl)),
-        c("p̂₁ = x₁ ÷ n",
+        c("p̂₁ = x₁ ÷ n₁",
           paste0(v$x, " ÷ ", v$n, " = ", round(v$p_hat1, 4))),
-        c("p̂₀ = x₀ ÷ n",
-          paste0(v$x_ctrl, " ÷ ", v$n, " = ", round(v$p_hat0, 4))),
+        c("p̂₀ = x₀ ÷ n₀",
+          paste0(v$x_ctrl, " ÷ ", v$n_ctrl, " = ", round(v$p_hat0, 4))),
         c("Difference = p̂₁ − p̂₀",
           paste0(round(v$p_hat1, 4), " − ", round(v$p_hat0, 4),
                  " = ", round(v$p_hat, 4))),
@@ -1432,6 +1489,18 @@ server <- function(input, output, session) {
                   else paste0(thresh, " / ", v$n,
                               " = ", round(thresh / v$n, 3))
 
+      # CI at the threshold x for this method
+      ci_txt <- if (is.na(thresh)) {
+        "—"
+      } else {
+        ct <- tryCatch(
+          prop_ci_vec(thresh, v$n, v$conf_level, m_key),
+          error = function(e) list(lower = NA_real_, upper = NA_real_)
+        )
+        if (is.na(ct$lower)) "—"
+        else paste0("[", round(ct$lower, 3), ",  ", round(ct$upper, 3), "]")
+      }
+
       is_selected <- (m_key == v$ci_method)
       row_bg <- if (is_selected) "background:#f0fbfb;" else ""
 
@@ -1439,16 +1508,16 @@ server <- function(input, output, session) {
         style = row_bg,
         tags$td(style = "padding:5px 10px; font-size:12px; border:1px solid #e2e8f0;
                          font-family:'DM Mono',monospace; color:#1a2e35; white-space:nowrap;",
-                if (is_selected)
-                  tags$strong(paste0(m_label, " ✓"))
-                else
-                  m_label),
+                if (is_selected) tags$strong(paste0(m_label, " ✓")) else m_label),
         tags$td(style = "padding:5px 10px; font-size:12px; border:1px solid #e2e8f0;
                          font-family:'DM Mono',monospace; color:#4a5568; text-align:center;",
                 if (is.na(thresh)) "—" else as.character(thresh)),
         tags$td(style = "padding:5px 10px; font-size:12px; border:1px solid #e2e8f0;
                          font-family:'DM Mono',monospace; color:#4a5568;",
                 rate_txt),
+        tags$td(style = "padding:5px 10px; font-size:12px; border:1px solid #e2e8f0;
+                         font-family:'DM Mono',monospace; color:#4a5568;",
+                ci_txt),
         tags$td(style = paste0("padding:5px 10px; font-size:14px; border:1px solid #e2e8f0;
                                 font-weight:700; text-align:center; color:", status_col, ";"),
                 status_txt)
@@ -1487,6 +1556,11 @@ server <- function(input, output, session) {
             tags$th(style = "padding:5px 10px; background:#eef3f8; border:1px solid #e2e8f0;
                              font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
                              color:#64748b;", col_header),
+            tags$th(style = "padding:5px 10px; background:#eef3f8; border:1px solid #e2e8f0;
+                             font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
+                             color:#64748b;",
+                    if (v$is_safety) "CI at max x [lower,  upper]"
+                    else             "CI at min x [lower,  upper]"),
             tags$th(style = "padding:5px 10px; background:#eef3f8; border:1px solid #e2e8f0;
                              font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
                              color:#64748b; text-align:center;",
