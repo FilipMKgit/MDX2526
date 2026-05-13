@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    PG-Power  ·  custom.css
+   All component-level styles. Inline styles in ui.R are kept
+   to a minimum and only used where CSS cannot reach.
    Aesthetic: precise scientific instrument — clean, trustworthy,
    quietly authoritative. Not clinical-white; warm near-whites
    with teal accents and a single orange highlight.
@@ -82,8 +84,10 @@ body {
   color: var(--ink-light);
   font-size: 14px;
   font-weight: 300;
-  margin: 5px 0 0;
+  margin: 0;
   letter-spacing: 0.01em;
+  line-height: 1;
+  align-self: center;
 }
 
 /* ── Tabs ───────────────────────────────────────────────────── */
@@ -168,34 +172,10 @@ body {
   line-height: 1.65;
 }
 
-.pgp-footer-card {
-  background: var(--surface);
-  border-color: var(--border);
-}
 
-.pgp-footer-card p {
-  font-size: 13px;
-  color: var(--ink-light);
-  margin: 0 0 6px;
-}
 
-.pgp-footer-card a {
-  font-size: 13px;
-  color: var(--teal);
-  font-weight: 600;
-  text-decoration: none;
-}
 
-.pgp-footer-card a:hover {
-  text-decoration: underline;
-}
 
-/* ── Equation button row ────────────────────────────────────── */
-.eq-btn-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 
 /* ── Download button column ─────────────────────────────────── */
 .dl-btn-col {

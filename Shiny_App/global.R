@@ -1,3 +1,10 @@
+# =============================================================================
+# global.R  —  PG-Power
+# Loaded once at startup (before ui.R and server.R).
+# Contains: libraries, shared theme objects, and all statistical functions.
+# =============================================================================
+
+# ── Libraries ─────────────────────────────────────────────────────────────────
 library(shiny)
 library(ggplot2)
 library(bslib)
@@ -8,24 +15,33 @@ library(plotly)
 library(shinybusy)
 library(base64enc)
 
+# ── App theme ─────────────────────────────────────────────────────────────────
 default_mode <- bs_theme(bootswatch = "litera")
 
+# ── Shared ggplot2 theme ───────────────────────────────────────────────────────
+# Applied to every sensitivity and interim plot for a consistent look.
 plot_theme_large <- theme_minimal(base_size = 14) +
   theme(
-    plot.title        = element_text(size = 17, face = "bold",
-                                     colour = "#1a2e35", margin = margin(b = 8)),
-    axis.title        = element_text(size = 13, colour = "#4a5568"),
-    axis.text         = element_text(size = 11, colour = "#718096"),
-    panel.grid.major  = element_line(colour = "#edf0f4", linewidth = 0.6),
-    panel.grid.minor  = element_blank(),
-    plot.background   = element_rect(fill = "transparent", colour = NA),
-    panel.background  = element_rect(fill = "white", colour = NA),
-    plot.margin       = margin(14, 18, 14, 14)
+    plot.title       = element_text(size = 17, face = "bold",
+                                    colour = "#1a2e35", margin = margin(b = 8)),
+    axis.title       = element_text(size = 13, colour = "#4a5568"),
+    axis.text        = element_text(size = 11, colour = "#718096"),
+    panel.grid.major = element_line(colour = "#edf0f4", linewidth = 0.6),
+    panel.grid.minor = element_blank(),
+    plot.background  = element_rect(fill = "transparent", colour = NA),
+    panel.background = element_rect(fill = "white",       colour = NA),
+    plot.margin      = margin(14, 18, 14, 14)
   )
 
+# Match plot fonts to the app font (DM Sans) via thematic
 thematic_shiny(font = NA)
 
-# -- UI helper: result box ---------------------------------------------------
+# =============================================================================
+# UI helpers
+# =============================================================================
+
+# -- Result box ---------------------------------------------------------------
+# Renders the teal highlighted n-result box shown below the delta plot.
 box_ui <- function(title, msg) {
   tags$div(
     class = "n-result-box",
@@ -34,26 +50,37 @@ box_ui <- function(title, msg) {
   )
 }
 
-# -- UI helper: accordion panel ----------------------------------------------
+# -- Accordion panel ----------------------------------------------------------
+# Custom collapsible section. `open = TRUE` renders it expanded by default.
+# JavaScript in ui.R handles the toggle click; CSS handles show/hide.
 acc_panel <- function(id, heading, open = FALSE, ...) {
-  body_class <- if (open) "pgp-accordion-body open" else "pgp-accordion-body"
-  hdr_class  <- if (open) "pgp-accordion-header open" else "pgp-accordion-header"
+  body_class <- paste0("pgp-accordion-body", if (open) " open" else "")
+  hdr_class  <- paste0("pgp-accordion-header", if (open) " open" else "")
   tags$div(
     id    = id,
     class = "pgp-accordion",
     tags$div(
       class = hdr_class,
       tags$span(heading),
-      tags$span("\u25be", class = "pgp-accordion-chevron")
+      tags$span("\u25be", class = "pgp-accordion-chevron")  # ▾ chevron
     ),
     tags$div(class = body_class, ...)
   )
 }
 
-# -- Proportion CI helper ----------------------------------------------------
+# =============================================================================
+# Statistical functions
+# =============================================================================
+
+# -- Proportion CI (vectorised) -----------------------------------------------
+# Computes confidence intervals for one or more (x, n) pairs.
+# `method` is passed directly to binom::binom.confint, except "z" which uses
+# the plain Wald/normal formula (kept for legacy compatibility).
+# Returns a list with $lower and $upper numeric vectors.
 prop_ci_vec <- function(x, n, conf.level, method) {
   if (length(n) == 1 && length(x) > 1) n <- rep(n, length(x))
   
+  # Legacy "z" method: simple symmetric normal-approximation CI
   if (method == "z") {
     p_hat <- x / n
     z     <- stats::qnorm(1 - (1 - conf.level) / 2)
@@ -74,20 +101,23 @@ prop_ci_vec <- function(x, n, conf.level, method) {
   list(lower = as.numeric(out$lower), upper = as.numeric(out$upper))
 }
 
-# -- Two-arm analytic N ------------------------------------------------------
+# -- Two-arm: analytic N (Z power formula) ------------------------------------
+# H0: p1 - p0 <= -delta  vs.  H1: p1 - p0 > -delta
+# Uses pooled-variance Z-test formula. Returns total (treatment + control) N.
 total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
+  # Input validation — return Inf for any degenerate configuration
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
-  if (is.na(power)    || power    <= 0 || power    >= 1) return(Inf)
-  if (is.na(r)        || r        <= 0)                  return(Inf)
-  if (p0 <= 0 || p0 >= 1) return(Inf)
-  if (p1 <= 0 || p1 >= 1) return(Inf)
-  if (is.na(delta) || delta < 0) return(Inf)
+  if (is.na(power)     || power    <= 0 || power    >= 1) return(Inf)
+  if (is.na(r)         || r        <= 0)                  return(Inf)
+  if (p0 <= 0 || p0 >= 1 || p1 <= 0 || p1 >= 1)          return(Inf)
+  if (is.na(delta)     || delta < 0)                      return(Inf)
   
   z_alpha <- stats::qnorm(1 - sig.level)
   z_beta  <- stats::qnorm(power)
-  eff     <- p1 - p0 + delta
+  eff     <- p1 - p0 + delta        # effective difference vs NI boundary
   if (eff <= 0) return(Inf)
   
+  # Variance components under H0 (pooled) and H1 (unpooled)
   p_bar <- (p0 + r * p1) / (1 + r)
   v0    <- (1 + 1 / r) * p_bar * (1 - p_bar)
   v1    <- p0 * (1 - p0) + (1 / r) * p1 * (1 - p1)
@@ -96,16 +126,17 @@ total_sample_size_prop <- function(p0, p1, delta, sig.level, power, r = 1) {
   ceiling(n0) + ceiling(r * n0)
 }
 
-# -- Two-arm simulation power ------------------------------------------------
+# -- Two-arm: empirical power at a given n0 (simulation) ----------------------
+# Simulates `nsim` two-arm trials and checks: (CI1_lower - CI0_upper) > -delta.
+# Returns the proportion of simulations that declare NI.
 prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
                               ci_method = "wilson", n0,
                               nsim = 1000, seed = 1) {
-  if (is.infinite(n0) || is.na(n0) || n0 < 2) return(0)
-  if (is.na(alpha) || alpha <= 0 || alpha >= 0.5) return(0)
-  if (is.na(r) || r <= 0) return(0)
-  if (p0 <= 0 || p0 >= 1) return(0)
-  if (p1 <= 0 || p1 >= 1) return(0)
-  if (is.na(delta) || delta < 0) return(0)
+  if (is.infinite(n0) || is.na(n0) || n0 < 2)       return(0)
+  if (is.na(alpha) || alpha <= 0 || alpha >= 0.5)    return(0)
+  if (is.na(r)     || r <= 0)                        return(0)
+  if (p0 <= 0 || p0 >= 1 || p1 <= 0 || p1 >= 1)     return(0)
+  if (is.na(delta) || delta < 0)                     return(0)
   
   conf.level <- 1 - 2 * alpha
   n1 <- ceiling(r * n0)
@@ -121,16 +152,18 @@ prop_power_ci_sim <- function(p0, p1, delta, alpha, r = 1,
   mean(hit)
 }
 
+# -- Two-arm: binary search for minimum N (simulation) -------------------------
+# Finds the smallest n0 such that empirical power >= `power`. Returns total N.
 total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
                                             r = 1, ci_method = "wilson",
                                             nsim = 1000, seed = 1,
                                             n0_max = 200000) {
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   
+  # Quick feasibility check at upper bound before searching
   p_hi <- prop_power_ci_sim(p0, p1, delta, alpha, r, ci_method,
                             n0 = n0_max, nsim = nsim, seed = seed + 999)
-  if (is.na(p_hi)) p_hi <- 0
-  if (p_hi < power) return(Inf)
+  if (is.na(p_hi) || p_hi < power) return(Inf)
   
   lo <- 2; hi <- n0_max
   while (lo < hi) {
@@ -145,18 +178,19 @@ total_sample_size_prop_ci_power <- function(p0, p1, delta, alpha, power,
   n0 + ceiling(r * n0)
 }
 
-# -- Single-arm analytic N ----------------------------------------------------
+# -- Single-arm: analytic N (Z power formula) ----------------------------------
+# H0: p <= p0 - delta  vs.  H1: p > p0 - delta  (performance goal test)
+# Returns total N (= n, since there is only one arm).
 total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
   if (is.na(sig.level) || sig.level <= 0 || sig.level >= 1) return(Inf)
-  if (is.na(power)    || power    <= 0 || power    >= 1) return(Inf)
-  if (p0 <= 0 || p0 >= 1) return(Inf)
-  if (p1 <= 0 || p1 >= 1) return(Inf)
-  if (is.na(delta) || delta < 0) return(Inf)
+  if (is.na(power)     || power    <= 0 || power    >= 1) return(Inf)
+  if (p0 <= 0 || p0 >= 1 || p1 <= 0 || p1 >= 1)          return(Inf)
+  if (is.na(delta)     || delta < 0)                      return(Inf)
   
-  p_thr <- p0 - delta
+  p_thr <- p0 - delta          # NI boundary (the null hypothesis boundary)
   if (p_thr <= 0 || p_thr >= 1) return(Inf)
   
-  eff <- p1 - p_thr
+  eff <- p1 - p_thr            # effect: how far p1 is above the boundary
   if (eff <= 0) return(Inf)
   
   z_alpha <- stats::qnorm(1 - sig.level)
@@ -166,15 +200,15 @@ total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
               z_beta  * sqrt(p1   * (1 - p1)))^2) / eff^2)
 }
 
-# -- Single-arm simulation power ----------------------------------------------
+# -- Single-arm: empirical power at a given n (simulation) --------------------
+# Simulates `nsim` single-arm trials and checks: CI_lower > p0 - delta.
 prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
                                    ci_method = "wilson", n,
                                    nsim = 1000, seed = 1) {
-  if (is.infinite(n) || is.na(n) || n < 2) return(0)
-  if (is.na(alpha) || alpha <= 0 || alpha >= 0.5) return(0)
-  if (p0 <= 0 || p0 >= 1) return(0)
-  if (p1 <= 0 || p1 >= 1) return(0)
-  if (is.na(delta) || delta < 0) return(0)
+  if (is.infinite(n) || is.na(n) || n < 2)          return(0)
+  if (is.na(alpha) || alpha <= 0 || alpha >= 0.5)    return(0)
+  if (p0 <= 0 || p0 >= 1 || p1 <= 0 || p1 >= 1)     return(0)
+  if (is.na(delta) || delta < 0)                     return(0)
   
   p_thr <- p0 - delta
   if (p_thr <= 0 || p_thr >= 1) return(0)
@@ -190,16 +224,18 @@ prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
   mean(hit)
 }
 
+# -- Single-arm: binary search for minimum N (simulation) ----------------------
+# Finds the smallest n such that empirical power >= `power`.
 total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
                                                  ci_method = "wilson",
                                                  nsim = 1000, seed = 1,
                                                  n_max = 200000) {
   if (is.na(power) || power <= 0 || power >= 1) return(Inf)
   
+  # Quick feasibility check at upper bound before searching
   p_hi <- prop_power_ci_sim_1arm(p0, p1, delta, alpha, ci_method,
                                  n = n_max, nsim = nsim, seed = seed + 999)
-  if (is.na(p_hi)) p_hi <- 0
-  if (p_hi < power) return(Inf)
+  if (is.na(p_hi) || p_hi < power) return(Inf)
   
   lo <- 2; hi <- n_max
   while (lo < hi) {
@@ -210,16 +246,17 @@ total_sample_size_prop_ci_power_1arm <- function(p0, p1, delta, alpha, power,
     if (p_mid >= power) hi <- mid else lo <- mid + 1
   }
   
-  lo
+  lo   # single-arm total N equals n0
 }
 
-# -- Interim CI threshold helper -----------------------------------------------
-# For a given n and NI boundary, finds the minimum event count that achieves NI
-# (efficacy: CI lower > boundary) or maximum event count that stays NI
-# (safety: CI upper < boundary), for each CI method independently.
-# Called per-method with a scalar x, so avoids the binom.confint row-count issue.
+# -- Interim: event threshold for NI decision ---------------------------------
+# For a given enrolled n and NI boundary, finds the critical event count x*:
+#   - Efficacy: smallest x such that CI_lower(x, n) > boundary
+#   - Safety:   largest  x such that CI_upper(x, n) < boundary
+# Returns NA_integer_ if no such x exists at this n.
 interim_x_threshold <- function(n, boundary, conf_level, method, is_safety) {
   if (is.na(n) || n < 1) return(NA_integer_)
+  
   result <- NA_integer_
   for (x in 0L:as.integer(n)) {
     ci <- tryCatch(
@@ -227,10 +264,11 @@ interim_x_threshold <- function(n, boundary, conf_level, method, is_safety) {
       error = function(e) list(lower = NA_real_, upper = NA_real_)
     )
     if (is_safety) {
+      # CI upper is monotone-increasing in x; record while below boundary, stop when exceeded
       if (!is.na(ci$upper) && ci$upper < boundary) result <- x
-      # CI upper is monotone-increasing in x; once it exceeds boundary, done
-      else if (!is.na(ci$upper)) break
+      else if (!is.na(ci$upper))                    break
     } else {
+      # Efficacy: return first x where CI lower exceeds boundary
       if (!is.na(ci$lower) && ci$lower > boundary) return(x)
     }
   }

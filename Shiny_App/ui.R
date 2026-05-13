@@ -1,18 +1,7 @@
-# -- Accordion builder (defined here so ui.R can call it at parse time) --------
-acc_panel <- function(id, heading, open = FALSE, ...) {
-  body_class <- if (open) "pgp-accordion-body open" else "pgp-accordion-body"
-  hdr_class  <- if (open) "pgp-accordion-header open" else "pgp-accordion-header"
-  tags$div(
-    id    = id,
-    class = "pgp-accordion",
-    tags$div(
-      class = hdr_class,
-      tags$span(heading),
-      tags$span("\u25be", class = "pgp-accordion-chevron")
-    ),
-    tags$div(class = body_class, ...)
-  )
-}
+# =============================================================================
+# ui.R  —  PG-Power
+# Defines the app layout: header, tabs, accordions, inputs, and JavaScript.
+# acc_panel() is defined in global.R (loaded before ui.R at startup).
 
 ui <- fluidPage(
   theme = default_mode,
@@ -48,9 +37,6 @@ ui <- fluidPage(
       .pgp-accordion-body.open { display: block; }
 
       .report-panel { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
-      .report-cols  { display: flex; gap: 20px; align-items: flex-start; }
-      .report-col-left  { flex: 1 1 50%; }
-      .report-col-right { flex: 1 1 50%; }
       .report-group { background: #f8fafc; border: 1px solid #e2e8f0;
                       border-radius: 10px; padding: 20px 22px; margin-bottom: 18px; }
       .report-group h5 { font-size: 13px; font-weight: 700; text-transform: uppercase;
@@ -65,7 +51,6 @@ ui <- fluidPage(
       .report-contents li:last-child { border-bottom: none; }
       .rc-tick  { color: #18bdb9; font-weight: 800; font-size: 14px; flex-shrink: 0; }
       .rc-cross { color: #cbd5e1; font-weight: 800; font-size: 14px; flex-shrink: 0; }
-      .rc-soon  { color: #94a3b8; font-size: 11px; font-style: italic; }
 
       .ov-card { padding: 14px 16px; font-size: 13px; line-height: 1.65; color: #374151; }
       .ov-card ol, .ov-card ul { padding-left: 18px; margin: 8px 0 0; }
@@ -75,7 +60,7 @@ ui <- fluidPage(
       .ov-card a { color: #18bdb9; }
 
       .pgp-header-text { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-      .pgp-subtitle { font-style: italic; }
+      .pgp-subtitle { font-style: italic; margin: 0 !important; line-height: 1; }
       .main-left  { padding-right: 10px; }
       .main-right { padding-left:  10px; }
 
@@ -112,13 +97,8 @@ ui <- fluidPage(
   
   tags$div(
     class = "pgp-header",
-    tags$img(src = "pg_power_logo.png", height = "68px"),
-    tags$div(
-      class = "pgp-header-text",
-      tags$h1("PG-Power", class = "pgp-title", style = "margin:0;"),
-      tags$p(tags$em("design with confidence"), class = "pgp-subtitle",
-             style = "margin:0; font-size:15px;")
-    )
+    tags$img(src = "pg_power_logo_1.png", height = "68px"),
+    tags$p(tags$em("design with confidence"), class = "pgp-subtitle")
   ),
   
   tabsetPanel(
@@ -400,11 +380,21 @@ ui <- fluidPage(
               ),
               selected = "one_arm"
             ),
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("Single-arm: device vs a fixed performance goal. Two-arm: treatment vs concurrent control.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            ),
             
             selectInput(
               "endpoint", "Endpoint",
               choices = c("Efficacy" = "efficacy", "Safety" = "safety"),
               selected = "efficacy"
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("Efficacy: higher event rate is better (e.g. success rate). Safety: lower is better (e.g. complication rate).",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
             
             selectInput(
@@ -446,6 +436,11 @@ ui <- fluidPage(
               selected = "wilson"
             ),
             
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("Z (power formula) gives an analytic result. All other methods run a simulation-based search. Wilson is the recommended default.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            ),
             checkboxInput("showCompare", "Show CI method comparison table", value = FALSE)
           ),
           
@@ -457,14 +452,29 @@ ui <- fluidPage(
             sliderInput("p0.expected",
                         "Benchmark / performance goal (p\u2080):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.88),
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("The reference or control rate. For single-arm studies, this is the performance goal (OPC) from the literature.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            ),
             
             sliderInput("p1.expected",
                         "Expected device event rate (p\u2081):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.93),
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("The true rate you expect the device to achieve. Must exceed p\u2080 \u2212 \u0394 for the study to be powerable.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            ),
             
             sliderInput("p1.tolerable",
                         "Non-inferiority margin (\u0394):",
                         min = 0.00, max = 0.20, step = 0.01, value = 0.05),
+            conditionalPanel(
+              condition = "input.show_calc_hints != false",
+              tags$p("Maximum acceptable shortfall below p\u2080. Set to 0 for a pure superiority test. Must be clinically justified.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            ),
             
             selectInput(
               "WindowMargin", "Sensitivity window for NI margin (\u00b1)",
@@ -498,6 +508,8 @@ ui <- fluidPage(
             heading = "Other Settings",
             open    = FALSE,
             
+            checkboxInput("show_calc_hints", "Show hints",                    value = TRUE),
+            checkboxInput("show_calc_code",  "Show calculation code",         value = FALSE),
             checkboxInput("showNBox_prop",  "Show n at chosen \u0394",           value = TRUE),
             checkboxInput("showVline",      "Show vertical marker on plots",     value = FALSE),
             checkboxInput("showTable",      "Show \u0394 sensitivity table",     value = FALSE),
@@ -528,13 +540,27 @@ ui <- fluidPage(
           width = 8,
           class = "main-right pgp-main",
           
+          conditionalPanel(
+            condition = "input.show_calc_hints != false",
+            tags$p("How total sample size changes as the NI margin varies. A tighter margin (smaller \u0394) requires more patients.",
+                   style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
+          ),
           plotlyOutput("plot1", height = "420px"),
           uiOutput("n_box_prop"),
           tags$div(style = "height:22px;"),
+          conditionalPanel(
+            condition = "input.show_calc_hints != false",
+            tags$p("How total sample size changes as the expected device rate (p\u2081) varies. A rate closer to p\u2080 requires more patients.",
+                   style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
+          ),
           plotlyOutput("plot2", height = "420px"),
           uiOutput("compare_section"),
           DTOutput("dataTable"),
-          DTOutput("dataTable2")
+          DTOutput("dataTable2"),
+          conditionalPanel(
+            condition = "input.show_calc_code == true",
+            uiOutput("calc_code_ui")
+          )
         )
       )
     ),
@@ -555,7 +581,10 @@ ui <- fluidPage(
           acc_panel(
             id = "acc_interim_inputs", heading = "Interim Analysis", open = TRUE,
             
-            uiOutput("interim_sidebar_label"),
+            conditionalPanel(
+              condition = "input.show_interim_hints != false",
+              uiOutput("interim_sidebar_label")
+            ),
             
             numericInput("interim_n", "Patients enrolled so far (n):",
                          value = 0, min = 0, step = 1),
@@ -577,6 +606,36 @@ ui <- fluidPage(
             tags$hr(class = "pgp-hr"),
             tags$p("Values", class = "sidebar-section-label"),
             uiOutput("interim_pulled_vals")
+          ),
+          
+          acc_panel(
+            id = "acc_interim_other", heading = "Other Settings", open = FALSE,
+            
+            checkboxInput("show_interim_hints",   "Show hints",                  value = TRUE),
+            checkboxInput("show_interim_calctbl", "Show calculation table",      value = TRUE),
+            checkboxInput("show_interim_citbl",   "Show CI comparison table",    value = TRUE),
+            checkboxInput("show_interim_code",    "Show calculation code",       value = FALSE),
+            
+            tags$div(
+              class = "dl-btn-col",
+              style = "margin-top:10px;",
+              downloadButton("download_interim_calc_csv",
+                             "\u2193 Download calc table",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("download_interim_ci_csv",
+                             "\u2193 Download CI table",
+                             class = "btn-sm btn-outline-primary pgp-btn")
+            ),
+            
+            tags$div(
+              style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
+                onclick = "pgpResetInterimSettings();",
+                "\u21ba Defaults"
+              )
+            )
           )
         ),
         
@@ -584,25 +643,41 @@ ui <- fluidPage(
           width = 8,
           class = "main-right pgp-main",
           
-          uiOutput("interim_orientation_text"),
-          tags$div(style = "height:10px;"),
+          conditionalPanel(
+            condition = "input.show_interim_hints != false",
+            uiOutput("interim_orientation_text"),
+            tags$div(style = "height:10px;")
+          ),
           uiOutput("interim_status_box"),
           tags$div(style = "height:14px;"),
           plotlyOutput("interim_position_plot", height = "260px"),
-          tags$p(
-            style = "font-size:11px; color:#718096; margin: 4px 0 18px; line-height:1.6;",
-            HTML(paste0(
-              "<span style='color:#e07b39; font-weight:600;'>--- NI boundary</span>",
-              "&nbsp;&nbsp;|&nbsp;&nbsp;",
-              "<span style='color:#718096;'>--- Reference (p\u2080 or zero diff.)</span>",
-              "&nbsp;&nbsp;|&nbsp;&nbsp;",
-              "<span style='color:#18bdb9; font-weight:600;'>\u25cf with bars</span>",
-              " = observed estimate \u00b1 95% CI"
-            ))
+          conditionalPanel(
+            condition = "input.show_interim_hints != false",
+            tags$p(
+              style = "font-size:11px; color:#718096; margin: 4px 0 18px; line-height:1.6;",
+              HTML(paste0(
+                "<span style=\'color:#e07b39; font-weight:600;\'>--- NI boundary</span>",
+                "&nbsp;&nbsp;|&nbsp;&nbsp;",
+                "<span style=\'color:#718096;\'>--- Reference (p\u2080 or zero diff.)</span>",
+                "&nbsp;&nbsp;|&nbsp;&nbsp;",
+                "<span style=\'color:#18bdb9; font-weight:600;\'>\u25cf with bars</span>",
+                " = observed estimate \u00b1 95% CI"
+              ))
+            )
           ),
-          uiOutput("interim_calc_table"),
-          tags$div(style = "height:18px;"),
-          uiOutput("interim_ci_threshold_table")
+          conditionalPanel(
+            condition = "input.show_interim_calctbl != false",
+            uiOutput("interim_calc_table"),
+            tags$div(style = "height:18px;")
+          ),
+          conditionalPanel(
+            condition = "input.show_interim_citbl != false",
+            uiOutput("interim_ci_threshold_table")
+          ),
+          conditionalPanel(
+            condition = "input.show_interim_code == true",
+            uiOutput("interim_code_ui")
+          )
         )
       )
     ),
@@ -888,7 +963,9 @@ ui <- fluidPage(
     )
   ),
   
-  # -- JS -----------------------------------------------------------------------
+  # ── JavaScript ─────────────────────────────────────────────────────────────
+  # All client-side behaviour: accordion toggle, input reset functions,
+  # template loaders, and the interp textarea sync to Shiny.
   tags$script(HTML('
 
     window.titleTemplates = {
@@ -1036,6 +1113,18 @@ ui <- fluidPage(
       S.setInputValue("interim_n",         0, {priority: "event"});
       S.setInputValue("interim_x",         0, {priority: "event"});
       S.setInputValue("interim_x_control", 0, {priority: "event"});
+
+      // Interim other settings
+      window.pgpResetInterimSettings();
+    };
+
+    window.pgpResetInterimSettings = function() {
+      var S = window.Shiny;
+      if (!S) return;
+      S.setInputValue("show_interim_hints",   true,  {priority: "event"});
+      S.setInputValue("show_interim_calctbl", true,  {priority: "event"});
+      S.setInputValue("show_interim_citbl",   true,  {priority: "event"});
+      S.setInputValue("show_interim_code",    false, {priority: "event"});
     };
 
     window.pgpResetCalculator = function() {
@@ -1054,6 +1143,8 @@ ui <- fluidPage(
       S.setInputValue("WindowMargin",    "0.05",{priority: "event"});
       S.setInputValue("sim_quality",     "1000",{priority: "event"});
       S.setInputValue("sim_seed",        1,     {priority: "event"});
+      S.setInputValue("show_calc_hints",  true,  {priority: "event"});
+      S.setInputValue("show_calc_code",   false, {priority: "event"});
       S.setInputValue("showNBox_prop",   true,  {priority: "event"});
       S.setInputValue("showVline",       false, {priority: "event"});
       S.setInputValue("showTable",       false, {priority: "event"});

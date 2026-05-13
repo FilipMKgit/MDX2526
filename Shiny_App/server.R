@@ -49,6 +49,10 @@ server <- function(input, output, session) {
       "Non-inferiority margin (\u0394, vs benchmark):" else "Non-inferiority margin (\u0394, risk difference):")
   }, ignoreInit = FALSE)
   
+  # ── Calculator: core N dispatcher ────────────────────────────────────────────
+  # prop_total_n() routes to the correct function based on design and CI method.
+  # delta == 0 triggers pure-superiority formula (no NI margin).
+  
   # -- Core N function -------------------------------------------------------
   n_1arm_z_superiority <- function(p0, p1, alpha, power) {
     if (p1 <= p0) return(Inf)
@@ -85,6 +89,8 @@ server <- function(input, output, session) {
     )
   }
   
+  # ── Calculator: reactives ────────────────────────────────────────────────────
+  
   # -- Reactives -------------------------------------------------------------
   prop_df_delta <- reactive({
     req(input$p0.expected, input$p1.expected, input$p1.tolerable,
@@ -113,6 +119,8 @@ server <- function(input, output, session) {
     prop_total_n(input$p0.expected, input$p1.expected, input$p1.tolerable)
   })
   
+  # ── Calculator: CI comparison table ──────────────────────────────────────────
+  
   # -- CI comparison reactive ------------------------------------------------
   compare_methods <- c(
     "Wilson"        = "wilson",
@@ -136,6 +144,8 @@ server <- function(input, output, session) {
       check.names = FALSE
     )
   })
+  
+  # ── Calculator: outputs ──────────────────────────────────────────────────────
   
   # -- N box -----------------------------------------------------------------
   output$n_box_prop <- renderUI({
@@ -288,6 +298,8 @@ server <- function(input, output, session) {
                   options = list(pageLength = 15))
   })
   
+  # ── Generate Report: UI outputs ──────────────────────────────────────────────
+  
   # -- Live report contents list ---------------------------------------------
   output$report_contents_ui <- renderUI({
     # Helper for a regular tick/cross row
@@ -367,6 +379,8 @@ server <- function(input, output, session) {
                      class = "btn-sm btn-outline-secondary pgp-btn report-dl-btn")
     }
   })
+  
+  # ── Generate Report: data helpers ────────────────────────────────────────────
   
   # -- Shared helper: build report data --------------------------------------
   build_report_data <- function() {
@@ -489,6 +503,8 @@ server <- function(input, output, session) {
       "</table>"
     )
   }
+  
+  # ── Generate Report: downloads ───────────────────────────────────────────────
   
   # -- PDF summary download --------------------------------------------------
   output$downloadPDF <- downloadHandler(
@@ -1386,7 +1402,7 @@ server <- function(input, output, session) {
     }
   )
   
-  # ── Interim Analysis ────────────────────────────────────────────────────────
+  # ── Interim Analysis: reactive + outputs ────────────────────────────────────────────────────────────────────────────────────────────
   
   interim_vals <- reactive({
     req(input$interim_n, input$interim_x,
@@ -1663,6 +1679,7 @@ server <- function(input, output, session) {
   })
   
   output$interim_calc_table <- renderUI({
+    if (!isTRUE(input$show_interim_calctbl)) return(NULL)
     v        <- interim_vals()
     bnd_sign <- if (v$is_safety) "+" else "\u2212"
     
@@ -1735,6 +1752,7 @@ server <- function(input, output, session) {
   })
   
   output$interim_ci_threshold_table <- renderUI({
+    if (!isTRUE(input$show_interim_citbl)) return(NULL)
     v <- interim_vals()
     
     if (v$is_two_arm) {
@@ -1857,4 +1875,216 @@ server <- function(input, output, session) {
       )
     )
   })
+  # ── Calculation code outputs ─────────────────────────────────────────────────
+  
+  # -- Calculator code output --------------------------------------------------
+  output$calc_code_ui <- renderUI({
+    if (!isTRUE(input$show_calc_code)) return(NULL)
+    is_one    <- isTRUE(input$prop_design == "one_arm")
+    is_safety <- isTRUE(input$endpoint   == "safety")
+    ci_m      <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
+    use_z     <- isTRUE(ci_m == "z_power")
+    alpha     <- as.numeric(input$sig.level)
+    pwr       <- input$power
+    p0        <- input$p0.expected
+    p1        <- input$p1.expected
+    delta     <- input$p1.tolerable
+    
+    if (is_one && use_z) {
+      code_txt <- paste(c(
+        "# Single-arm NI  —  Z (power formula)",
+        paste0("# H₀: p ≤ p₀ − Δ   vs.   H₁: p > p₀ − Δ"),
+        "",
+        paste0("p0        <- ", p0, "   # benchmark / performance goal"),
+        paste0("p1        <- ", p1, "   # expected device rate"),
+        paste0("delta     <- ", delta,  "   # NI margin"),
+        paste0("sig.level <- ", alpha,  "   # one-sided α"),
+        paste0("power     <- ", pwr,    "   # desired power"),
+        "",
+        "p_thr   <- p0 - delta",
+        "z_alpha <- qnorm(1 - sig.level)",
+        "z_beta  <- qnorm(power)",
+        "n       <- ceiling(",
+        "  (z_alpha * sqrt(p_thr * (1 - p_thr)) +",
+        "   z_beta  * sqrt(p1   * (1 - p1  )))^2 /",
+        "  (p1 - p_thr)^2",
+        ")"
+      ), collapse = "
+")
+    } else if (is_one && !use_z) {
+      conf_lev <- round(1 - 2 * alpha, 3)
+      code_txt <- paste(c(
+        "# Single-arm NI  —  CI simulation search",
+        paste0("# CI method: ", ci_m, "   conf.level: ", conf_lev),
+        paste0("# H₀: p ≤ p₀ − Δ   vs.   H₁: p > p₀ − Δ"),
+        "",
+        paste0("p0 <- ", p0, ";  p1 <- ", p1, ";  delta <- ", delta),
+        paste0("boundary <- p0 - delta   # = ", p0 - delta),
+        paste0("conf_level <- ", conf_lev, "   # = 1 - 2α"),
+        "",
+        "# At each candidate n, simulate nsim trials and check CI lower > boundary",
+        paste0('prop_ci_vec(x, n, conf_level, method = "', ci_m, '")'),
+        "# Declare NI if ci$lower > boundary",
+        "# Binary search finds smallest n achieving target power"
+      ), collapse = "
+")
+    } else if (!is_one && use_z) {
+      r_val <- as.numeric(input$r)
+      code_txt <- paste(c(
+        "# Two-arm NI  —  Z (power formula)",
+        paste0("# H₀: p₁ − p₀ ≤ −Δ   vs.   H₁: p₁ − p₀ > −Δ"),
+        "",
+        paste0("p0 <- ", p0, ";  p1 <- ", p1, ";  delta <- ", delta),
+        paste0("r  <- ", r_val, "   # allocation ratio (treatment:control)"),
+        paste0("sig.level <- ", alpha, ";  power <- ", pwr),
+        "",
+        "z_alpha <- qnorm(1 - sig.level)",
+        "z_beta  <- qnorm(power)",
+        "eff     <- p1 - p0 + delta",
+        "p_bar   <- (p0 + r * p1) / (1 + r)",
+        "v0      <- (1 + 1/r) * p_bar * (1 - p_bar)",
+        "v1      <- p0*(1-p0) + (1/r)*p1*(1-p1)",
+        "n0      <- (z_alpha*sqrt(v0) + z_beta*sqrt(v1))^2 / eff^2",
+        "n_total <- ceiling(n0) + ceiling(r * n0)"
+      ), collapse = "
+")
+    } else {
+      conf_lev <- round(1 - 2 * alpha, 3)
+      r_val <- as.numeric(input$r)
+      code_txt <- paste(c(
+        "# Two-arm NI  —  CI simulation search",
+        paste0("# CI method: ", ci_m, "   conf.level: ", conf_lev),
+        paste0("# H₀: p₁ − p₀ ≤ −Δ   vs.   H₁: p₁ − p₀ > −Δ"),
+        "",
+        paste0("p0 <- ", p0, ";  p1 <- ", p1, ";  delta <- ", delta),
+        paste0("r  <- ", r_val, "   # allocation ratio"),
+        paste0("conf_level <- ", conf_lev),
+        "",
+        "# At each candidate n0, simulate nsim two-arm trials:",
+        paste0('ci0 <- prop_ci_vec(x0, n0, conf_level, "', ci_m, '")'),
+        paste0('ci1 <- prop_ci_vec(x1, n1, conf_level, "', ci_m, '")'),
+        "# Declare NI if (ci1$lower - ci0$upper) > -delta",
+        "# Binary search finds smallest n0 achieving target power"
+      ), collapse = "
+")
+    }
+    
+    code_block_ui(code_txt)
+  })
+  
+  # -- Interim calculation code output ----------------------------------------
+  output$interim_code_ui <- renderUI({
+    if (!isTRUE(input$show_interim_code)) return(NULL)
+    is_one <- isTRUE(input$prop_design == "one_arm")
+    is_safety <- isTRUE(input$endpoint == "safety")
+    
+    if (is_one) {
+      code_txt <- paste(c(
+        "# Single-arm NI — CI lower vs boundary",
+        paste0("# boundary = p₀ ", if(is_safety) "+" else "-", " Δ = ",
+               input$p0.expected, if(is_safety) " + " else " - ", input$p1.tolerable,
+               " = ", if(is_safety) input$p0.expected + input$p1.tolerable
+               else input$p0.expected - input$p1.tolerable),
+        "",
+        "p_hat   <- x / n",
+        paste0("ci      <- prop_ci_vec(x, n, conf_level = ",
+               round(1 - 2 * as.numeric(input$sig.level), 3), ', method = "',
+               if(is.null(input$ci_method_prop) || input$ci_method_prop == "z_power")
+                 "wilson" else input$ci_method_prop, '")'),
+        if (is_safety)
+          paste0("# NI if ci$upper < ", round(input$p0.expected + input$p1.tolerable, 3))
+        else
+          paste0("# NI if ci$lower > ", round(input$p0.expected - input$p1.tolerable, 3))
+      ), collapse = "
+")
+    } else {
+      code_txt <- paste(c(
+        "# Two-arm NI — Wald CI on risk difference",
+        paste0("# boundary = ", if(is_safety) "+" else "-", "Δ = ",
+               if(is_safety) input$p1.tolerable else -input$p1.tolerable),
+        "",
+        "p_hat1   <- x1 / n1",
+        "p_hat0   <- x0 / n0",
+        "obs_diff <- p_hat1 - p_hat0",
+        "se_diff  <- sqrt(p_hat1*(1-p_hat1)/n1 + p_hat0*(1-p_hat0)/n0)",
+        paste0("ci_lo    <- obs_diff - qnorm(0.975) * se_diff  # Wald 95% CI"),
+        paste0("ci_hi    <- obs_diff + qnorm(0.975) * se_diff"),
+        if (is_safety)
+          paste0("# NI if ci_hi < ", input$p1.tolerable)
+        else
+          paste0("# NI if ci_lo > ", -input$p1.tolerable)
+      ), collapse = "
+")
+    }
+    
+    code_block_ui(code_txt, margin_top = "14px")
+  })
+  
+  # ── Interim Analysis: CSV downloads ──────────────────────────────────────────
+  
+  # -- Interim CSV downloads -------------------------------------------------
+  output$download_interim_calc_csv <- downloadHandler(
+    filename = function() paste0("PGPower_Interim_Calc_", Sys.Date(), ".csv"),
+    content  = function(file) {
+      v <- tryCatch(interim_vals(), error = function(e) NULL)
+      if (is.null(v)) { write.csv(data.frame(Error = "No interim data"), file, row.names = FALSE); return() }
+      bnd_sign <- if (v$is_safety) "+" else "-"
+      if (v$is_two_arm) {
+        df <- data.frame(
+          Parameter = c("Treatment enrolled (n1)","Control enrolled (n0)",
+                        "Treatment events (x1)","Control events (x0)",
+                        "p_hat1","p_hat0","Difference",
+                        paste0(round(v$conf_level*100,1),"% CI lower"),
+                        paste0(round(v$conf_level*100,1),"% CI upper"),
+                        "NI boundary","Margin","Status"),
+          Value = c(v$n, v$n_ctrl, v$x, v$x_ctrl,
+                    round(v$p_hat1,4), round(v$p_hat0,4), round(v$p_hat,4),
+                    round(v$ci_lo,4), round(v$ci_hi,4),
+                    round(v$boundary,4), round(v$p_hat - v$boundary,4),
+                    v$status),
+          stringsAsFactors = FALSE)
+      } else {
+        df <- data.frame(
+          Parameter = c("Enrolled (n)","Events (x)","p_hat",
+                        paste0(round(v$conf_level*100,1),"% CI lower"),
+                        paste0(round(v$conf_level*100,1),"% CI upper"),
+                        "NI boundary","Margin","Status"),
+          Value = c(v$n, v$x, round(v$p_hat,4),
+                    round(v$ci_lo,4), round(v$ci_hi,4),
+                    round(v$boundary,4), round(v$p_hat - v$boundary,4),
+                    v$status),
+          stringsAsFactors = FALSE)
+      }
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
+  
+  output$download_interim_ci_csv <- downloadHandler(
+    filename = function() paste0("PGPower_Interim_CI_", Sys.Date(), ".csv"),
+    content  = function(file) {
+      v <- tryCatch(interim_vals(), error = function(e) NULL)
+      if (is.null(v) || v$is_two_arm || v$n < 2) {
+        write.csv(data.frame(Note = "CI comparison available for single-arm only"),
+                  file, row.names = FALSE); return()
+      }
+      methods <- c("Wilson"="wilson","Exact (C-P)"="exact","Agresti-Coull"="ac",
+                   "Wald"="asymptotic","Logit"="logit","Bayes"="bayes")
+      rows <- lapply(names(methods), function(lbl) {
+        key <- methods[[lbl]]
+        thr <- tryCatch(
+          interim_x_threshold(v$n, v$boundary, v$conf_level, key, v$is_safety),
+          error = function(e) NA_integer_)
+        rate <- if (is.na(thr)) NA_real_ else round(thr / v$n, 4)
+        pass <- if (is.na(thr)) NA
+        else if (v$is_safety) v$x <= thr else v$x >= thr
+        data.frame(Method = lbl,
+                   Threshold_x = if(is.na(thr)) NA_integer_ else thr,
+                   Rate = rate,
+                   Current_x_passes = pass,
+                   stringsAsFactors = FALSE)
+      })
+      write.csv(do.call(rbind, rows), file, row.names = FALSE)
+    }
+  )
+  
 }
