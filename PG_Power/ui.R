@@ -171,7 +171,7 @@ ui <- fluidPage(
         acc_panel(
           id      = "acc_basics",
           heading = "Basics",
-          open    = TRUE,
+          open    = FALSE,
           tags$div(
             class = "ov-card",
             tags$p("PG-Power is a sample size calculator for non-inferiority (NI) studies
@@ -194,26 +194,29 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p(tags$b("Trial Design Settings")),
             tags$ul(
-              tags$li(tags$b("Design:"), " Single-arm NI (device vs benchmark) or Two-arm NI (treatment vs control)."),
-              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower event rate is the desired outcome. Switching presets p\u2080, p\u2081, and \u0394."),
-              tags$li(tags$b("\u03b1:"), " One-sided significance level. Typically 0.025 for medical device studies."),
-              tags$li(tags$b("Power:"), " Probability of correctly demonstrating NI."),
-              tags$li(tags$b("Allocation ratio:"), " Two-arm only. Ratio of treatment to control patients."),
-              tags$li(tags$b("CI method:"), " Drives the simulation-based search. Z (power formula) uses an analytic closed form.")
+              tags$li(tags$b("Design:"), " Single-arm NI (device vs a performance goal) or Two-arm NI (treatment vs concurrent control)."),
+              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower observed rate is the favourable outcome. Changing this updates the H\u2081 hypothesis and presets p\u2080, p\u2081, and \u0394."),
+              tags$li(tags$b("\u03b1 (significance level):"), " One-sided \u03b1 from a dropdown. 0.025 is standard for pivotal medical device studies."),
+              tags$li(tags$b("Power:"), " Probability of correctly demonstrating non-inferiority. 0.80 and 0.90 are most common."),
+              tags$li(tags$b("Allocation ratio:"), " Two-arm only. Ratio of treatment to control patients (e.g. 2:1)."),
+              tags$li(tags$b("CI method:"), " Method used in the simulation-based sample size search. Z (power formula) gives an instant analytic result; all others run a binary-search simulation.")
             ),
             tags$p(tags$b("Proportions")),
             tags$ul(
-              tags$li(tags$b("p\u2080:"), " Control or benchmark event rate."),
-              tags$li(tags$b("p\u2081:"), " Expected device or experimental event rate."),
-              tags$li(tags$b("\u0394:"), " Non-inferiority margin. The maximum tolerable shortfall."),
-              tags$li(tags$b("Sensitivity window:"), " Range (\u00b1) swept around \u0394 in the sensitivity plot.")
+              tags$li(tags$b("p\u2080:"), " Benchmark or control event rate (the performance goal)."),
+              tags$li(tags$b("p\u2081:"), " Expected device or experimental event rate. Must be on the favourable side of p\u2080 \u2212 \u0394."),
+              tags$li(tags$b("\u0394:"), " Non-inferiority margin. The maximum clinically acceptable shortfall from the benchmark."),
+              tags$li(tags$b("Sensitivity window:"), " Half-width of the \u0394 range swept in the sensitivity plot (\u00b10.005 to \u00b10.150).")
             ),
+            tags$p(tags$b("n Result Box")),
+            tags$p("Below the \u0394 plot, an expandable box shows the required n at the chosen \u0394, together with the hypotheses, CI equivalent, min successes needed to reject H\u2080, and the dropout-adjusted enrolment target."),
             tags$p(tags$b("Other Settings")),
             tags$ul(
-              tags$li("Toggle the n result box, vertical plot marker, and sensitivity tables."),
-              tags$li("Adjust the dropout rate slider to control the enrolment target."),
-              tags$li("Download sensitivity data as CSV."),
-              tags$li("Use ", tags$b("Defaults"), " to reset all inputs.")
+              tags$li("Toggle the n result box and selected-value crosshair on plots."),
+              tags$li("Show or hide the \u0394 and p\u2081 sensitivity tables below the plots."),
+              tags$li("Adjust the ", tags$b("dropout rate"), " (1\u201320%) to set the enrolment inflation factor."),
+              tags$li("Download sensitivity tables as CSV or save either plot as a PNG."),
+              tags$li(tags$b("Defaults"), " resets all calculator inputs to their starting values.")
             )
           )
         ),
@@ -273,11 +276,17 @@ ui <- fluidPage(
               tags$li(tags$b("Status box:"), " Shows whether NI is currently demonstrated based on the observed CI bound vs the NI boundary."),
               tags$li(tags$b("Position plot:"), " Visualises the observed estimate and CI relative to the NI boundary."),
               tags$li(tags$b("Calculation table:"), " Step-by-step breakdown of every number in the status box."),
-              tags$li(tags$b("CI method comparison:"), " For single-arm designs, shows the minimum (higher-is-better) or maximum (lower-is-better) event count needed under each CI method at the current n.")
+              tags$li(tags$b("CI method comparison:"), " For single-arm designs, shows how many events are needed (or allowed) to demonstrate NI under each CI method at the current n, and whether the observed x passes.")
+            ),
+            tags$p(
+              tags$b("Other Settings"), " includes toggles for the calculation table, CI comparison table,
+              and calculation code. The position plot and both data tables can be downloaded directly
+              from Other Settings."
             ),
             tags$p(style = "font-size:12px; color:#94a3b8; margin-top:10px;",
                    "Note: The interim tool is descriptive, not a formal interim analysis with alpha-spending.
-                    It does not adjust for multiplicity. Consult a statistician before making stopping decisions.")
+                    It does not adjust for multiplicity or provide stopping boundaries.
+                    Consult a statistician before making any stopping decision.")
           )
         ),
         
@@ -287,14 +296,28 @@ ui <- fluidPage(
           open    = FALSE,
           tags$div(
             class = "ov-card",
-            tags$p("The Generate Report tab builds a formatted summary from your current Calculator inputs."),
+            tags$p("Builds a formatted PDF or Word report from the current Calculator inputs."),
+            tags$p(tags$b("Format & export")),
             tags$ul(
-              tags$li(tags$b("Format:"), " Word (.docx) or PDF (requires the ", tags$code("pagedown"), " package)."),
-              tags$li(tags$b("Title & Header:"), " Set a custom title; optionally include date, CI method, and author name."),
-              tags$li(tags$b("Interpretation:"), " Edit a free-text paragraph and insert live variable values using tag buttons (e.g. {n}, {power_pct}). Choose from built-in templates or start blank."),
-              tags$li(tags$b("Include in Report:"), " Toggle individual sections \u2014 results table, interpretation, CI comparison, definitions, calculation code, sensitivity plots, sensitivity tables, and interim analysis summary."),
-              tags$li(tags$b("Report contents:"), " Live checklist at the top of the tab updates as you tick options.")
-            )
+              tags$li("Choose ", tags$b("PDF (.pdf)"), " or ", tags$b("Word (.docx)"), " and click the download button."),
+              tags$li("PDF export requires the ", tags$code("pagedown"), " R package and Google Chrome.")
+            ),
+            tags$p(tags$b("Title & Header")),
+            tags$p("Set a custom report title from a template or free text. Optionally include the generation date, CI method, and author name."),
+            tags$p(tags$b("Interpretation")),
+            tags$ul(
+              tags$li("Edit a free-text paragraph using the built-in templates as a starting point."),
+              tags$li("Click tag buttons (e.g. ", tags$code("{n}"), ", ", tags$code("{power_pct}"), ", ", tags$code("{dropout_pct}"), ") to insert live values from the current inputs."),
+              tags$li("A collapsible ", tags$b("Current calculator values"), " panel shows all key inputs and outputs without switching tabs.")
+            ),
+            tags$p(tags$b("Include in Report")),
+            tags$p("Toggle any combination of sections:"),
+            tags$ul(
+              tags$li(tags$b("General:"), " Results table, full n summary, interpretation, CI comparison, definitions, calculation code."),
+              tags$li(tags$b("Sensitivity:"), " \u0394 and p\u2081 plots and/or tables."),
+              tags$li(tags$b("Interim Analysis:"), " Data summary, interpretation, CI comparison, position plot.")
+            ),
+            tags$p("The live ", tags$b("Report contents"), " checklist in the top-right of the tab reflects your current selections.")
           )
         ),
         
@@ -307,8 +330,8 @@ ui <- fluidPage(
             tags$p(tags$b("What is a Performance Goal (PG)?")),
             tags$p("A performance goal is a pre-specified, objective benchmark derived from
                     historical data, literature, or prior device performance. It represents
-                    the minimum acceptable event rate (efficacy) or maximum acceptable
-                    complication rate (safety) that a new device must meet or exceed."),
+                    the minimum or maximum acceptable event rate that a device must
+                    achieve, depending on whether a higher or lower rate is the desired outcome."),
             tags$p(tags$b("Regulatory context")),
             tags$ul(
               tags$li(tags$b("FDA (US):"), " The FDA guidance on non-inferiority trials
@@ -350,16 +373,53 @@ ui <- fluidPage(
           open    = FALSE,
           tags$div(
             class = "ov-card",
-            tags$p(HTML("Developed by <strong>\u00c1ine Glynn</strong> and
-                          <strong>Filip K\u0142osowski</strong> \u00b7 University of Galway.")),
-            tags$p(tags$a(
-              href   = "https://github.com/FilipMKgit/Margin-Jinn",
-              target = "_blank",
-              "View source on GitHub \u2197"
-            )),
-            tags$p("Built with R, Shiny, bslib, plotly, binom, and officer."),
-            tags$p(style = "color:#94a3b8; font-size:11.5px; margin-top:8px;",
-                   "Claude (Anthropic) assisted with parts of the code development.")
+            tags$p(
+              style = "font-size:12px; color:#374151; line-height:1.8;",
+              HTML("Developed by <strong>\u00c1ine Glynn</strong> and
+                    <strong>Filip K\u0142osowski</strong>, University of Galway.")
+            ),
+            tags$p(
+              style = "font-size:12px; color:#374151; line-height:1.8;",
+              "Developed as part of a Master\u2019s thesis in Health Data Science.",
+              " Source code on ",
+              tags$a(href = "https://github.com/FilipMKgit/MDX2526",
+                     target = "_blank", style = "color:#5b35d5;", "GitHub"), "."
+            ),
+            tags$p(
+              style = "font-size:12px; color:#374151; line-height:1.8;",
+              "Logo by ", tags$b("Daniel Breheny"), " (University of Galway)."
+            ),
+            tags$hr(style = "border-color:#f1f5f9; margin:8px 0;"),
+            tags$p(
+              style = "font-size:11.5px; color:#64748b; line-height:1.8;",
+              tags$b("R packages: "),
+              tags$code("shiny"), ", ", tags$code("bslib"), ", ",
+              tags$code("ggplot2"), ", ", tags$code("plotly"), ", ",
+              tags$code("DT"), ", ", tags$code("binom"), ", ",
+              tags$code("officer"), ", ", tags$code("base64enc"), ", ",
+              tags$code("shinybusy")
+            ),
+            tags$p(
+              style = "color:#94a3b8; font-size:11px; margin-top:6px;",
+              "Claude (Anthropic) assisted with parts of the code development."
+            )
+          )
+        ),
+        
+        # -- Disclaimer -------------------------------------------------------
+        tags$div(
+          style = "margin-top:18px; padding:12px 16px;
+                   background:#fff8ee; border:1px solid #e8c96a; border-radius:8px;",
+          tags$p(
+            style = "margin:0; font-size:11.5px; color:#7a5c00; line-height:1.65;",
+            tags$b("Disclaimer: "),
+            "PG-Power is an exploratory tool intended to assist with study planning
+             and is provided for educational and research purposes only. It does not
+             constitute regulatory, statistical, or clinical advice. All sample size
+             calculations, NI margins, and assumptions must be reviewed and validated
+             by a qualified statistician before use in any formal study protocol,
+             regulatory submission, or clinical investigation plan. The authors accept
+             no responsibility for decisions made on the basis of outputs from this tool."
           )
         ),
         
@@ -488,37 +548,24 @@ ui <- fluidPage(
               )
             ),
             
-            # Alpha slider with common-alpha highlights
-            tags$div(
-              style = "margin-bottom: 4px;",
-              tags$label(
-                style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:6px;",
-                HTML("Significance level (one-sided \u03b1)")
+            # Alpha dropdown
+            selectInput(
+              "sig.level",
+              HTML("Significance level (one-sided \u03b1)"),
+              choices = c(
+                "0.005  (stringent)"           = 0.005,
+                "0.010"                        = 0.010,
+                "0.025  (pivotal device)"      = 0.025,
+                "0.040"                        = 0.040,
+                "0.050  (exploratory)"         = 0.050,
+                "0.100"                        = 0.100,
+                "0.150  (permissive / pilot)"  = 0.150
               ),
-              tags$div(
-                class = "alpha-slider-wrap",
-                sliderInput(
-                  "sig.level",
-                  label  = NULL,
-                  min    = 0.005, max = 0.10,
-                  step   = 0.005, value = 0.025,
-                  ticks  = FALSE
-                ),
-                conditionalPanel(
-                  condition = "input.show_calc_hints == true",
-                  tags$div(
-                    class = "alpha-tick-labels",
-                    tags$span(HTML("0.005")),
-                    tags$span(HTML("0.025 <span class='alpha-common-badge'>pivotal</span>")),
-                    tags$span(HTML("0.05 <span class='alpha-common-badge' style='background:#e07b3922;color:#e07b39;border-color:#e07b3955;'>common</span>")),
-                    tags$span("0.10")
-                  )
-                )
-              ),
-              conditionalPanel(
-                condition = "input.show_calc_hints == true",
-                uiOutput("alpha_display")
-              )
+              selected = 0.025
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints == true",
+              uiOutput("alpha_display")
             ),
             
             # Power slider with common-power highlights
@@ -612,8 +659,16 @@ ui <- fluidPage(
             
             selectInput(
               "WindowMargin", "Sensitivity window for NI margin (\u00b1)",
-              choices  = c("0.01" = 0.01, "0.02" = 0.02, "0.05" = 0.05),
-              selected = 0.05
+              choices = c(
+                "\u00b10.005 (very narrow)" = 0.005,
+                "\u00b10.010"               = 0.010,
+                "\u00b10.020"               = 0.020,
+                "\u00b10.050 (default)"     = 0.050,
+                "\u00b10.075"               = 0.075,
+                "\u00b10.100 (wide)"        = 0.100,
+                "\u00b10.150 (very wide)"   = 0.150
+              ),
+              selected = 0.050
             )
           ),
           
@@ -644,7 +699,7 @@ ui <- fluidPage(
             
             checkboxInput("show_calc_code", "Show calculation code",           value = FALSE),
             checkboxInput("showNBox_prop",  "Show n at chosen \u0394",           value = TRUE),
-            checkboxInput("showVline",      "Show vertical marker on plots",    value = FALSE),
+            checkboxInput("showVline",      "Show selected value crosshair",    value = FALSE),
             checkboxInput("showTable",      "Show \u0394 sensitivity table",    value = FALSE),
             checkboxInput("showTable2",     "Show p\u2081 sensitivity table",   value = FALSE),
             
@@ -676,6 +731,10 @@ ui <- fluidPage(
               downloadButton("downloadData_plot1", "\u2193 Download \u0394 table",
                              class = "btn-sm btn-outline-primary pgp-btn"),
               downloadButton("downloadData_plot2", "\u2193 Download p\u2081 table",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlot1",      "\u2193 Download \u0394 plot",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlot2",      "\u2193 Download p\u2081 plot",
                              class = "btn-sm btn-outline-primary pgp-btn")
             ),
             
@@ -778,6 +837,9 @@ ui <- fluidPage(
                              class = "btn-sm btn-outline-primary pgp-btn"),
               downloadButton("download_interim_ci_csv",
                              "\u2193 Download CI table",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadInterimPlot",
+                             "\u2193 Download position plot",
                              class = "btn-sm btn-outline-primary pgp-btn")
             ),
             
@@ -953,11 +1015,12 @@ ui <- fluidPage(
                            letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
           tags$div(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_results",     "Results table",       value = TRUE),
-            checkboxInput("rpt_interp_inc",  "Interpretation",      value = TRUE),
-            checkboxInput("rpt_definitions", "Definitions",         value = TRUE),
-            checkboxInput("rpt_calc_code",   "Calculation code",    value = TRUE),
-            checkboxInput("rpt_ci_compare",  "CI comparison table", value = FALSE)
+            checkboxInput("rpt_results",      "Results table",         value = TRUE),
+            checkboxInput("rpt_interp_inc",   "Interpretation",        value = TRUE),
+            checkboxInput("rpt_definitions",  "Definitions",           value = TRUE),
+            checkboxInput("rpt_calc_code",    "Calculation code",      value = TRUE),
+            checkboxInput("rpt_ci_compare",   "CI comparison table",   value = FALSE),
+            checkboxInput("rpt_n_box",        "Full n summary table",  value = FALSE)
           ),
           
           tags$p("Sensitivity",
@@ -1012,6 +1075,31 @@ ui <- fluidPage(
           
           tags$div(
             style = "margin-top:4px;",
+            
+            # Collapsible current calculator values panel
+            tags$div(
+              style = "margin-bottom:14px;",
+              tags$div(
+                style = "display:flex; align-items:center; justify-content:space-between;
+                         background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
+                         padding:8px 14px; cursor:pointer;",
+                onclick = "pgpToggleCalcSummary(this);",
+                tags$span(
+                  style = "font-size:12px; font-weight:600; color:#374151;",
+                  "Current calculator values"
+                ),
+                tags$span(
+                  id    = "calc_summary_chevron",
+                  style = "font-size:11px; color:#64748b; transition:transform 0.2s;",
+                  "\u25be"
+                )
+              ),
+              tags$div(
+                id    = "calc_summary_body",
+                style = "display:none;",
+                uiOutput("rpt_calc_summary_ui")
+              )
+            ),
             
             tags$div(
               style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
@@ -1141,6 +1229,16 @@ ui <- fluidPage(
       btn.textContent   = isHidden ? 'collapse ▴' : 'expand ▾';
     };
 
+    // -- Calculator summary toggle (in report interpretation panel) ----------
+    window.pgpToggleCalcSummary = function(hdr) {
+      var body = document.getElementById('calc_summary_body');
+      var chev = document.getElementById('calc_summary_chevron');
+      if (!body) return;
+      var isHidden = body.style.display === 'none' || body.style.display === '';
+      body.style.display = isHidden ? 'block' : 'none';
+      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : '';
+    };
+
     // -- Plot colour picker -------------------------------------------------
     window.pgpSetPlotColour = function(hex, btn) {
       // Update active swatch
@@ -1193,8 +1291,8 @@ ui <- fluidPage(
     // -- Include checkboxes --------------------------------------------------
     var pgpIncludeIds = [
         'rpt_results','rpt_interp_inc','rpt_ci_compare','rpt_definitions',
-        'rpt_calc_code','rpt_plot_delta','rpt_plot_p1','rpt_table_delta',
-        'rpt_table_p1','rpt_interim_summ','rpt_interim_interp',
+        'rpt_calc_code','rpt_n_box','rpt_plot_delta','rpt_plot_p1',
+        'rpt_table_delta','rpt_table_p1','rpt_interim_summ','rpt_interim_interp',
         'rpt_interim_ci','rpt_interim_plot'
       ];
 
@@ -1219,7 +1317,7 @@ ui <- fluidPage(
     window.pgpRestoreIncludes = function() {
       var defaults = {
         'rpt_results': true, 'rpt_interp_inc': true, 'rpt_ci_compare': false,
-        'rpt_definitions': true, 'rpt_calc_code': true,
+        'rpt_definitions': true, 'rpt_calc_code': true, 'rpt_n_box': false,
         'rpt_plot_delta': false, 'rpt_plot_p1': false,
         'rpt_table_delta': false, 'rpt_table_p1': false,
         'rpt_interim_summ': false, 'rpt_interim_interp': false,
@@ -1312,7 +1410,7 @@ ui <- fluidPage(
       if (!S) return;
       S.setInputValue('prop_design',    'one_arm',  {priority: 'event'});
       S.setInputValue('endpoint',       'efficacy', {priority: 'event'});
-      S.setInputValue('sig.level',      0.025,      {priority: 'event'});
+      S.setInputValue('sig.level',      '0.025',    {priority: 'event'});
       S.setInputValue('power',          0.80,       {priority: 'event'});
       S.setInputValue('r',              '1',        {priority: 'event'});
       S.setInputValue('ci_method_prop', 'wilson',   {priority: 'event'});

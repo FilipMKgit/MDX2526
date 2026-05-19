@@ -161,18 +161,27 @@ server <- function(input, output, session) {
     
     badge_txt <- NULL
     badge_col <- NULL
-    if (abs(a - 0.025) < 0.0001) {
-      badge_txt <- "pivotal device standard"
-      badge_col <- "#5b35d5"
-    } else if (abs(a - 0.05) < 0.0001) {
-      badge_txt <- "common exploratory"
-      badge_col <- "#e07b39"
-    } else if (abs(a - 0.01) < 0.0001) {
+    if (abs(a - 0.005) < 0.0001) {
+      badge_txt <- "very stringent"
+      badge_col <- "#1e3a5f"
+    } else if (abs(a - 0.010) < 0.0001) {
       badge_txt <- "stringent"
       badge_col <- "#7c3aed"
-    } else if (abs(a - 0.10) < 0.0001) {
+    } else if (abs(a - 0.025) < 0.0001) {
+      badge_txt <- "pivotal device standard"
+      badge_col <- "#5b35d5"
+    } else if (abs(a - 0.040) < 0.0001) {
+      badge_txt <- "relaxed pivotal"
+      badge_col <- "#0369a1"
+    } else if (abs(a - 0.050) < 0.0001) {
+      badge_txt <- "common exploratory"
+      badge_col <- "#e07b39"
+    } else if (abs(a - 0.100) < 0.0001) {
       badge_txt <- "liberal"
       badge_col <- "#94a3b8"
+    } else if (abs(a - 0.150) < 0.0001) {
+      badge_txt <- "permissive / pilot"
+      badge_col <- "#b45309"
     }
     
     ci_equiv <- round(100 * (1 - 2 * a), 1)
@@ -329,25 +338,33 @@ server <- function(input, output, session) {
   
   # ── Calculator: CI comparison table ──────────────────────────────────────────
   
-  compare_methods <- c(
-    "Wilson"        = "wilson",
-    "Exact (C-P)"   = "exact",
-    "Agresti-Coull" = "ac",
-    "Wald"          = "asymptotic"
+  # All CI methods available in the main dropdown — used for comparison table
+  all_compare_methods <- c(
+    "Z (power formula)"         = "z_power",
+    "Wilson"                    = "wilson",
+    "Exact (Clopper-Pearson)"   = "exact",
+    "Agresti-Coull"             = "ac",
+    "Asymptotic (Wald)"         = "asymptotic",
+    "prop.test"                 = "prop.test",
+    "Bayes"                     = "bayes",
+    "Logit"                     = "logit",
+    "Cloglog"                   = "cloglog",
+    "Probit"                    = "probit"
   )
   
   compare_df <- reactive({
     req(input$showCompare)
     if (!isTRUE(input$showCompare)) return(NULL)
-    sim_n <- as.numeric(input$sim_quality)
-    seed  <- as.numeric(input$sim_seed)
-    ns <- vapply(compare_methods, function(m) {
-      prop_total_n(p0_d(), p1_d(), delta_d(),
-                   ci_method = m, sim_n = sim_n, seed = seed)
+    # Use identical arguments to prop_total_n so results match the main display.
+    # Each method runs its own binary search with the same sim_quality and seed.
+    ns <- vapply(all_compare_methods, function(m) {
+      prop_total_n(p0_d(), p1_d(), delta_d(), ci_method = m)
     }, numeric(1))
+    current <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
     data.frame(
-      Method   = names(compare_methods),
+      Method    = names(all_compare_methods),
       `Total N` = ifelse(is.infinite(ns), "Not achievable", format(ns, big.mark = ",")),
+      Selected  = ifelse(all_compare_methods == current, "\u2713", ""),
       check.names = FALSE
     )
   })
@@ -577,7 +594,7 @@ server <- function(input, output, session) {
       tags$hr(),
       tags$div(
         class = "compare-header",
-        tags$h5("CI method comparison \u2014 required total N at current inputs"),
+        tags$h5("CI method comparison \u2014 required n for each method at current inputs (\u2713 = currently selected)"),
         tags$p(
           class = "compare-params",
           paste0("p\u2080 = ", input$p0.expected, "  |  p\u2081 = ", input$p1.expected,
@@ -612,6 +629,67 @@ server <- function(input, output, session) {
   })
   
   # ── Generate Report: UI outputs ──────────────────────────────────────────────
+  
+  # -- Collapsible calculator summary in the Interpretation panel ------------
+  output$rpt_calc_summary_ui <- renderUI({
+    n_out     <- tryCatch(prop_n_at_delta(), error = function(e) NA)
+    dropout_r <- get_dropout_rate()
+    alpha_val <- as.numeric(input$sig.level)
+    is_one    <- isTRUE(input$prop_design == "one_arm")
+    ci_m      <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
+    
+    n_fmt   <- if (is.na(n_out) || is.infinite(n_out)) "Not achievable"
+    else format(n_out, big.mark = ",")
+    n_enrol <- if (is.na(n_out) || is.infinite(n_out)) NA_integer_
+    else ceiling(n_out / (1 - dropout_r / 100))
+    nd_fmt  <- if (is.na(n_enrol)) "—" else format(n_enrol, big.mark = ",")
+    p_thr   <- as.numeric(p0_d()) - as.numeric(delta_d())
+    z_a     <- qnorm(1 - alpha_val)
+    n_succ  <- if (is.na(n_out) || is.infinite(n_out)) "—"
+    else format(ceiling(n_out * p_thr + z_a * sqrt(n_out * p_thr * (1 - p_thr))),
+                big.mark = ",")
+    ci_equiv <- round(100 * (1 - 2 * alpha_val), 1)
+    
+    design_txt <- if (is_one) "Single-arm NI" else "Two-arm NI"
+    ep_txt     <- if (isTRUE(input$endpoint == "safety"))
+      "Lower is better" else "Higher is better"
+    ci_labels  <- c(z_power="Z (power formula)", wilson="Wilson", exact="Clopper-Pearson",
+                    ac="Agresti-Coull", asymptotic="Wald", prop.test="prop.test",
+                    bayes="Bayes", logit="Logit", cloglog="Cloglog", probit="Probit")
+    ci_lbl     <- unname(ci_labels[ci_m]); if (is.na(ci_lbl)) ci_lbl <- ci_m
+    
+    row <- function(label, val) {
+      tags$tr(
+        tags$td(style = "padding:4px 10px; font-size:12px; font-weight:600;
+                          color:#64748b; border:1px solid #e2e8f0; white-space:nowrap;",
+                label),
+        tags$td(style = "padding:4px 10px; font-size:12px; color:#1a2e35;
+                          border:1px solid #e2e8f0; font-family:'DM Mono',monospace;",
+                val)
+      )
+    }
+    
+    tags$div(
+      style = "border:1px solid #e2e8f0; border-top:none; border-radius:0 0 8px 8px;
+               padding:12px; background:#fafcff;",
+      tags$table(
+        style = "border-collapse:collapse; width:100%;",
+        tags$tbody(
+          row("Design",                design_txt),
+          row("Endpoint direction",    ep_txt),
+          row("p₀ (benchmark)",   as.character(p0_d())),
+          row("p₁ (expected)",    as.character(p1_d())),
+          row("Δ (NI margin)",    sprintf("%.3f", delta_d())),
+          row("α (one-sided)",    paste0(alpha_val, "  →  ", ci_equiv, "% CI")),
+          row("Power",                 paste0(round(power_d() * 100), "%")),
+          row("CI method",             ci_lbl),
+          row("Required n",            n_fmt),
+          row("Min successes",         n_succ),
+          row(paste0("Enrolment (", dropout_r, "% dropout)"), nd_fmt)
+        )
+      )
+    )
+  })
   
   output$report_contents_ui <- renderUI({
     make_li <- function(label, on) {
@@ -648,6 +726,7 @@ server <- function(input, output, session) {
     
     general_items <- list(
       list(label = "Results table",              on = isTRUE(input$rpt_results)),
+      list(label = "Full n summary table",       on = isTRUE(input$rpt_n_box)),
       list(label = "Interpretation paragraph",   on = isTRUE(input$rpt_interp_inc)),
       list(label = "CI method comparison table", on = isTRUE(input$rpt_ci_compare)),
       list(label = "Definitions glossary",       on = isTRUE(input$rpt_definitions)),
@@ -724,7 +803,7 @@ server <- function(input, output, session) {
   }
   
   get_section_order <- function() {
-    c("results", "interp", "ci_compare", "definitions", "calc_code",
+    c("results", "n_box", "interp", "ci_compare", "definitions", "calc_code",
       "plot_delta", "plot_p1", "table_delta", "table_p1",
       "interim_summ", "interim_interp", "interim_ci", "interim_plot")
   }
@@ -835,6 +914,7 @@ server <- function(input, output, session) {
         show_ci_cmp   <- !isTRUE(input$rpt_ci_compare == FALSE)
         show_defs     <- !isTRUE(input$rpt_definitions == FALSE)
         show_code     <- !isTRUE(input$rpt_calc_code   == FALSE)
+        show_n_box    <- !isTRUE(input$rpt_n_box      == FALSE)
         show_plot_delta   <- isTRUE(input$rpt_plot_delta)
         show_plot_p1      <- isTRUE(input$rpt_plot_p1)
         show_table_delta  <- isTRUE(input$rpt_table_delta)
@@ -867,6 +947,44 @@ server <- function(input, output, session) {
           td(input$sig.level), td(ci_label),
           "</tr></table><hr style='border-color:", blue, ";margin:14px 0;'>"
         ) else ""
+        
+        # Full n summary table (n_box)
+        n_box_html <- if (show_n_box) {
+          dr_r     <- get_dropout_rate()
+          av       <- as.numeric(input$sig.level)
+          ci_eq    <- round(100 * (1 - 2 * av), 1)
+          p_thr_nb <- as.numeric(p0_d()) - as.numeric(delta_d())
+          z_a_nb   <- qnorm(1 - av)
+          n_succ_nb <- if (is.infinite(n_val)) NA_integer_
+          else ceiling(n_val * p_thr_nb + z_a_nb * sqrt(n_val * p_thr_nb * (1 - p_thr_nb)))
+          nd_nb    <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val / (1 - dr_r / 100))
+          ns_fmt2  <- if (is.na(n_succ_nb)) "—" else format(n_succ_nb, big.mark=",")
+          nd_fmt2  <- if (is.na(nd_nb)) "—" else format(nd_nb, big.mark=",")
+          ep_txt   <- if (isTRUE(input$endpoint=="safety")) "Lower is better" else "Higher is better"
+          des_txt  <- if (isTRUE(input$prop_design=="one_arm")) "Single-arm NI" else "Two-arm NI"
+          rows_nb  <- list(
+            c("Design",                  des_txt),
+            c("Endpoint direction",      ep_txt),
+            c("p₀ (benchmark)",     as.character(p0_d())),
+            c("p₁ (expected)",      as.character(p1_d())),
+            c("Δ (NI margin)",       sprintf("%.3f", delta_d())),
+            c("α / CI equivalent",  paste0(av, " / ", ci_eq, "% CI")),
+            c("Power",                   paste0(round(power_d()*100), "%")),
+            c("CI method",               rd$ci_label),
+            c("Required n",              n_fmt),
+            c("Min successes to reject H₀", ns_fmt2),
+            c(paste0("Enrolment target (", dr_r, "% dropout)"), nd_fmt2)
+          )
+          hdr_nb   <- paste0("<tr>", th("Parameter"), th("Value"), "</tr>")
+          rows_nb_html <- paste(sapply(rows_nb, function(r)
+            paste0("<tr>", td(r[1]), td(r[2]), "</tr>")), collapse="")
+          paste0(
+            "<h2 style='", h2s, "'>Sample Size Summary</h2>",
+            "<table style='border-collapse:collapse;width:100%;'>",
+            hdr_nb, rows_nb_html, "</table>",
+            "<hr style='border-color:", blue, ";margin:14px 0;'>"
+          )
+        } else ""
         
         interp_text <- if (show_interp) build_interp_text(rd) else NULL
         interp_html <- if (show_interp) paste0(
@@ -1140,6 +1258,7 @@ server <- function(input, output, session) {
         
         section_html_map <- list(
           results        = results_html,
+          n_box          = n_box_html,
           interp         = interp_html,
           ci_compare     = ci_html,
           definitions    = defs_html,
@@ -1228,6 +1347,90 @@ server <- function(input, output, session) {
       df <- prop_df_p1()
       colnames(df) <- c("Expected Event Rate (p1)", "Total N")
       write.csv(df, file, row.names = FALSE)
+    }
+  )
+  
+  # -- Download plot PNGs (Calculator) ----------------------------------------
+  output$downloadPlot1 <- downloadHandler(
+    filename = function() paste0("PGPower_delta_plot_", Sys.Date(), ".png"),
+    contentType = "image/png",
+    content = function(file) {
+      pc <- get_plot_colour()
+      df <- prop_df_delta()
+      p  <- ggplot(df, aes(x = x, y = y)) +
+        geom_line(colour = pc, linewidth = 1.1) +
+        geom_point(colour = pc, size = 2) +
+        labs(title = "NI margin (Δ) vs total sample size",
+             x = "Non-inferiority margin (Δ)", y = "Total sample size (n)") +
+        plot_theme_large
+      ggsave(file, p, width = 7, height = 4, dpi = 150, bg = "white")
+    }
+  )
+  
+  output$downloadPlot2 <- downloadHandler(
+    filename = function() paste0("PGPower_p1_plot_", Sys.Date(), ".png"),
+    contentType = "image/png",
+    content = function(file) {
+      pc     <- get_plot_colour()
+      df     <- prop_df_p1()
+      is_one <- isTRUE(input$prop_design == "one_arm")
+      x_lab  <- if (is_one) "Expected device event rate (p₁)"
+      else "Expected experimental event rate (p₁)"
+      p <- ggplot(df, aes(x = x, y = y)) +
+        geom_line(colour = pc, linewidth = 1.1) +
+        geom_point(colour = pc, size = 2) +
+        labs(title = "Expected event rate (p₁) vs total sample size",
+             x = x_lab, y = "Total sample size (n)") +
+        plot_theme_large
+      ggsave(file, p, width = 7, height = 4, dpi = 150, bg = "white")
+    }
+  )
+  
+  # -- Download interim position plot PNG -------------------------------------
+  output$downloadInterimPlot <- downloadHandler(
+    filename = function() paste0("PGPower_interim_plot_", Sys.Date(), ".png"),
+    contentType = "image/png",
+    content = function(file) {
+      tryCatch({
+        v  <- interim_vals()
+        pc <- get_plot_colour()
+        if (v$is_two_arm) {
+          xlo <- min(v$boundary - 0.15, v$ci_lo - 0.05, -0.25)
+          xhi <- max(v$boundary + 0.15, v$ci_hi + 0.05,  0.25)
+        } else {
+          xlo <- max(0, min(v$boundary - 0.15, v$ci_lo - 0.05))
+          xhi <- min(1, max(v$p0 + 0.10, v$ci_hi + 0.05))
+        }
+        good_lo <- if (v$is_safety) xlo else v$boundary
+        good_hi <- if (v$is_safety) v$boundary else xhi
+        y_label <- if (v$is_two_arm) "Difference" else "Current rate"
+        x_label <- if (v$is_two_arm) "Risk difference" else "Proportion"
+        df_pt   <- data.frame(label = y_label, est = v$p_hat,
+                              lo = v$ci_lo, hi = v$ci_hi)
+        p <- ggplot(df_pt, aes(x = est, y = label)) +
+          annotate("rect", xmin = good_lo, xmax = good_hi,
+                   ymin = -Inf, ymax = Inf, fill = pc, alpha = 0.08) +
+          geom_vline(xintercept = v$boundary, linetype = "dashed",
+                     colour = "#e07b39", linewidth = 0.9) +
+          geom_vline(xintercept = if (v$is_two_arm) 0 else v$p0,
+                     linetype = "dashed", colour = "#718096", linewidth = 0.7) +
+          geom_errorbar(aes(xmin = lo, xmax = hi, y = label),
+                        width = 0.15, colour = "#1a2e35", linewidth = 0.9,
+                        orientation = "y") +
+          geom_point(size = 4, colour = pc) +
+          scale_x_continuous(limits = c(xlo, xhi)) +
+          labs(title = if (v$is_two_arm) "Observed risk difference vs NI boundary"
+               else "Current observed rate vs NI boundary",
+               x = x_label, y = NULL) +
+          plot_theme_large +
+          theme(axis.text.y = element_text(size = 12))
+        ggsave(file, p, width = 6, height = 3, dpi = 150, bg = "white")
+      }, error = function(e) {
+        # Write a blank PNG on error
+        png(file, width = 600, height = 300)
+        plot.new(); title("No interim data to plot")
+        dev.off()
+      })
     }
   )
   
@@ -1321,6 +1524,41 @@ server <- function(input, output, session) {
                                           "H\u2080: p \u2264 (p\u2080 \u2212 \u0394)  vs.  H\u2081: p > (p\u2080 \u2212 \u0394)  \u2014  One-Sided",
                                           hyp_fmt), fp_p = tight_p))
           doc <- officer::body_add_table(doc, summary_df, align_table = "left")
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
+          doc <- officer::body_add_par(doc, "", style = "Normal")
+        }
+        
+        # Full n summary table (Word)
+        if (!isTRUE(input$rpt_n_box == FALSE)) {
+          dr_w    <- get_dropout_rate()
+          av_w    <- as.numeric(input$sig.level)
+          ci_eq_w <- round(100 * (1 - 2 * av_w), 1)
+          p_thr_w <- as.numeric(p0_d()) - as.numeric(delta_d())
+          z_a_w   <- qnorm(1 - av_w)
+          n_succ_w <- if (is.infinite(n_val)) NA_integer_
+          else ceiling(n_val * p_thr_w + z_a_w * sqrt(n_val * p_thr_w * (1 - p_thr_w)))
+          nd_w    <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val / (1 - dr_w / 100))
+          ns_fmt_w <- if (is.na(n_succ_w)) "—" else format(n_succ_w, big.mark=",")
+          nd_fmt_w <- if (is.na(nd_w)) "—" else format(nd_w, big.mark=",")
+          ep_w    <- if (isTRUE(input$endpoint=="safety")) "Lower is better" else "Higher is better"
+          des_w   <- if (isTRUE(input$prop_design=="one_arm")) "Single-arm NI" else "Two-arm NI"
+          nb_df   <- data.frame(
+            Parameter = c("Design", "Endpoint direction",
+                          "p₀ (benchmark)", "p₁ (expected)",
+                          "Δ (NI margin)", "α / CI equivalent",
+                          "Power", "CI method", "Required n",
+                          "Min successes to reject H₀",
+                          paste0("Enrolment target (", dr_w, "% dropout)")),
+            Value = c(des_w, ep_w,
+                      as.character(p0_d()), as.character(p1_d()),
+                      sprintf("%.3f", delta_d()),
+                      paste0(av_w, " / ", ci_eq_w, "% CI"),
+                      paste0(round(power_d()*100), "%"),
+                      ci_label, n_fmt, ns_fmt_w, nd_fmt_w),
+            stringsAsFactors = FALSE)
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Sample Size Summary", h2_fmt), fp_p = tight_p))
+          doc <- officer::body_add_table(doc, nb_df, align_table = "left")
           doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p = border_p))
           doc <- officer::body_add_par(doc, "", style = "Normal")
         }
