@@ -49,7 +49,7 @@ ui <- fluidPage(
                              padding: 5px 0; font-size: 12.5px; color: #374151;
                              border-bottom: 1px solid #f1f5f9; }
       .report-contents li:last-child { border-bottom: none; }
-      .rc-tick  { color: #18bdb9; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+      .rc-tick  { color: #5b35d5; font-weight: 800; font-size: 14px; flex-shrink: 0; }
       .rc-cross { color: #cbd5e1; font-weight: 800; font-size: 14px; flex-shrink: 0; }
 
       .ov-card { padding: 14px 16px; font-size: 13px; line-height: 1.65; color: #374151; }
@@ -57,7 +57,7 @@ ui <- fluidPage(
       .ov-card li { margin-bottom: 5px; }
       .ov-card pre { background: #f1f5f9; border-radius: 6px; padding: 10px 12px;
                       font-size: 12px; color: #1a2e35; margin-top: 8px; }
-      .ov-card a { color: #18bdb9; }
+      .ov-card a { color: #5b35d5; }
 
       .pgp-header-text { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
       .pgp-subtitle { font-style: italic; margin: 0 !important; line-height: 1; }
@@ -77,7 +77,7 @@ ui <- fluidPage(
         border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;
         color: #374151; background: #fafcff;
       }
-      .interp-textarea:focus { border-color: #18bdb9; outline: none;
+      .interp-textarea:focus { border-color: #5b35d5; outline: none;
                                 box-shadow: 0 0 0 2px rgba(24,189,185,0.15); }
 
       .report-export-row {
@@ -90,10 +90,65 @@ ui <- fluidPage(
       .report-export-right p { font-size:11px; font-weight:700;
                                 text-transform:uppercase; letter-spacing:0.06em;
                                 color:#64748b; margin:0 0 8px; }
+
+      /* ── n-box expand/collapse ─────────────────────────────────────────── */
+      .n-box-expanded {
+        margin-top: 8px; padding: 10px 14px;
+        background: #f8fafc; border: 1px solid #e2e8f0;
+        border-radius: 8px; font-size: 12px;
+      }
+      .n-box-expanded .nb-row {
+        display: flex; gap: 10px; padding: 4px 0;
+        border-bottom: 1px solid #f1f5f9; line-height: 1.5;
+      }
+      .n-box-expanded .nb-row:last-child { border-bottom: none; }
+      .n-box-expanded .nb-label {
+        flex: 0 0 210px; font-weight: 600; color: #64748b; font-size: 11.5px;
+      }
+      .n-box-expanded .nb-val {
+        flex: 1 1 auto; color: #1a2e35; font-family: 'DM Mono', monospace;
+        font-size: 11.5px;
+      }
+      .n-box-toggle {
+        background: none; border: 1px solid #e2e8f0; border-radius: 5px;
+        font-size: 11px; color: #64748b; padding: 2px 9px; cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .n-box-toggle:hover { border-color: #5b35d5; color: #5b35d5; }
+
+      /* ── Alpha slider tick labels ──────────────────────────────────────── */
+      .alpha-slider-wrap { position: relative; }
+      .alpha-tick-labels {
+        display: flex; justify-content: space-between;
+        font-size: 10px; color: #94a3b8;
+        margin: -8px 7px 4px; line-height: 1.3;
+      }
+      .alpha-common-badge {
+        display: inline-block; padding: 0px 5px; font-size: 9px; font-weight: 700;
+        border-radius: 8px; letter-spacing: 0.03em;
+        background: #5b35d522; color: #5b35d5; border: 1px solid #5b35d555;
+        margin-left: 2px; vertical-align: middle;
+      }
+
+      /* -- Plot colour swatches ---------------------------------------------- */
+      .pgp-colour-bar {
+        display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      }
+      .pgp-colour-bar span {
+        font-size: 12px; color: #64748b; margin-right: 2px;
+      }
+      .pgp-swatch {
+        width: 22px; height: 22px; border-radius: 50%;
+        border: 2px solid transparent; cursor: pointer;
+        transition: transform 0.15s, border-color 0.15s;
+        outline: none;
+      }
+      .pgp-swatch:hover   { transform: scale(1.18); }
+      .pgp-swatch.active  { border-color: #1a2e35; transform: scale(1.18); }
     "))
   ),
   
-  add_busy_spinner(spin = "fading-circle", color = "#18bdb9", position = "top-right"),
+  add_busy_spinner(spin = "fading-circle", color = "#5b35d5", position = "top-right"),
   
   tags$div(
     class = "pgp-header",
@@ -113,7 +168,6 @@ ui <- fluidPage(
       tags$div(
         style = "max-width: 720px; margin: 28px auto; padding: 0 16px;",
         
-        # Basics
         acc_panel(
           id      = "acc_basics",
           heading = "Basics",
@@ -132,7 +186,6 @@ ui <- fluidPage(
           )
         ),
         
-        # Calculator Info
         acc_panel(
           id      = "acc_calc_info",
           heading = "Calculator",
@@ -141,8 +194,8 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p(tags$b("Trial Design Settings")),
             tags$ul(
-              tags$li(tags$b("Design:"), " Single-arm (device vs benchmark) or two-arm (treatment vs control)."),
-              tags$li(tags$b("Endpoint:"), " Efficacy (higher is better) or Safety (lower is better). Switching presets p\u2080, p\u2081, and \u0394."),
+              tags$li(tags$b("Design:"), " Single-arm NI (device vs benchmark) or Two-arm NI (treatment vs control)."),
+              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower event rate is the desired outcome. Switching presets p\u2080, p\u2081, and \u0394."),
               tags$li(tags$b("\u03b1:"), " One-sided significance level. Typically 0.025 for medical device studies."),
               tags$li(tags$b("Power:"), " Probability of correctly demonstrating NI."),
               tags$li(tags$b("Allocation ratio:"), " Two-arm only. Ratio of treatment to control patients."),
@@ -158,13 +211,13 @@ ui <- fluidPage(
             tags$p(tags$b("Other Settings")),
             tags$ul(
               tags$li("Toggle the n result box, vertical plot marker, and sensitivity tables."),
+              tags$li("Adjust the dropout rate slider to control the enrolment target."),
               tags$li("Download sensitivity data as CSV."),
               tags$li("Use ", tags$b("Defaults"), " to reset all inputs.")
             )
           )
         ),
         
-        # Confidence Intervals
         acc_panel(
           id      = "acc_ci",
           heading = "Confidence Intervals",
@@ -188,18 +241,18 @@ ui <- fluidPage(
             tags$p("Single-arm:"),
             tags$pre("Declare NI if Lower(p) > p\u2080 \u2212 \u0394"),
             tags$div(
-              style = "margin-top:14px; background:#eef9f9; border:1px solid #18bdb9;
+              style = "margin-top:14px; background:#f0eeff; border:1px solid #5b35d5;
                        border-radius:8px; padding:11px 14px; display:flex;
                        align-items:center; gap:10px;",
-              tags$span("\U0001F4D6", style = "font-size:18px; flex-shrink:0;"),
+              
               tags$div(
                 tags$p(style = "margin:0 0 2px; font-size:12px; font-weight:700;
-                                 color:#0f7f7c; letter-spacing:0.02em;",
+                                 color:#3d21b7; letter-spacing:0.02em;",
                        "Want to learn more about choosing a CI method?"),
                 tags$a(
                   href   = "https://filipmkgit.github.io/Small-Proportions-and-Confidence-Intervals-Analysis/small_proportions_ci.html",
                   target = "_blank",
-                  style  = "font-size:12px; color:#18bdb9; font-weight:600;",
+                  style  = "font-size:12px; color:#5b35d5; font-weight:600;",
                   "Read: Small Proportions and Confidence Intervals \u2197"
                 )
               )
@@ -207,7 +260,6 @@ ui <- fluidPage(
           )
         ),
         
-        # Interim Analysis Info
         acc_panel(
           id      = "acc_interim_info",
           heading = "Interim Analysis",
@@ -221,7 +273,7 @@ ui <- fluidPage(
               tags$li(tags$b("Status box:"), " Shows whether NI is currently demonstrated based on the observed CI bound vs the NI boundary."),
               tags$li(tags$b("Position plot:"), " Visualises the observed estimate and CI relative to the NI boundary."),
               tags$li(tags$b("Calculation table:"), " Step-by-step breakdown of every number in the status box."),
-              tags$li(tags$b("CI method comparison:"), " For single-arm designs, shows the minimum (efficacy) or maximum (safety) event count needed under each CI method at the current n.")
+              tags$li(tags$b("CI method comparison:"), " For single-arm designs, shows the minimum (higher-is-better) or maximum (lower-is-better) event count needed under each CI method at the current n.")
             ),
             tags$p(style = "font-size:12px; color:#94a3b8; margin-top:10px;",
                    "Note: The interim tool is descriptive, not a formal interim analysis with alpha-spending.
@@ -229,7 +281,6 @@ ui <- fluidPage(
           )
         ),
         
-        # Generate Report Info
         acc_panel(
           id      = "acc_report_info",
           heading = "Generate Report",
@@ -247,7 +298,6 @@ ui <- fluidPage(
           )
         ),
         
-        # ISO / FDA & Performance Goals
         acc_panel(
           id      = "acc_iso_fda",
           heading = "ISO / FDA & Performance Goals",
@@ -263,55 +313,37 @@ ui <- fluidPage(
             tags$ul(
               tags$li(tags$b("FDA (US):"), " The FDA guidance on non-inferiority trials
                       (2016) and the Bayesian guidance (2010) describe performance goal
-                      studies as appropriate when a concurrent control is not feasible
-                      (e.g. rare conditions, ethical constraints, or well-established
-                      benchmarks). The PG must be justified with a literature review
-                      and ideally drawn from a meta-analysis of historical control data."),
+                      studies as appropriate when a concurrent control is not feasible."),
               tags$li(tags$b("ISO 14155:2020:"), " Governs clinical investigation of medical
                       devices for human subjects. Requires a pre-specified primary
-                      endpoint, sample size justification, and a defined success criterion
-                      (the performance goal). Non-inferiority margin (Δ) must be
-                      clinically justified."),
+                      endpoint, sample size justification, and a defined success criterion."),
               tags$li(tags$b("ISO 5840 / ISO 11135 / device-specific standards:"),
-                      " Many device families have published OPC (Objective Performance
-                      Criteria) values in their specific ISO standards or FDA guidance
-                      documents. These should be the first source for p₀.")
+                      " Many device families have published OPC values in their specific
+                      ISO standards or FDA guidance documents.")
             ),
             tags$p(tags$b("One-sided vs two-sided testing")),
             tags$p("Performance goal studies typically use a ", tags$b("one-sided test"),
-                   " at α = 0.025 (equivalent to a 95% confidence interval lower bound)
-                   or α = 0.05 (90% CI lower bound). The FDA and ISO guidance both
-                   accept one-sided 0.025 as the standard for pivotal device studies."),
-            tags$p(tags$b("Choosing the NI margin (Δ)")),
+                   " at \u03b1 = 0.025 (equivalent to a 95% CI lower bound)
+                   or \u03b1 = 0.05 (90% CI lower bound)."),
+            tags$p(tags$b("Choosing the NI margin (\u0394)")),
             tags$ul(
-              tags$li("The margin must be clinically meaningful: small enough that a
-                       device just meeting it is still acceptable to patients."),
-              tags$li("Common practice: Δ = 0 (pure superiority vs PG), or Δ set
+              tags$li("The margin must be clinically meaningful."),
+              tags$li("Common practice: \u0394 = 0 (pure superiority vs PG), or \u0394 set
                        at the lower bound of the historical 95% CI for the reference rate."),
-              tags$li("For safety endpoints (e.g. major adverse events), Δ is the
-                       maximum additional event rate considered clinically acceptable."),
-              tags$li("Document the rationale for Δ explicitly in the clinical
-                       investigation plan (CIP) or IDE submission.")
+              tags$li("Document the rationale explicitly in the CIP or IDE submission.")
             ),
-            tags$p(tags$b("Success criterion")),
-            tags$p("The study is declared successful if the lower bound of the CI for
-                    the device rate exceeds p₀ − Δ. PG-Power computes the
-                    minimum event count (n-successes) corresponding to this boundary
-                    for the chosen CI method and α."),
             tags$div(
               style = "margin-top:14px; background:#fff8ee; border:1px solid #e8c96a;
                        border-radius:8px; padding:11px 14px;",
               tags$p(style = "margin:0; font-size:12px; color:#7a5c00;",
                      tags$b("Important: "),
                      "PG-Power is a planning and monitoring tool. The performance goal,
-                      NI margin, CI method, and α must all be pre-specified in the
-                      study protocol before data collection begins. Post-hoc changes
-                      require regulatory justification.")
+                      NI margin, CI method, and \u03b1 must all be pre-specified in the
+                      study protocol before data collection begins.")
             )
           )
         ),
         
-        # Credits
         acc_panel(
           id      = "acc_credits",
           heading = "Credits",
@@ -331,24 +363,65 @@ ui <- fluidPage(
           )
         ),
         
-        # -- Bottom action buttons --------------------------------------------
+        # -- Bottom action bar: colour picker + hints + defaults + reload ------
         tags$div(
-          style = "display:flex; justify-content:flex-end; gap:8px;
+          style = "display:flex; justify-content:space-between; align-items:center;
+                   gap:8px; flex-wrap:wrap;
                    margin-top:18px; padding-top:14px; border-top:1px solid #f1f5f9;",
-          tags$button(
-            class   = "btn btn-sm btn-outline-secondary",
-            style   = "font-size:12px; padding:5px 16px; border-color:#e2e8f0;
-                       color:#374151; display:flex; align-items:center; gap:6px;",
-            onclick = "pgpResetAll();",
-            tags$span("↺"),
-            tags$span("Restore All Defaults")
+          
+          # Left: plot colour swatches
+          tags$div(
+            style = "display:flex; align-items:center; gap:8px;",
+            tags$span("Plot colour:", style = "font-size:12px; color:#64748b;"),
+            tags$button(
+              class = "pgp-swatch active", id = "swatch_purple",
+              style = "background:#5b35d5;", title = "Purple",
+              onclick = "pgpSetPlotColour('#5b35d5', this);"
+            ),
+            tags$button(
+              class = "pgp-swatch", id = "swatch_teal",
+              style = "background:#18bdb9;", title = "Teal",
+              onclick = "pgpSetPlotColour('#18bdb9', this);"
+            ),
+            tags$button(
+              class = "pgp-swatch", id = "swatch_red",
+              style = "background:#c0392b;", title = "Red",
+              onclick = "pgpSetPlotColour('#c0392b', this);"
+            ),
+            tags$button(
+              class = "pgp-swatch", id = "swatch_black",
+              style = "background:#1a2e35;", title = "Black",
+              onclick = "pgpSetPlotColour('#1a2e35', this);"
+            )
           ),
-          actionButton(
-            "btn_reload_app",
-            label    = tagList(tags$span("⏻"), tags$span("Reload App")),
-            class    = "btn btn-sm btn-outline-secondary",
-            style    = "font-size:12px; padding:5px 16px; border-color:#e2e8f0;
-                        color:#374151; display:flex; align-items:center; gap:6px;"
+          
+          # Right: hints + defaults + reload
+          tags$div(
+            style = "display:flex; align-items:center; gap:8px; flex-wrap:wrap;",
+            tags$div(
+              id      = "hints_toggle_btn",
+              style   = "display:flex; align-items:center; gap:6px; padding:5px 14px;
+                         border:1px solid #5b35d5; border-radius:6px;
+                         background:#f0eeff; font-size:12px; color:#374151; cursor:pointer;",
+              onclick = "pgpToggleHints(this);",
+              tags$span(style = "font-size:13px; font-weight:700; color:#5b35d5;", "Hints"),
+              tags$span("Hide hints", id = "hints_toggle_label")
+            ),
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:5px 16px; border-color:#e2e8f0;
+                         color:#374151; display:flex; align-items:center; gap:6px;",
+              onclick = "pgpResetAll();",
+              tags$span("\u21ba"),
+              tags$span("Restore All Defaults")
+            ),
+            actionButton(
+              "btn_reload_app",
+              label = tagList(tags$span("\u23fb"), tags$span("Reload App")),
+              class = "btn btn-sm btn-outline-secondary",
+              style = "font-size:12px; padding:5px 16px; border-color:#e2e8f0;
+                       color:#374151; display:flex; align-items:center; gap:6px;"
+            )
           )
         )
       )
@@ -372,47 +445,107 @@ ui <- fluidPage(
             heading = "Trial Design Settings",
             open    = TRUE,
             
+            # Design — simplified labels
             selectInput(
               "prop_design", "Design",
-              choices = c(
-                "Two-arm NI (treatment vs control)"      = "two_arm",
-                "Single-arm NI (treatment vs benchmark)" = "one_arm"
-              ),
+              choices  = c("Single-arm NI" = "one_arm", "Two-arm NI" = "two_arm"),
               selected = "one_arm"
             ),
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
-              tags$p("Single-arm: device vs a fixed performance goal. Two-arm: treatment vs concurrent control.",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+              condition = "input.show_calc_hints == true",
+              tags$p(
+                HTML("Single-arm NI: device vs a fixed performance goal (benchmark). &nbsp;
+                      Two-arm NI: experimental treatment vs concurrent control."),
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
             ),
             
+            # Endpoint — shows H1 framing in hint
             selectInput(
-              "endpoint", "Endpoint",
-              choices = c("Efficacy" = "efficacy", "Safety" = "safety"),
+              "endpoint", "Endpoint direction",
+              choices  = c(
+                "Higher rate is better (e.g. success, patency)" = "efficacy",
+                "Lower rate is better (e.g. complications, MACE)" = "safety"
+              ),
               selected = "efficacy"
             ),
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
-              tags$p("Efficacy: higher event rate is better (e.g. success rate). Safety: lower is better (e.g. complication rate).",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+              condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
+              tags$p(
+                HTML("H\u2081: p > p\u2080 &minus; \u0394 &nbsp;&mdash;&nbsp;
+                      device rate must exceed the NI boundary.<br>
+                      Use when a <em>higher</em> observed rate means the device performed well."),
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
+              )
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
+              tags$p(
+                HTML("H\u2081: p < p\u2080 + \u0394 &nbsp;&mdash;&nbsp;
+                      device rate must stay below the NI boundary.<br>
+                      Use when a <em>lower</em> observed rate means the device performed well."),
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
+              )
             ),
             
-            selectInput(
-              "sig.level", "Significance level (one-sided \u03b1)",
-              choices = c("0.025" = 0.025, "0.04" = 0.04, "0.05" = 0.05),
-              selected = 0.025
+            # Alpha slider with common-alpha highlights
+            tags$div(
+              style = "margin-bottom: 4px;",
+              tags$label(
+                style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:6px;",
+                HTML("Significance level (one-sided \u03b1)")
+              ),
+              tags$div(
+                class = "alpha-slider-wrap",
+                sliderInput(
+                  "sig.level",
+                  label  = NULL,
+                  min    = 0.005, max = 0.10,
+                  step   = 0.005, value = 0.025,
+                  ticks  = FALSE
+                ),
+                conditionalPanel(
+                  condition = "input.show_calc_hints == true",
+                  tags$div(
+                    class = "alpha-tick-labels",
+                    tags$span(HTML("0.005")),
+                    tags$span(HTML("0.025 <span class='alpha-common-badge'>pivotal</span>")),
+                    tags$span(HTML("0.05 <span class='alpha-common-badge' style='background:#e07b3922;color:#e07b39;border-color:#e07b3955;'>common</span>")),
+                    tags$span("0.10")
+                  )
+                )
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true",
+                uiOutput("alpha_display")
+              )
             ),
             
-            sliderInput(
-              "power", "Power",
-              min = 0.80, max = 0.95, step = 0.05, value = 0.80
+            # Power slider with common-power highlights
+            tags$div(
+              style = "margin-bottom: 4px;",
+              tags$label(
+                style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:6px;",
+                "Power"
+              ),
+              sliderInput(
+                "power",
+                label  = NULL,
+                min    = 0.70, max = 0.99,
+                step   = 0.01, value = 0.80,
+                ticks  = FALSE
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true",
+                uiOutput("power_display")
+              )
             ),
             
             conditionalPanel(
               condition = "input.prop_design != 'one_arm'",
               selectInput(
                 "r", "Allocation ratio (treatment : control)",
-                choices = c("1:1" = 1, "2:1" = 2, "3:1" = 3, "4:1" = 4, "5:1" = 5),
+                choices  = c("1:1" = 1, "2:1" = 2, "3:1" = 3, "4:1" = 4, "5:1" = 5),
                 selected = 1
               )
             ),
@@ -435,11 +568,12 @@ ui <- fluidPage(
               ),
               selected = "wilson"
             ),
-            
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
-              tags$p("Z (power formula) gives an analytic result. All other methods run a simulation-based search. Wilson is the recommended default.",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+              condition = "input.show_calc_hints == true",
+              tags$p(
+                "Z (power formula) gives an analytic result. All other methods run a simulation-based search. Wilson is the recommended default.",
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
             ),
             checkboxInput("showCompare", "Show CI method comparison table", value = FALSE)
           ),
@@ -453,7 +587,7 @@ ui <- fluidPage(
                         "Benchmark / performance goal (p\u2080):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.88),
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
+              condition = "input.show_calc_hints == true",
               tags$p("The reference or control rate. For single-arm studies, this is the performance goal (OPC) from the literature.",
                      style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
@@ -462,7 +596,7 @@ ui <- fluidPage(
                         "Expected device event rate (p\u2081):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.93),
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
+              condition = "input.show_calc_hints == true",
               tags$p("The true rate you expect the device to achieve. Must exceed p\u2080 \u2212 \u0394 for the study to be powerable.",
                      style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
@@ -471,14 +605,14 @@ ui <- fluidPage(
                         "Non-inferiority margin (\u0394):",
                         min = 0.00, max = 0.20, step = 0.01, value = 0.05),
             conditionalPanel(
-              condition = "input.show_calc_hints != false",
+              condition = "input.show_calc_hints == true",
               tags$p("Maximum acceptable shortfall below p\u2080. Set to 0 for a pure superiority test. Must be clinically justified.",
                      style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
             
             selectInput(
               "WindowMargin", "Sensitivity window for NI margin (\u00b1)",
-              choices = c("0.01" = 0.01, "0.02" = 0.02, "0.05" = 0.05),
+              choices  = c("0.01" = 0.01, "0.02" = 0.02, "0.05" = 0.05),
               selected = 0.05
             )
           ),
@@ -508,12 +642,33 @@ ui <- fluidPage(
             heading = "Other Settings",
             open    = FALSE,
             
-            checkboxInput("show_calc_hints", "Show hints",                    value = TRUE),
-            checkboxInput("show_calc_code",  "Show calculation code",         value = FALSE),
+            checkboxInput("show_calc_code", "Show calculation code",           value = FALSE),
             checkboxInput("showNBox_prop",  "Show n at chosen \u0394",           value = TRUE),
-            checkboxInput("showVline",      "Show vertical marker on plots",     value = FALSE),
-            checkboxInput("showTable",      "Show \u0394 sensitivity table",     value = FALSE),
-            checkboxInput("showTable2",     "Show p\u2081 sensitivity table",    value = FALSE),
+            checkboxInput("showVline",      "Show vertical marker on plots",    value = FALSE),
+            checkboxInput("showTable",      "Show \u0394 sensitivity table",    value = FALSE),
+            checkboxInput("showTable2",     "Show p\u2081 sensitivity table",   value = FALSE),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            # Dropout rate slider
+            tags$label(
+              style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
+              "Dropout rate for enrolment estimate (%)"
+            ),
+            sliderInput(
+              "dropout_rate",
+              label  = NULL,
+              min    = 1, max = 20,
+              step   = 1, value = 10,
+              ticks  = FALSE
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints == true",
+              tags$p(
+                "Used to inflate n to account for expected dropout. Enrolment target = n / (1 \u2212 dropout%).",
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
+            ),
             
             tags$div(
               class = "dl-btn-col",
@@ -541,7 +696,7 @@ ui <- fluidPage(
           class = "main-right pgp-main",
           
           conditionalPanel(
-            condition = "input.show_calc_hints != false",
+            condition = "input.show_calc_hints == true",
             tags$p("How total sample size changes as the NI margin varies. A tighter margin (smaller \u0394) requires more patients.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
@@ -549,7 +704,7 @@ ui <- fluidPage(
           uiOutput("n_box_prop"),
           tags$div(style = "height:22px;"),
           conditionalPanel(
-            condition = "input.show_calc_hints != false",
+            condition = "input.show_calc_hints == true",
             tags$p("How total sample size changes as the expected device rate (p\u2081) varies. A rate closer to p\u2080 requires more patients.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
@@ -582,7 +737,7 @@ ui <- fluidPage(
             id = "acc_interim_inputs", heading = "Interim Analysis", open = TRUE,
             
             conditionalPanel(
-              condition = "input.show_interim_hints != false",
+              condition = "input.show_interim_hints == true",
               uiOutput("interim_sidebar_label")
             ),
             
@@ -611,10 +766,9 @@ ui <- fluidPage(
           acc_panel(
             id = "acc_interim_other", heading = "Other Settings", open = FALSE,
             
-            checkboxInput("show_interim_hints",   "Show hints",                  value = TRUE),
-            checkboxInput("show_interim_calctbl", "Show calculation table",      value = TRUE),
-            checkboxInput("show_interim_citbl",   "Show CI comparison table",    value = TRUE),
-            checkboxInput("show_interim_code",    "Show calculation code",       value = FALSE),
+            checkboxInput("show_interim_calctbl", "Show calculation table",   value = TRUE),
+            checkboxInput("show_interim_citbl",   "Show CI comparison table", value = TRUE),
+            checkboxInput("show_interim_code",    "Show calculation code",    value = FALSE),
             
             tags$div(
               class = "dl-btn-col",
@@ -644,7 +798,7 @@ ui <- fluidPage(
           class = "main-right pgp-main",
           
           conditionalPanel(
-            condition = "input.show_interim_hints != false",
+            condition = "input.show_interim_hints == true",
             uiOutput("interim_orientation_text"),
             tags$div(style = "height:10px;")
           ),
@@ -652,15 +806,15 @@ ui <- fluidPage(
           tags$div(style = "height:14px;"),
           plotlyOutput("interim_position_plot", height = "260px"),
           conditionalPanel(
-            condition = "input.show_interim_hints != false",
+            condition = "input.show_interim_hints == true",
             tags$p(
               style = "font-size:11px; color:#718096; margin: 4px 0 18px; line-height:1.6;",
               HTML(paste0(
-                "<span style=\'color:#e07b39; font-weight:600;\'>--- NI boundary</span>",
+                "<span style='color:#e07b39; font-weight:600;'>--- NI boundary</span>",
                 "&nbsp;&nbsp;|&nbsp;&nbsp;",
-                "<span style=\'color:#718096;\'>--- Reference (p\u2080 or zero diff.)</span>",
+                "<span style='color:#718096;'>--- Reference (p\u2080 or zero diff.)</span>",
                 "&nbsp;&nbsp;|&nbsp;&nbsp;",
-                "<span style=\'color:#18bdb9; font-weight:600;\'>\u25cf with bars</span>",
+                "<span style='color:#5b35d5; font-weight:600;'>\u25cf with bars</span>",
                 " = observed estimate \u00b1 95% CI"
               ))
             )
@@ -682,7 +836,6 @@ ui <- fluidPage(
       )
     ),
     
-    # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------
     # Tab 4 - Generate Report
     # --------------------------------------------------------------------------
@@ -771,7 +924,7 @@ ui <- fluidPage(
           
           textInput(
             "rpt_title", label = "Report title",
-            value = "PG-Power \u2014 Sample Size Report",
+            value       = "PG-Power \u2014 Sample Size Report",
             placeholder = "Report title..."
           ),
           
@@ -795,41 +948,38 @@ ui <- fluidPage(
         acc_panel(
           id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
           
-          # ── General ─────────────────────────────────────────────────────
           tags$p("General",
                  style = "font-size:10px; font-weight:700; text-transform:uppercase;
                            letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
           tags$div(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_results",     "Results table",         value = TRUE),
-            checkboxInput("rpt_interp_inc",  "Interpretation",        value = TRUE),
-            checkboxInput("rpt_definitions", "Definitions",           value = TRUE),
-            checkboxInput("rpt_calc_code",   "Calculation code",      value = TRUE),
-            checkboxInput("rpt_ci_compare",  "CI comparison table",   value = FALSE)
+            checkboxInput("rpt_results",     "Results table",       value = TRUE),
+            checkboxInput("rpt_interp_inc",  "Interpretation",      value = TRUE),
+            checkboxInput("rpt_definitions", "Definitions",         value = TRUE),
+            checkboxInput("rpt_calc_code",   "Calculation code",    value = TRUE),
+            checkboxInput("rpt_ci_compare",  "CI comparison table", value = FALSE)
           ),
           
-          # ── Sensitivity ──────────────────────────────────────────────────
           tags$p("Sensitivity",
                  style = "font-size:10px; font-weight:700; text-transform:uppercase;
                            letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
           tags$div(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_plot_delta",  "Δ plot",            value = FALSE),
-            checkboxInput("rpt_plot_p1",     "p₁ plot",           value = FALSE),
-            checkboxInput("rpt_table_delta", "Δ table",           value = FALSE),
-            checkboxInput("rpt_table_p1",    "p₁ table",          value = FALSE)
+            checkboxInput("rpt_plot_delta",  "\u0394 plot",  value = FALSE),
+            checkboxInput("rpt_plot_p1",     "p\u2081 plot", value = FALSE),
+            checkboxInput("rpt_table_delta", "\u0394 table", value = FALSE),
+            checkboxInput("rpt_table_p1",    "p\u2081 table",value = FALSE)
           ),
           
-          # ── Interim analysis ─────────────────────────────────────────────
           tags$p("Interim Analysis",
                  style = "font-size:10px; font-weight:700; text-transform:uppercase;
                            letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
           tags$div(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_interim_summ",  "Data summary",        value = FALSE),
-            checkboxInput("rpt_interim_interp","Interpretation",      value = FALSE),
-            checkboxInput("rpt_interim_ci",    "CI comparison",       value = FALSE),
-            checkboxInput("rpt_interim_plot",  "Position plot",       value = FALSE)
+            checkboxInput("rpt_interim_summ",   "Data summary",   value = FALSE),
+            checkboxInput("rpt_interim_interp", "Interpretation", value = FALSE),
+            checkboxInput("rpt_interim_ci",     "CI comparison",  value = FALSE),
+            checkboxInput("rpt_interim_plot",   "Position plot",  value = FALSE)
           ),
           
           tags$div(
@@ -888,10 +1038,10 @@ ui <- fluidPage(
               tags$div(
                 style = "flex:0 0 auto; padding-top:20px;",
                 tags$button(
-                  id    = "interp_load_template",
-                  class = "btn btn-sm btn-outline-secondary",
-                  style = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
+                  id      = "interp_load_template",
+                  class   = "btn btn-sm btn-outline-secondary",
+                  style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                             color:#374151; white-space:nowrap;",
                   onclick = "pgpLoadTemplate();",
                   "\u21ba Load template"
                 )
@@ -899,10 +1049,10 @@ ui <- fluidPage(
               tags$div(
                 style = "flex:0 0 auto; padding-top:20px;",
                 tags$button(
-                  id    = "interp_restore_default",
-                  class = "btn btn-sm btn-outline-secondary",
-                  style = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
+                  id      = "interp_restore_default",
+                  class   = "btn btn-sm btn-outline-secondary",
+                  style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                             color:#374151; white-space:nowrap;",
                   onclick = "pgpRestoreDefault();",
                   "\u21ba Defaults"
                 )
@@ -915,7 +1065,7 @@ ui <- fluidPage(
             ),
             tags$div(
               style = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;",
-              lapply(
+              tagList(lapply(
                 list(
                   list(tag = "{n}",           label = "n"),
                   list(tag = "{n_dropout}",   label = "n (dropout)"),
@@ -925,7 +1075,8 @@ ui <- fluidPage(
                   list(tag = "{p1_pct}",      label = "p\u2081 %"),
                   list(tag = "{alpha}",       label = "\u03b1"),
                   list(tag = "{delta}",       label = "\u0394"),
-                  list(tag = "{ci_method}",   label = "CI method")
+                  list(tag = "{ci_method}",   label = "CI method"),
+                  list(tag = "{dropout_pct}", label = "Dropout %")
                 ),
                 function(v) {
                   ins <- v$tag
@@ -940,7 +1091,7 @@ ui <- fluidPage(
                   )
                   tags$button(v$label, class = "var-chip", onclick = js)
                 }
-              )
+              ))
             ),
             
             tags$textarea(
@@ -952,7 +1103,7 @@ ui <- fluidPage(
                 "A total of {n} evaluable patients are required to demonstrate, with ",
                 "{power_pct}% power, that the device success rate exceeds the performance ",
                 "goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. ",
-                "Allowing for 10% dropout, the study should enrol {n_dropout} patients. ",
+                "Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. ",
                 "The study will be deemed successful if at least {n_successes} out of {n} ",
                 "evaluable patients are free from a major adverse event at 12 months."
               )
@@ -963,55 +1114,88 @@ ui <- fluidPage(
     )
   ),
   
-  # ── JavaScript ─────────────────────────────────────────────────────────────
-  # All client-side behaviour: accordion toggle, input reset functions,
-  # template loaders, and the interp textarea sync to Shiny.
-  tags$script(HTML('
+  # ── JavaScript ──────────────────────────────────────────────────────────────
+  tags$script(HTML("$(document).ready(function() {
 
+// -- Hints state (global, default ON) ------------------------------------
+    window.pgpHintsOn = true;
+
+    window.pgpToggleHints = function(btn) {
+      window.pgpHintsOn = !window.pgpHintsOn;
+      var lbl = document.getElementById('hints_toggle_label');
+      if (lbl) lbl.textContent = window.pgpHintsOn ? 'Hide hints' : 'Show hints';
+      btn.style.background   = window.pgpHintsOn ? '#f0eeff' : '';
+      btn.style.borderColor  = window.pgpHintsOn ? '#5b35d5' : '#e2e8f0';
+      if (window.Shiny) {
+        Shiny.setInputValue('show_calc_hints',    window.pgpHintsOn, {priority: 'event'});
+        Shiny.setInputValue('show_interim_hints', window.pgpHintsOn, {priority: 'event'});
+      }
+    };
+
+    // -- n-box expand/collapse -----------------------------------------------
+    window.pgpToggleNBox = function(btn) {
+      var exp = document.getElementById('n_box_expanded');
+      if (!exp) return;
+      var isHidden = exp.style.display === 'none' || exp.style.display === '';
+      exp.style.display = isHidden ? 'block' : 'none';
+      btn.textContent   = isHidden ? 'collapse ▴' : 'expand ▾';
+    };
+
+    // -- Plot colour picker -------------------------------------------------
+    window.pgpSetPlotColour = function(hex, btn) {
+      // Update active swatch
+      document.querySelectorAll('.pgp-swatch').forEach(function(s) {
+        s.classList.remove('active');
+      });
+      btn.classList.add('active');
+      // Send to Shiny
+      if (window.Shiny)
+        Shiny.setInputValue('plot_colour', hex, {priority: 'event'});
+    };
+
+    // Initialise plot_colour on app load
+    $(document).ready(function() {
+      if (window.Shiny)
+        Shiny.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
+    });
+
+    // -- Title templates -----------------------------------------------------
     window.titleTemplates = {
-      "default":  "PG-Power \u2014 Sample Size Report",
-      "study":    "Sample Size Calculation \u2014 Study Protocol",
-      "clinical": "Clinical Investigation: Sample Size Justification",
-      "stats":    "Statistical Analysis Plan \u2014 Sample Size Section",
-      "blank":    ""
+      'default':  'PG-Power — Sample Size Report',
+      'study':    'Sample Size Calculation — Study Protocol',
+      'clinical': 'Clinical Investigation: Sample Size Justification',
+      'stats':    'Statistical Analysis Plan — Sample Size Section',
+      'blank':    ''
     };
 
     window.pgpSetTitle = function(txt) {
-      var el = document.getElementById("rpt_title");
+      var el = document.getElementById('rpt_title');
       if (!el) return;
       el.value = txt;
-      if (window.Shiny) Shiny.setInputValue("rpt_title", txt, {priority: "event"});
-      el.dispatchEvent(new Event("input", {bubbles: true}));
+      if (window.Shiny) Shiny.setInputValue('rpt_title', txt, {priority: 'event'});
+      el.dispatchEvent(new Event('input', {bubbles: true}));
     };
 
     window.pgpLoadTitleTemplate = function() {
-      var sel = document.getElementById("title_template_select");
-      var key = sel ? sel.value : "default";
+      var sel = document.getElementById('title_template_select');
+      var key = sel ? sel.value : 'default';
       var txt = window.titleTemplates[key];
-      if (txt === undefined) txt = window.titleTemplates["default"];
+      if (txt === undefined) txt = window.titleTemplates['default'];
       window.pgpSetTitle(txt);
     };
 
     window.pgpRestoreTitleDefault = function() {
-      window.pgpSetTitle(window.titleTemplates["default"]);
-      var sel = document.getElementById("title_template_select");
-      if (sel) sel.value = "default";
+      window.pgpSetTitle(window.titleTemplates['default']);
+      var sel = document.getElementById('title_template_select');
+      if (sel) sel.value = 'default';
     };
 
+    // -- Include checkboxes --------------------------------------------------
     var pgpIncludeIds = [
-        "rpt_results",
-        "rpt_interp_inc",
-        "rpt_ci_compare",
-        "rpt_definitions",
-        "rpt_calc_code",
-        "rpt_plot_delta",
-        "rpt_plot_p1",
-        "rpt_table_delta",
-        "rpt_table_p1",
-        "rpt_interim_summ",
-        "rpt_interim_interp",
-        "rpt_interim_ci",
-        "rpt_interim_plot"
+        'rpt_results','rpt_interp_inc','rpt_ci_compare','rpt_definitions',
+        'rpt_calc_code','rpt_plot_delta','rpt_plot_p1','rpt_table_delta',
+        'rpt_table_p1','rpt_interim_summ','rpt_interim_interp',
+        'rpt_interim_ci','rpt_interim_plot'
       ];
 
     window.pgpTickAllIncludes = function() {
@@ -1019,7 +1203,7 @@ ui <- fluidPage(
         var cb = document.getElementById(id);
         if (!cb) return;
         cb.checked = true;
-        if (window.Shiny) Shiny.setInputValue(id, true, {priority: "event"});
+        if (window.Shiny) Shiny.setInputValue(id, true, {priority: 'event'});
       });
     };
 
@@ -1028,144 +1212,141 @@ ui <- fluidPage(
         var cb = document.getElementById(id);
         if (!cb) return;
         cb.checked = false;
-        if (window.Shiny) Shiny.setInputValue(id, false, {priority: "event"});
+        if (window.Shiny) Shiny.setInputValue(id, false, {priority: 'event'});
       });
     };
 
     window.pgpRestoreIncludes = function() {
       var defaults = {
-        "rpt_results":     true,
-        "rpt_interp_inc":  true,
-        "rpt_ci_compare":  false,
-        "rpt_definitions": true,
-        "rpt_calc_code":   true,
-        "rpt_plot_delta":   false,
-        "rpt_plot_p1":      false,
-        "rpt_table_delta":  false,
-        "rpt_table_p1":     false,
-        "rpt_interim_summ": false,
-        "rpt_interim_interp": false,
-        "rpt_interim_ci":   false,
-        "rpt_interim_plot": false
+        'rpt_results': true, 'rpt_interp_inc': true, 'rpt_ci_compare': false,
+        'rpt_definitions': true, 'rpt_calc_code': true,
+        'rpt_plot_delta': false, 'rpt_plot_p1': false,
+        'rpt_table_delta': false, 'rpt_table_p1': false,
+        'rpt_interim_summ': false, 'rpt_interim_interp': false,
+        'rpt_interim_ci': false, 'rpt_interim_plot': false
       };
       Object.keys(defaults).forEach(function(id) {
         var cb = document.getElementById(id);
         if (!cb) return;
         cb.checked = defaults[id];
-        if (window.Shiny) Shiny.setInputValue(id, defaults[id], {priority: "event"});
+        if (window.Shiny) Shiny.setInputValue(id, defaults[id], {priority: 'event'});
       });
     };
 
+    // -- Interpretation templates --------------------------------------------
     window.interpTemplates = {
-      "blank":      "",
-      "default":    "A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device success rate exceeds the performance goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. Allowing for 10% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients are free from a major adverse event at 12 months.",
-      "concise":    "A sample size of {n} patients provides {power_pct}% power (one-sided \u03b1 = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, with an NI margin of \u0394 = {delta}, assuming a true device success rate of {p1_pct}%.",
-      "two_arm":    "A total of {n} patients are required to demonstrate non-inferiority of the treatment versus the control, with {power_pct}% power and a one-sided significance level of {alpha}. The assumed event rates are {p1_pct}% (treatment) and {p0_pct}% (control), with a non-inferiority margin of {delta} on the risk difference scale. Allowing for 10% dropout, {n_dropout} patients should be enrolled.",
-      "regulatory": "The study is designed as a single-arm, non-inferiority study comparing the device success rate to an objective performance criterion (OPC) of {p0_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the lower bound of the {ci_method} confidence interval for the device success rate exceeds the performance goal less the non-inferiority margin ({delta}). Accounting for a 10% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve procedural success.",
-      "safety":     "A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided \u03b1 = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% and an acceptable margin of {delta}. With an anticipated dropout rate of 10%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients."
+      'blank':      '',
+      'default':    'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device success rate exceeds the performance goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients are free from a major adverse event at 12 months.',
+      'concise':    'A sample size of {n} patients provides {power_pct}% power (one-sided α = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, with an NI margin of Δ = {delta}, assuming a true device success rate of {p1_pct}%.',
+      'two_arm':    'A total of {n} patients are required to demonstrate non-inferiority of the treatment versus the control, with {power_pct}% power and a one-sided significance level of {alpha}. The assumed event rates are {p1_pct}% (treatment) and {p0_pct}% (control), with a non-inferiority margin of {delta} on the risk difference scale. Allowing for {dropout_pct}% dropout, {n_dropout} patients should be enrolled.',
+      'regulatory': 'The study is designed as a single-arm, non-inferiority study comparing the device success rate to an objective performance criterion (OPC) of {p0_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the lower bound of the {ci_method} confidence interval for the device success rate exceeds the performance goal less the non-inferiority margin ({delta}). Accounting for a {dropout_pct}% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve procedural success.',
+      'safety':     'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided α = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% and an acceptable margin of {delta}. With an anticipated dropout rate of {dropout_pct}%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients.'
     };
 
     window.pgpSetInterp = function(txt) {
-      var ta = document.getElementById("rpt_interp_text");
+      var ta = document.getElementById('rpt_interp_text');
       if (!ta) return;
       ta.value = txt;
-      if (window.Shiny) Shiny.setInputValue("rpt_interp_text", txt, {priority: "event"});
+      if (window.Shiny) Shiny.setInputValue('rpt_interp_text', txt, {priority: 'event'});
     };
 
     window.pgpLoadTemplate = function() {
-      var sel = document.getElementById("interp_template_select");
-      var key = sel ? sel.value : "default";
+      var sel = document.getElementById('interp_template_select');
+      var key = sel ? sel.value : 'default';
       var txt = (window.interpTemplates[key] !== undefined)
                   ? window.interpTemplates[key]
-                  : window.interpTemplates["default"];
+                  : window.interpTemplates['default'];
       window.pgpSetInterp(txt);
     };
 
     window.pgpRestoreDefault = function() {
-      window.pgpSetInterp(window.interpTemplates["default"]);
-      var sel = document.getElementById("interp_template_select");
-      if (sel) sel.value = "default";
+      window.pgpSetInterp(window.interpTemplates['default']);
+      var sel = document.getElementById('interp_template_select');
+      if (sel) sel.value = 'default';
     };
 
-    // Full app reset: calculator + report settings
+    // -- Full app reset ------------------------------------------------------
     window.pgpResetAll = function() {
-      // Calculator
       window.pgpResetCalculator();
-
-      // Report: title
       window.pgpRestoreTitleDefault();
-
-      // Report: interpretation
       window.pgpRestoreDefault();
-
-      // Report: include checkboxes
       window.pgpRestoreIncludes();
 
-      // Report: header checkboxes
       var S = window.Shiny;
       if (!S) return;
-      S.setInputValue("rpt_include_date",   true,  {priority: "event"});
-      S.setInputValue("rpt_include_method", true,  {priority: "event"});
-      S.setInputValue("rpt_include_author", false, {priority: "event"});
-      S.setInputValue("report_format",      "pdf", {priority: "event"});
+      S.setInputValue('rpt_include_date',   true,  {priority: 'event'});
+      S.setInputValue('rpt_include_method', true,  {priority: 'event'});
+      S.setInputValue('rpt_include_author', false, {priority: 'event'});
+      S.setInputValue('report_format',      'pdf', {priority: 'event'});
 
-      // Interim analysis inputs
-      S.setInputValue("interim_n",         0, {priority: "event"});
-      S.setInputValue("interim_x",         0, {priority: "event"});
-      S.setInputValue("interim_x_control", 0, {priority: "event"});
+      S.setInputValue('interim_n',         0, {priority: 'event'});
+      S.setInputValue('interim_x',         0, {priority: 'event'});
+      S.setInputValue('interim_x_control', 0, {priority: 'event'});
 
-      // Interim other settings
       window.pgpResetInterimSettings();
+
+      window.pgpHintsOn = true;
+      var lbl = document.getElementById('hints_toggle_label');
+      if (lbl) lbl.textContent = 'Hide hints';
+      var btn = document.getElementById('hints_toggle_btn');
+      if (btn) { btn.style.background = '#f0eeff'; btn.style.borderColor = '#5b35d5'; }
+      S.setInputValue('show_calc_hints',    true, {priority: 'event'});
+      S.setInputValue('show_interim_hints', true, {priority: 'event'});
+      // Reset plot colour to purple
+      document.querySelectorAll('.pgp-swatch').forEach(function(s) { s.classList.remove('active'); });
+      var ps = document.getElementById('swatch_purple');
+      if (ps) ps.classList.add('active');
+      S.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
     };
 
     window.pgpResetInterimSettings = function() {
       var S = window.Shiny;
       if (!S) return;
-      S.setInputValue("show_interim_hints",   true,  {priority: "event"});
-      S.setInputValue("show_interim_calctbl", true,  {priority: "event"});
-      S.setInputValue("show_interim_citbl",   true,  {priority: "event"});
-      S.setInputValue("show_interim_code",    false, {priority: "event"});
+      S.setInputValue('show_interim_calctbl', true,  {priority: 'event'});
+      S.setInputValue('show_interim_citbl',   true,  {priority: 'event'});
+      S.setInputValue('show_interim_code',    false, {priority: 'event'});
     };
 
     window.pgpResetCalculator = function() {
       var S = window.Shiny;
       if (!S) return;
-      S.setInputValue("prop_design",     "one_arm",  {priority: "event"});
-      S.setInputValue("endpoint",        "efficacy", {priority: "event"});
-      S.setInputValue("sig.level",       "0.025",    {priority: "event"});
-      S.setInputValue("power",           0.80,       {priority: "event"});
-      S.setInputValue("r",               "1",        {priority: "event"});
-      S.setInputValue("ci_method_prop",  "wilson",   {priority: "event"});
-      S.setInputValue("showCompare",     false,      {priority: "event"});
-      S.setInputValue("p0.expected",     0.88,  {priority: "event"});
-      S.setInputValue("p1.expected",     0.93,  {priority: "event"});
-      S.setInputValue("p1.tolerable",    0.05,  {priority: "event"});
-      S.setInputValue("WindowMargin",    "0.05",{priority: "event"});
-      S.setInputValue("sim_quality",     "1000",{priority: "event"});
-      S.setInputValue("sim_seed",        1,     {priority: "event"});
-      S.setInputValue("show_calc_hints",  true,  {priority: "event"});
-      S.setInputValue("show_calc_code",   false, {priority: "event"});
-      S.setInputValue("showNBox_prop",   true,  {priority: "event"});
-      S.setInputValue("showVline",       false, {priority: "event"});
-      S.setInputValue("showTable",       false, {priority: "event"});
-      S.setInputValue("showTable2",      false, {priority: "event"});
+      S.setInputValue('prop_design',    'one_arm',  {priority: 'event'});
+      S.setInputValue('endpoint',       'efficacy', {priority: 'event'});
+      S.setInputValue('sig.level',      0.025,      {priority: 'event'});
+      S.setInputValue('power',          0.80,       {priority: 'event'});
+      S.setInputValue('r',              '1',        {priority: 'event'});
+      S.setInputValue('ci_method_prop', 'wilson',   {priority: 'event'});
+      S.setInputValue('showCompare',    false,      {priority: 'event'});
+      S.setInputValue('p0.expected',    0.88,       {priority: 'event'});
+      S.setInputValue('p1.expected',    0.93,       {priority: 'event'});
+      S.setInputValue('p1.tolerable',   0.05,       {priority: 'event'});
+      S.setInputValue('WindowMargin',   '0.05',     {priority: 'event'});
+      S.setInputValue('sim_quality',    '1000',     {priority: 'event'});
+      S.setInputValue('sim_seed',       1,          {priority: 'event'});
+      S.setInputValue('show_calc_code', false,      {priority: 'event'});
+      S.setInputValue('showNBox_prop',  true,       {priority: 'event'});
+      S.setInputValue('showVline',      false,      {priority: 'event'});
+      S.setInputValue('showTable',      false,      {priority: 'event'});
+      S.setInputValue('showTable2',     false,      {priority: 'event'});
+      S.setInputValue('dropout_rate',   10,         {priority: 'event'});
     };
 
-    $(document).on("click", ".pgp-accordion-header", function() {
+    // -- Accordion toggle ----------------------------------------------------
+    $(document).on('click', '.pgp-accordion-header', function() {
       var $hdr  = $(this);
-      var $body = $hdr.next(".pgp-accordion-body");
-      $hdr.toggleClass("open");
-      $body.toggleClass("open");
+      var $body = $hdr.next('.pgp-accordion-body');
+      $hdr.toggleClass('open');
+      $body.toggleClass('open');
     });
 
-    $(document).ready(function() {
-      var ta = document.getElementById("rpt_interp_text");
-      if (ta) {
-        Shiny.setInputValue("rpt_interp_text", ta.value);
-        ta.addEventListener("input", function() {
-          Shiny.setInputValue("rpt_interp_text", ta.value, {priority: "event"});
-        });
-      }
-    });
-  '))
+    // -- Sync interp textarea to Shiny ---------------------------------------
+    var ta = document.getElementById('rpt_interp_text');
+    if (ta) {
+      Shiny.setInputValue('rpt_interp_text', ta.value);
+      ta.addEventListener('input', function() {
+        Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
+      });
+    }
+
+});"))
 )
