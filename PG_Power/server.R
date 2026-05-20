@@ -37,7 +37,8 @@ server <- function(input, output, session) {
   
   # -- Dynamic code text helper -----------------------------------------------
   build_calc_code_txt <- function() {
-    is_one <- isTRUE(input$prop_design == "one_arm")
+    is_one    <- isTRUE(input$prop_design == "one_arm")
+    is_safety <- isTRUE(input$endpoint == "safety")
     ci_m   <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
     use_z  <- isTRUE(ci_m == "z_power")
     alpha  <- as.numeric(input$sig.level)
@@ -46,9 +47,9 @@ server <- function(input, output, session) {
     p1     <- input$p1.expected
     delta  <- input$p1.tolerable
     
-    if (is_one && use_z) {
+    if (is_one && use_z && !is_safety) {
       paste(c(
-        "# Single-arm NI  -  Z (power formula)",
+        "# Single-arm NI  -  Z (power formula)  -  higher is better",
         "# H0: p <= p0 - delta   vs.   H1: p > p0 - delta",
         "",
         paste0("p0        <- ", p0, "   # benchmark / performance goal"),
@@ -64,6 +65,32 @@ server <- function(input, output, session) {
         "  (z_alpha * sqrt(p_thr * (1 - p_thr)) +",
         "   z_beta  * sqrt(p1   * (1 - p1  )))^2 /",
         "  (p1 - p_thr)^2",
+        ")"
+      ), collapse = "\n")
+      
+    } else if (is_one && use_z && is_safety) {
+      p_thr_s <- p0 + delta
+      paste(c(
+        "# Single-arm NI  -  Z (power formula)  -  lower is better",
+        "# H0: p >= p0 + delta   vs.   H1: p < p0 + delta",
+        "# Solved by mirroring: test (1-p) > (1-(p0+delta))",
+        "",
+        paste0("p0        <- ", p0,    "   # benchmark (max acceptable rate)"),
+        paste0("p1        <- ", p1,    "   # expected device rate"),
+        paste0("delta     <- ", delta, "   # NI margin (allowable excess above p0)"),
+        paste0("sig.level <- ", alpha, "   # one-sided alpha"),
+        paste0("power     <- ", pwr,   "   # desired power"),
+        "",
+        paste0("p_thr   <- p0 + delta   # boundary = ", round(p_thr_s, 4)),
+        "# Mirror: test (1-p1) > (1-p_thr)",
+        "p0_m    <- 1 - p_thr",
+        "p1_m    <- 1 - p1",
+        "z_alpha <- qnorm(1 - sig.level)",
+        "z_beta  <- qnorm(power)",
+        "n       <- ceiling(",
+        "  (z_alpha * sqrt(p0_m * (1 - p0_m)) +",
+        "   z_beta  * sqrt(p1_m * (1 - p1_m)))^2 /",
+        "  (p1_m - p0_m)^2",
         ")"
       ), collapse = "\n")
       
@@ -252,6 +279,14 @@ server <- function(input, output, session) {
   })
   
   # ── Calculator: core N dispatcher ────────────────────────────────────────────
+  # Safety vs efficacy:
+  #   Efficacy (higher is better): H1: p > p0 - delta  boundary = p0 - delta
+  #   Safety  (lower  is better):  H1: p < p0 + delta  boundary = p0 + delta
+  # For the Z formula and simulation, the safety case is handled by
+  # "mirroring": complement all proportions (1-p) and use the efficacy formula.
+  # This is mathematically exact: testing p < boundary is equivalent to
+  # testing (1-p) > (1-boundary).
+  
   n_1arm_z_superiority <- function(p0, p1, alpha, power) {
     if (p1 <= p0) return(Inf)
     z_alpha <- qnorm(1 - alpha); z_beta <- qnorm(power)
@@ -259,18 +294,58 @@ server <- function(input, output, session) {
               (p1 - p0)^2)
   }
   
+  # Z formula for single-arm NI — safety aware
+  total_sample_size_1arm_z <- function(p0, p1, delta, alpha, power, is_safety) {
+    if (is_safety) {
+      # Mirror: test (1-p) > (1-(p0+delta))
+      p0_m  <- 1 - (p0 + delta)
+      p1_m  <- 1 - p1
+      delta_m <- 0  # boundary already folded into p0_m
+      p_thr <- p0_m
+      eff   <- p1_m - p_thr
+    } else {
+      p_thr <- p0 - delta
+      eff   <- p1 - p_thr
+      p1_m  <- p1
+    }
+    if (eff <= 0) return(Inf)
+    if (p_thr <= 0 || p_thr >= 1) return(Inf)
+    if (p1_m  <= 0 || p1_m  >= 1) return(Inf)
+    z_alpha <- qnorm(1 - alpha)
+    z_beta  <- qnorm(power)
+    ceiling(
+      (z_alpha * sqrt(p_thr * (1 - p_thr)) +
+         z_beta  * sqrt(p1_m  * (1 - p1_m )))^2 / eff^2
+    )
+  }
+  
   prop_total_n <- function(p0, p1, delta,
                            ci_method = input$ci_method_prop,
                            sim_n     = as.numeric(input$sim_quality),
                            seed      = as.numeric(input$sim_seed)) {
-    alpha <- as.numeric(input$sig.level)
-    r_val <- if (isTRUE(input$prop_design == "one_arm")) 1 else as.numeric(input$r)
+    alpha     <- as.numeric(input$sig.level)
+    is_safety <- isTRUE(input$endpoint == "safety")
+    is_one    <- isTRUE(input$prop_design == "one_arm")
+    r_val     <- if (is_one) 1 else as.numeric(input$r)
     
-    if (isTRUE(input$prop_design == "one_arm")) {
+    if (is_one) {
       if (isTRUE(ci_method == "z_power")) {
-        if (isTRUE(all.equal(delta, 0)))
-          return(n_1arm_z_superiority(p0, p1, alpha, input$power))
-        return(total_sample_size_prop_1arm(p0, p1, delta, alpha, input$power))
+        # delta=0: pure superiority test. For efficacy use dedicated function;
+        # for safety use the mirror Z formula (handles delta=0 correctly).
+        return(total_sample_size_1arm_z(p0, p1, delta, alpha, input$power, is_safety))
+      }
+      # Simulation path: pass mirrored proportions for safety
+      if (is_safety) {
+        # Mirror so the existing "CI lower > boundary" logic applies
+        p0_sim  <- 1 - (p0 + delta)
+        p1_sim  <- 1 - p1
+        delta_sim <- 0
+        # boundary is now p0_sim - 0 = p0_sim; success if CI_lower(1-x, n) > p0_sim
+        # which equals CI_upper(x, n) < p0 + delta — correct for safety
+        return(total_sample_size_prop_ci_power_1arm(
+          p0_sim, p1_sim, delta_sim, alpha, input$power,
+          ci_method = ci_method, nsim = sim_n, seed = seed
+        ))
       }
       return(total_sample_size_prop_ci_power_1arm(
         p0, p1, delta, alpha, input$power,
@@ -278,6 +353,7 @@ server <- function(input, output, session) {
       ))
     }
     
+    # Two-arm: safety handled via sign of delta in global functions
     if (isTRUE(ci_method == "z_power"))
       return(total_sample_size_prop(p0, p1, delta, alpha, input$power, r = r_val))
     
@@ -306,9 +382,14 @@ server <- function(input, output, session) {
     
     window <- as.numeric(window_d())
     delta  <- delta_d()
-    x <- seq(from = max(0.001, delta - window),
-             to   = min(0.200, delta + window),
-             by   = 0.005)
+    x_lo   <- max(0.001, delta - window)
+    x_hi   <- min(0.200, delta + window)
+    x <- seq(from = x_lo, to = x_hi, by = 0.005)
+    # Always include the chosen delta itself so the crosshair lands on a real point
+    if (!any(abs(x - delta) < 1e-9))
+      x <- sort(c(x, delta))
+    # Remove any negative or zero values that sneak in (step arithmetic)
+    x <- x[x >= 0]
     y <- sapply(x, function(d) prop_total_n(p0_d(), p1_d(), d))
     data.frame(x = x, y = y)
   })
@@ -327,11 +408,15 @@ server <- function(input, output, session) {
   prop_n_at_delta <- reactive({
     df    <- prop_df_delta()
     delta <- delta_d()
-    idx   <- which.min(abs(df$x - delta))
+    # If delta=0, the sweep starts at 0.001 so the exact value is never in the df.
+    # Recompute directly for any delta not closely matched in the sweep.
+    if (isTRUE(all.equal(as.numeric(delta), 0)))
+      return(prop_total_n(p0_d(), p1_d(), 0))
+    idx <- which.min(abs(df$x - delta))
     if (length(idx) == 0) return(Inf)
     n <- df$y[idx]
-    # If the exact delta isn't in the sweep (edge case), compute directly
-    if (abs(df$x[idx] - delta) > 0.001)
+    # If the closest sweep point is more than one step away, compute directly
+    if (abs(df$x[idx] - delta) > 1e-6)
       return(prop_total_n(p0_d(), p1_d(), delta))
     n
   })
@@ -392,32 +477,41 @@ server <- function(input, output, session) {
     
     # Derived quantities
     n_enrol    <- ceiling(n_out / (1 - dropout_r / 100))
-    p_thr      <- as.numeric(p0_d()) - as.numeric(delta_d())
+    is_safety_nb <- isTRUE(input$endpoint == "safety")
+    p_thr      <- if (is_safety_nb) as.numeric(p0_d()) + as.numeric(delta_d())
+    else               as.numeric(p0_d()) - as.numeric(delta_d())
     z_alpha_c  <- qnorm(1 - alpha_val)
-    n_successes <- ceiling(n_out * p_thr + z_alpha_c * sqrt(n_out * p_thr * (1 - p_thr)))
+    # n_successes: for safety = max events allowed; for efficacy = min events needed
+    n_successes <- if (is_safety_nb)
+      floor(n_out * p_thr - z_alpha_c * sqrt(n_out * p_thr * (1 - p_thr)))
+    else
+      ceiling(n_out * p_thr + z_alpha_c * sqrt(n_out * p_thr * (1 - p_thr)))
     
     # Hypothesis labels
-    if (is_one) {
-      h0_txt <- paste0("H\u2080: p \u2264 ", round(p_thr, 3),
-                       "  (p\u2080 \u2212 \u0394 = ", p0_d(),
-                       " \u2212 ", delta_d(), ")")
-      h1_txt <- if (is_safety)
-        paste0("H\u2081: p < p\u2080 + \u0394  (lower rate — device stays below NI boundary)")
-      else
-        paste0("H\u2081: p > p\u2080 \u2212 \u0394  (higher rate — device exceeds NI boundary)")
+    if (is_one && !is_safety_nb) {
+      h0_txt <- paste0("H₀: p ≥ ", round(p_thr, 3),
+                       "  (p₀ − Δ = ", p0_d(), " − ", delta_d(), ")")
+      h1_txt <- paste0("H₁: p > ", round(p_thr, 3),
+                       "  (higher rate — device exceeds NI boundary)")
+    } else if (is_one && is_safety_nb) {
+      h0_txt <- paste0("H₀: p ≥ ", round(p_thr, 3),
+                       "  (p₀ + Δ = ", p0_d(), " + ", delta_d(), ")")
+      h1_txt <- paste0("H₁: p < ", round(p_thr, 3),
+                       "  (lower rate — device stays below NI boundary)")
     } else {
-      h0_txt <- paste0("H\u2080: p\u2081 \u2212 p\u2080 \u2264 \u2212\u0394")
-      h1_txt <- paste0("H\u2081: p\u2081 \u2212 p\u2080 > \u2212\u0394")
+      h0_txt <- paste0("H₀: p₁ − p₀ ≥ Δ")
+      h1_txt <- paste0("H₁: p₁ − p₀ < Δ  (device non-inferior to control)")
     }
     
-    reject_rule <- if (is_one && !is_safety)
-      paste0("Reject H\u2080 if observed successes \u2265 ", n_successes,
-             " out of ", format(n_out, big.mark = ","), " evaluable patients")
-    else if (is_one && is_safety)
-      paste0("Reject H\u2080 if CI upper bound < ", round(p_thr, 3))
+    reject_rule <- if (is_one && !is_safety_nb)
+      paste0("Reject H₀ if ≥ ", n_successes,
+             " events out of ", format(n_out, big.mark = ","), " patients")
+    else if (is_one && is_safety_nb)
+      paste0("Reject H₀ if ≤ ", n_successes,
+             " events out of ", format(n_out, big.mark = ","), " patients",
+             "  (CI upper < ", round(p_thr, 3), ")")
     else
-      paste0("Reject H\u2080 if lower bound of risk-difference CI > \u2212\u0394")
-    
+      paste0("Reject H₀ if lower bound of risk-difference CI > −Δ")
     # Summary line
     summary_line <- paste0(
       "Total n = ", format(n_out, big.mark = ","),
@@ -643,16 +737,21 @@ server <- function(input, output, session) {
     n_enrol <- if (is.na(n_out) || is.infinite(n_out)) NA_integer_
     else ceiling(n_out / (1 - dropout_r / 100))
     nd_fmt  <- if (is.na(n_enrol)) "—" else format(n_enrol, big.mark = ",")
-    p_thr   <- as.numeric(p0_d()) - as.numeric(delta_d())
+    is_safety_s <- isTRUE(input$endpoint == "safety")
+    p_thr   <- if (is_safety_s) as.numeric(p0_d()) + as.numeric(delta_d())
+    else              as.numeric(p0_d()) - as.numeric(delta_d())
     z_a     <- qnorm(1 - alpha_val)
     n_succ  <- if (is.na(n_out) || is.infinite(n_out)) "—"
-    else format(ceiling(n_out * p_thr + z_a * sqrt(n_out * p_thr * (1 - p_thr))),
-                big.mark = ",")
+    else if (is_safety_s)
+      format(floor(n_out * p_thr - z_a * sqrt(n_out * p_thr * (1 - p_thr))),
+             big.mark = ",")
+    else
+      format(ceiling(n_out * p_thr + z_a * sqrt(n_out * p_thr * (1 - p_thr))),
+             big.mark = ",")
     ci_equiv <- round(100 * (1 - 2 * alpha_val), 1)
     
     design_txt <- if (is_one) "Single-arm NI" else "Two-arm NI"
-    ep_txt     <- if (isTRUE(input$endpoint == "safety"))
-      "Lower is better" else "Higher is better"
+    ep_txt     <- if (is_safety_s) "Lower is better" else "Higher is better"
     ci_labels  <- c(z_power="Z (power formula)", wilson="Wilson", exact="Clopper-Pearson",
                     ac="Agresti-Coull", asymptotic="Wald", prop.test="prop.test",
                     bayes="Bayes", logit="Logit", cloglog="Cloglog", probit="Probit")
@@ -786,9 +885,15 @@ server <- function(input, output, session) {
     )
     ci_label    <- unname(ci_labels[ci_method_used])
     if (is.na(ci_label)) ci_label <- ci_method_used
-    p_thr       <- as.numeric(input$p0.expected) - as.numeric(input$p1.tolerable)
+    is_safety_r <- isTRUE(input$endpoint == "safety")
+    p_thr       <- if (is_safety_r)
+      as.numeric(input$p0.expected) + as.numeric(input$p1.tolerable)
+    else
+      as.numeric(input$p0.expected) - as.numeric(input$p1.tolerable)
     z_alpha_c   <- qnorm(1 - as.numeric(input$sig.level))
-    n_successes <- if (is.infinite(n_val)) NA_integer_ else
+    n_successes <- if (is.infinite(n_val)) NA_integer_ else if (is_safety_r)
+      floor(n_val * p_thr - z_alpha_c * sqrt(n_val * p_thr * (1 - p_thr)))
+    else
       ceiling(n_val * p_thr + z_alpha_c * sqrt(n_val * p_thr * (1 - p_thr)))
     n_dropout   <- if (is.infinite(n_val)) NA_integer_ else
       ceiling(n_val / (1 - dropout_r / 100))
@@ -953,10 +1058,15 @@ server <- function(input, output, session) {
           dr_r     <- get_dropout_rate()
           av       <- as.numeric(input$sig.level)
           ci_eq    <- round(100 * (1 - 2 * av), 1)
-          p_thr_nb <- as.numeric(p0_d()) - as.numeric(delta_d())
+          is_safety_nb2 <- isTRUE(input$endpoint == "safety")
+          p_thr_nb <- if (is_safety_nb2) as.numeric(p0_d()) + as.numeric(delta_d())
+          else                as.numeric(p0_d()) - as.numeric(delta_d())
           z_a_nb   <- qnorm(1 - av)
           n_succ_nb <- if (is.infinite(n_val)) NA_integer_
-          else ceiling(n_val * p_thr_nb + z_a_nb * sqrt(n_val * p_thr_nb * (1 - p_thr_nb)))
+          else if (is_safety_nb2)
+            floor(n_val * p_thr_nb - z_a_nb * sqrt(n_val * p_thr_nb * (1 - p_thr_nb)))
+          else
+            ceiling(n_val * p_thr_nb + z_a_nb * sqrt(n_val * p_thr_nb * (1 - p_thr_nb)))
           nd_nb    <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val / (1 - dr_r / 100))
           ns_fmt2  <- if (is.na(n_succ_nb)) "—" else format(n_succ_nb, big.mark=",")
           nd_fmt2  <- if (is.na(nd_nb)) "—" else format(nd_nb, big.mark=",")
@@ -1533,10 +1643,15 @@ server <- function(input, output, session) {
           dr_w    <- get_dropout_rate()
           av_w    <- as.numeric(input$sig.level)
           ci_eq_w <- round(100 * (1 - 2 * av_w), 1)
-          p_thr_w <- as.numeric(p0_d()) - as.numeric(delta_d())
+          is_safety_w2 <- isTRUE(input$endpoint == "safety")
+          p_thr_w <- if (is_safety_w2) as.numeric(p0_d()) + as.numeric(delta_d())
+          else               as.numeric(p0_d()) - as.numeric(delta_d())
           z_a_w   <- qnorm(1 - av_w)
           n_succ_w <- if (is.infinite(n_val)) NA_integer_
-          else ceiling(n_val * p_thr_w + z_a_w * sqrt(n_val * p_thr_w * (1 - p_thr_w)))
+          else if (is_safety_w2)
+            floor(n_val * p_thr_w - z_a_w * sqrt(n_val * p_thr_w * (1 - p_thr_w)))
+          else
+            ceiling(n_val * p_thr_w + z_a_w * sqrt(n_val * p_thr_w * (1 - p_thr_w)))
           nd_w    <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val / (1 - dr_w / 100))
           ns_fmt_w <- if (is.na(n_succ_w)) "—" else format(n_succ_w, big.mark=",")
           nd_fmt_w <- if (is.na(nd_w)) "—" else format(nd_w, big.mark=",")

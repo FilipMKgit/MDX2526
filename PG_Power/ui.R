@@ -222,6 +222,209 @@ ui <- fluidPage(
         ),
         
         acc_panel(
+          id      = "acc_how_sim",
+          heading = "How the Sample Size Calculation Works",
+          open    = FALSE,
+          tags$div(
+            class = "ov-card",
+            
+            tags$p(tags$b("The Z formula (analytic method)")),
+            tags$p("The simplest approach. It plugs your p₀, p₁, Δ, α, and power into a
+                    closed-form equation derived from the normal distribution and returns n instantly.
+                    It is fast and produces the same answer every time."),
+            tags$p("The limitation is that it assumes the binomial distribution is well-approximated
+                    by a normal (bell) curve. This holds reasonably well when proportions are in the
+                    0.3–0.7 range but breaks down at extremes like 0.06 or 0.93, which are common
+                    in medical device studies. At these proportions the distribution is skewed, not
+                    symmetric, so the normal approximation overstates or understates the required n."),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            tags$p(tags$b("The simulation approach (PG-Power’s CI-based methods)")),
+            tags$p("Instead of a formula, the app runs the trial on a computer thousands of times.
+                    For a given candidate n, it:"),
+            tags$ol(
+              tags$li("Generates ", tags$code("nsim"), " random trial outcomes by drawing from a
+                       binomial distribution at the assumed true rate p₁."),
+              tags$li("Computes the confidence interval for each simulated trial using whichever
+                       CI method is selected (Wilson, Exact, Wald, etc.)."),
+              tags$li("Counts how often the CI bound crosses the NI boundary — i.e. how often
+                       the trial would have been declared a success."),
+              tags$li("If that fraction is below the target power, n is increased and the process
+                       repeats. A binary search finds the smallest n that reaches the target.")
+            ),
+            tags$p("This approach directly powers the decision rule that will actually be used at
+                    analysis — a CI bound crossing a threshold — rather than an approximation of it.
+                    It makes no assumption about the shape of the distribution and handles extreme
+                    proportions correctly."),
+            tags$p("The trade-off is speed and a small amount of Monte Carlo noise. With 1,000
+                    simulations the result may vary by ±1–2 patients across runs. Increasing to
+                    3,000 simulations reduces this but takes longer."),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            tags$p(tags$b("How this compares to PASS and other tools")),
+            tags$p("PASS offers several methods for the same calculation:"),
+            tags$ul(
+              tags$li(tags$b("Z-test (normal approximation):"), " Equivalent to PG-Power’s Z formula.
+                       Uses S(P₀) variance in the null term and S(P₁) in the power term.
+                       PASS and PG-Power agree to within 1–3 patients on this path, with small
+                       differences due to which variance estimate is used in each term."),
+              tags$li(tags$b("Exact binomial enumeration:"), " Enumerates every possible trial outcome
+                       using the exact binomial probability mass function and finds the smallest n
+                       where the sum of probabilities of favourable outcomes reaches the target power.
+                       Makes no distributional assumption. Generally gives a slightly smaller n than
+                       the Z formula because it exploits the discrete nature of the binomial rather
+                       than approximating it."),
+              tags$li(tags$b("CI-based simulation (PG-Power):"), " Similar in spirit to the exact
+                       binomial but ties the power calculation directly to the CI method that will
+                       be used in the actual analysis. Wilson simulation and exact binomial tend
+                       to give similar results; Clopper–Pearson simulation is more conservative
+                       because that CI is wider by design.")
+            ),
+            tags$p("For a regulatory submission, the most defensible approach is to run all three,
+                    confirm they broadly agree (within a few patients), and report the CI simulation
+                    as the primary justification since it directly powers your pre-specified
+                    analysis decision rule. The Z formula serves as a transparent cross-check
+                    that reviewers can verify by hand."),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            tags$p(tags$b("App source code")),
+            tags$p(
+              style = "font-size:12px; color:#64748b; margin-bottom:8px;",
+              "The three core functions from the app are shown below. Click each block to expand.
+               The full source is available on ",
+              tags$a(href = "https://github.com/FilipMKgit/MDX2526",
+                     target = "_blank", style = "color:#5b35d5;", "GitHub"), "."
+            ),
+            
+            # -- Z formula block ---
+            tags$div(
+              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
+              tags$div(
+                style = "display:flex; justify-content:space-between; align-items:center;
+                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
+                onclick = "pgpToggleCode('code_z', this);",
+                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
+                          "total_sample_size_prop_1arm()  —  Z formula (single-arm)"),
+                tags$span(style = "font-size:11px; color:#64748b;", "▾")
+              ),
+              tags$div(id = "code_z", style = "display:none;",
+                       tags$pre(
+                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
+                           font-family:'DM Mono',monospace; color:#1a2e35;
+                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
+                         "# H0: p >= p0 - delta   vs.   H1: p > p0 - delta
+total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
+  p_thr   <- p0 - delta          # NI boundary
+  eff     <- p1 - p_thr          # effect size vs boundary
+  if (eff <= 0) return(Inf)
+
+  z_alpha <- qnorm(1 - sig.level)
+  z_beta  <- qnorm(power)
+
+  ceiling(
+    (z_alpha * sqrt(p_thr * (1 - p_thr)) +
+     z_beta  * sqrt(p1   * (1 - p1  )))^2 /
+    eff^2
+  )
+}"
+                       )
+              )
+            ),
+            
+            # -- Simulation power check block ---
+            tags$div(
+              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
+              tags$div(
+                style = "display:flex; justify-content:space-between; align-items:center;
+                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
+                onclick = "pgpToggleCode('code_sim_power', this);",
+                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
+                          "prop_power_ci_sim_1arm()  —  empirical power at a given n"),
+                tags$span(style = "font-size:11px; color:#64748b;", "▾")
+              ),
+              tags$div(id = "code_sim_power", style = "display:none;",
+                       tags$pre(
+                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
+                           font-family:'DM Mono',monospace; color:#1a2e35;
+                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
+                         "# Simulates nsim trials at p1 and checks: CI_lower > p0 - delta
+prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
+                                   ci_method = 'wilson', n,
+                                   nsim = 1000, seed = 1) {
+  p_thr      <- p0 - delta
+  conf.level <- 1 - 2 * alpha    # two-sided CI for one-sided test
+  set.seed(seed)
+
+  x  <- rbinom(nsim, n, p1)     # simulate nsim trial outcomes
+  ci <- prop_ci_vec(x, n, conf.level, ci_method)
+
+  hit <- ci$lower > p_thr       # did the CI lower bound exceed boundary?
+  mean(hit, na.rm = TRUE)        # fraction of trials that declared NI
+}"
+                       )
+              )
+            ),
+            
+            # -- Binary search block ---
+            tags$div(
+              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
+              tags$div(
+                style = "display:flex; justify-content:space-between; align-items:center;
+                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
+                onclick = "pgpToggleCode('code_binary', this);",
+                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
+                          "total_sample_size_prop_ci_power_1arm()  —  binary search"),
+                tags$span(style = "font-size:11px; color:#64748b;", "▾")
+              ),
+              tags$div(id = "code_binary", style = "display:none;",
+                       tags$pre(
+                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
+                           font-family:'DM Mono',monospace; color:#1a2e35;
+                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
+                         "# Finds the smallest n where empirical power >= target power
+total_sample_size_prop_ci_power_1arm <- function(
+    p0, p1, delta, alpha, power,
+    ci_method = 'wilson', nsim = 1000, seed = 1) {
+
+  lo <- 2; hi <- 200000
+
+  # Quick feasibility check at upper bound
+  if (prop_power_ci_sim_1arm(p0, p1, delta, alpha,
+        ci_method, n = hi, nsim = nsim, seed = seed + 999) < power)
+    return(Inf)
+
+  # Binary search
+  while (lo < hi) {
+    mid   <- floor((lo + hi) / 2)
+    p_mid <- prop_power_ci_sim_1arm(p0, p1, delta, alpha,
+               ci_method, n = mid, nsim = nsim, seed = seed + mid)
+    if (p_mid >= power) hi <- mid else lo <- mid + 1
+  }
+
+  lo   # single-arm: total N = n
+}"
+                       )
+              )
+            ),
+            
+            tags$div(
+              style = "margin-top:12px; background:#f0eeff; border:1px solid #5b35d5;
+                       border-radius:8px; padding:11px 14px;",
+              tags$p(style = "margin:0; font-size:12px; color:#3d21b7; line-height:1.65;",
+                     tags$b("In practice: "),
+                     "use Z (power formula) for a quick check and to compare with PASS.
+                 Use Wilson or Exact CI simulation as the primary sample size justification.
+                 If Z and simulation agree within 5–10%, your design is robust to the
+                 choice of method."
+              )
+            )
+          )
+        ),
+        
+        acc_panel(
           id      = "acc_ci",
           heading = "Confidence Intervals",
           open    = FALSE,
@@ -283,10 +486,17 @@ ui <- fluidPage(
               and calculation code. The position plot and both data tables can be downloaded directly
               from Other Settings."
             ),
-            tags$p(style = "font-size:12px; color:#94a3b8; margin-top:10px;",
-                   "Note: The interim tool is descriptive, not a formal interim analysis with alpha-spending.
-                    It does not adjust for multiplicity or provide stopping boundaries.
-                    Consult a statistician before making any stopping decision.")
+            tags$div(
+              style = "margin-top:12px; padding:10px 14px;
+                       background:#fff8ee; border:1px solid #e8c96a; border-radius:8px;",
+              tags$p(
+                style = "margin:0; font-size:11.5px; color:#7a5c00; line-height:1.65;",
+                tags$b("Note: "),
+                "The interim tool is descriptive, not a formal interim analysis with alpha-spending.
+                 It does not adjust for multiplicity or provide stopping boundaries.
+                 Consult a qualified statistician before making any stopping decision."
+              )
+            )
           )
         ),
         
@@ -334,15 +544,37 @@ ui <- fluidPage(
                     achieve, depending on whether a higher or lower rate is the desired outcome."),
             tags$p(tags$b("Regulatory context")),
             tags$ul(
-              tags$li(tags$b("FDA (US):"), " The FDA guidance on non-inferiority trials
-                      (2016) and the Bayesian guidance (2010) describe performance goal
-                      studies as appropriate when a concurrent control is not feasible."),
-              tags$li(tags$b("ISO 14155:2020:"), " Governs clinical investigation of medical
-                      devices for human subjects. Requires a pre-specified primary
-                      endpoint, sample size justification, and a defined success criterion."),
-              tags$li(tags$b("ISO 5840 / ISO 11135 / device-specific standards:"),
-                      " Many device families have published OPC values in their specific
-                      ISO standards or FDA guidance documents.")
+              tags$li(
+                tags$b("FDA (US):"), " The FDA guidance on non-inferiority trials (2016) and
+                the Bayesian guidance (2010) describe performance goal studies as appropriate
+                when a concurrent control is not feasible. ",
+                tags$a(
+                  href = "https://www.fda.gov/media/78504/download",
+                  target = "_blank", style = "color:#5b35d5;",
+                  "Non-Inferiority Clinical Trials to Establish Effectiveness (2016) ↗"
+                ), " · ",
+                tags$a(
+                  href = "https://www.fda.gov/media/71512/download",
+                  target = "_blank", style = "color:#5b35d5;",
+                  "Guidance for the Use of Bayesian Statistics (2010) ↗"
+                )
+              ),
+              tags$li(
+                tags$b("ISO 14155:2020:"), " Governs clinical investigation of medical devices
+                for human subjects. Requires a pre-specified primary endpoint, sample size
+                justification, and a defined success criterion. ",
+                tags$a(
+                  href = "https://www.iso.org/standard/83968.html",
+                  target = "_blank", style = "color:#5b35d5;",
+                  "ISO 14155:2020/Amd 1:2024 ↗"
+                )
+              ),
+              tags$li(
+                tags$b("ISO 5840 / ISO 11135 / device-specific standards:"),
+                " Many device families have published OPC values in their specific ISO
+                standards or FDA guidance documents. Check the relevant device standard
+                or the FDA’s device-specific guidance for published OPC values."
+              )
             ),
             tags$p(tags$b("One-sided vs two-sided testing")),
             tags$p("Performance goal studies typically use a ", tags$b("one-sided test"),
@@ -387,7 +619,7 @@ ui <- fluidPage(
             ),
             tags$p(
               style = "font-size:12px; color:#374151; line-height:1.8;",
-              "Logo by ", tags$b("Daniel Breheny"), " (University of Galway)."
+              "Logo by ", tags$b("Daniel Breheny"), ", University of Galway."
             ),
             tags$hr(style = "border-color:#f1f5f9; margin:8px 0;"),
             tags$p(
@@ -398,6 +630,11 @@ ui <- fluidPage(
               tags$code("DT"), ", ", tags$code("binom"), ", ",
               tags$code("officer"), ", ", tags$code("base64enc"), ", ",
               tags$code("shinybusy")
+            ),
+            tags$p(
+              style = "font-size:12px; color:#374151; line-height:1.8;",
+              "Special thanks to ", tags$b("Prof. John Newell"), ", University of Galway,
+               for supervision and guidance throughout this project."
             ),
             tags$p(
               style = "color:#94a3b8; font-size:11px; margin-top:6px;",
@@ -1218,6 +1455,16 @@ ui <- fluidPage(
         Shiny.setInputValue('show_calc_hints',    window.pgpHintsOn, {priority: 'event'});
         Shiny.setInputValue('show_interim_hints', window.pgpHintsOn, {priority: 'event'});
       }
+    };
+
+    // -- Code block toggle (overview) ----------------------------------------
+    window.pgpToggleCode = function(id, hdr) {
+      var body = document.getElementById(id);
+      if (!body) return;
+      var chev = hdr.querySelector('span:last-child');
+      var isHidden = body.style.display === 'none' || body.style.display === '';
+      body.style.display = isHidden ? 'block' : 'none';
+      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : '';
     };
 
     // -- n-box expand/collapse -----------------------------------------------
