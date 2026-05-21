@@ -9,8 +9,8 @@
 <link href="Thesis_Presentation_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.8.25">
 
-  <meta name="author" content="Filip, Aine">
-  <title>Thesis_Presentation_Filip_Aine</title>
+  <meta name="author" content="Áine Glynn &amp; Filip Kłosowski">
+  <title>Statistical Design and Analysis of a Non-Inferiority Clinical Trial</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -127,37 +127,133 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Thesis_Presentation_Filip_Aine</h1>
+  <h1 class="title">Statistical Design and Analysis of a Non-Inferiority Clinical Trial</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Filip, Aine 
+Áine Glynn &amp; Filip Kłosowski 
 </div>
 </div>
 </div>
 
 </section>
-<section id="quarto" class="slide level2">
-<h2>Quarto</h2>
-<p>Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <a href="https://quarto.org/docs/presentations/" class="uri">https://quarto.org/docs/presentations/</a>.</p>
-</section>
-<section id="bullets" class="slide level2">
-<h2>Bullets</h2>
-<p>When you click the <strong>Render</strong> button a document will be generated that includes:</p>
+<section id="section-1" class="slide level2">
+<h2>Section 1</h2>
+<p>AINE PRESENTS…</p>
 <ul>
-<li>Content authored with markdown</li>
-<li>Output from executable code</li>
+<li><p>Introduction</p></li>
+<li><p>NI explained</p></li>
+<li><p>Biomimics</p></li>
+<li><p>Meta analysis</p></li>
 </ul>
 </section>
-<section id="code" class="slide level2">
-<h2>Code</h2>
-<p>When you click the <strong>Render</strong> button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
-</div>
-</div>
+<section id="section-2" class="slide level2">
+<h2>Section 2</h2>
+<p>Overview</p>
+<ul>
+<li><p>Simulation Study: Small Proportions</p></li>
+<li><p>n calculation comparison</p></li>
+<li><p>Shiny App</p></li>
+<li><p>To do</p></li>
+</ul>
+</section>
+<section id="simulation-study-small-proportions" class="slide level2">
+<h2>Simulation Study: Small Proportions</h2>
+<p>Problem:</p>
+<p><img data-src="images/complications_image.png" width="114"></p>
+<p><img data-src="images/success_image.jpg" width="132"></p>
+<p>Proportions of interest are close to boundaries</p>
+</section>
+<section id="simulation-study-small-proportions-1" class="slide level2">
+<h2>Simulation Study: Small Proportions</h2>
+<p>Wald’s confidence interval</p>
+<p><span class="math display">\[
+\hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+\]</span></p>
+
+<img data-src="images/clipboard-1473646001.jpeg" class="quarto-figure quarto-figure-left r-stretch" width="104"><ul>
+<li><p><strong>Violated symmetry assumption</strong> underlying the normal approximation</p></li>
+<li><p>Narrow CI</p></li>
+<li><p>extend beyond the [1,0] range</p></li>
+<li><p>Substantial&nbsp;<strong>undercoverage</strong>&nbsp;</p></li>
+</ul>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/wald-coverage-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Wald interval coverage across a range of true proportions when n = 20. For small values of p (shaded region), coverage falls well below 95%, indicating poor performance of the normal approximation in this setting.</p></section>
+<section id="alternatives" class="slide level2">
+<h2>Alternatives</h2>
+<ul>
+<li><p>Wilson Score Interval</p></li>
+<li><p>Agresti–Coull Interval</p></li>
+<li><p>Clopper–Pearson Interval</p></li>
+<li><p>Prop.test Interval</p></li>
+<li><p>Jeffreys Interval</p></li>
+</ul>
+<p>Similar workflow to <strong>Pires &amp; Amado, 2008</strong> paper: <em>Interval estimators for a binomial proportion: Comparison of twenty methods<br>
+</em></p>
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n50-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 50, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
+<section id="section-4" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n200-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 200, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
+<section id="section-5" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/min-cp-plot-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Minimum coverage probability across different sample sizes for each method. The dashed red line shows the nominal 95% level.</p></section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
+<section id="observations" class="slide level2">
+<h2>Observations</h2>
+<ul>
+<li><p>.</p></li>
+<li><p>.</p></li>
+<li><p>.</p></li>
+<li><p>.</p></li>
+</ul>
+</section>
+<section id="sample-size" class="slide level2">
+<h2>Sample size</h2>
+<p><img data-src="images/ncss_pass_logo.jpg" width="206"></p>
+<p><img data-src="images/nqueryimage.PNG" width="203"></p>
+<p>n=</p>
+<p>n=</p>
+<p>n=</p>
+</section>
+<section id="why-the-differences" class="slide level2">
+<h2>Why the differences?</h2>
+<p>Saw diagram</p>
+<p>explain</p>
+<p>best n is arguably the smallest because of money</p>
+</section>
+<section id="pg-power" class="slide level2">
+<h2>PG-Power</h2>
+<p>posit link, explore the settings</p>
+<p>show the plot</p>
+<p>show report generation</p>
+</section>
+<section id="final-steps" class="slide level2">
+<h2>Final steps</h2>
+<ul>
+<li><p>Bayesian</p></li>
+<li><p>Internim analysis</p></li>
+<li><p>Synthetic Data</p></li>
+</ul>
+</section>
+<section id="references" class="slide level2">
+<h2>References</h2>
+</section>
+<section id="thank-you-for-your-attention" class="slide level2">
+<h2>Thank you for your attention!</h2>
+<p>Questions?</p>
 
 </section>
     </div>
