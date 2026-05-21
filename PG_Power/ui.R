@@ -174,13 +174,12 @@ ui <- fluidPage(
           open    = FALSE,
           tags$div(
             class = "ov-card",
-            tags$p("PG-Power is a sample size calculator for non-inferiority (NI) studies
-                    involving binary proportions. It supports both single-arm (device vs
-                    performance goal) and two-arm (treatment vs control) designs, with
-                    analytic and simulation-based CI methods."),
+            tags$p("PG-Power is a sample size calculator for single-arm performance goal studies
+                    involving binary proportions. It calculates the number of patients required
+                    to demonstrate that a device meets or exceeds a pre-specified performance goal,
+                    using analytic and simulation-based confidence interval methods."),
             tags$ol(
-              tags$li("Go to the ", tags$b("Calculator"), " tab to compute required sample sizes."),
-              tags$li("Use the ", tags$b("Interim Analysis"), " tab to monitor an ongoing study."),
+              tags$li("Go to the ", tags$b("Calculator"), " tab to compute the required sample size."),
               tags$li("Export a formatted summary from the ", tags$b("Generate Report"), " tab.")
             )
           )
@@ -194,232 +193,30 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p(tags$b("Trial Design Settings")),
             tags$ul(
-              tags$li(tags$b("Design:"), " Single-arm NI (device vs a performance goal) or Two-arm NI (treatment vs concurrent control)."),
-              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower observed rate is the favourable outcome. Changing this updates the H\u2081 hypothesis and presets p\u2080, p\u2081, and \u0394."),
+              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower observed rate is the favourable outcome. Selecting ", tags$em("Lower is better"), " (e.g. complication rate) mirrors the proportions internally so the same calculation applies."),
               tags$li(tags$b("\u03b1 (significance level):"), " One-sided \u03b1 from a dropdown. 0.025 is standard for pivotal medical device studies."),
-              tags$li(tags$b("Power:"), " Probability of correctly demonstrating non-inferiority. 0.80 and 0.90 are most common."),
-              tags$li(tags$b("Allocation ratio:"), " Two-arm only. Ratio of treatment to control patients (e.g. 2:1)."),
+              tags$li(tags$b("Power:"), " Probability of correctly demonstrating the device meets the performance goal. 0.80 and 0.90 are most common."),
               tags$li(tags$b("CI method:"), " Method used in the simulation-based sample size search. Z (power formula) gives an instant analytic result; all others run a binary-search simulation.")
             ),
             tags$p(tags$b("Proportions")),
             tags$ul(
-              tags$li(tags$b("p\u2080:"), " Benchmark or control event rate (the performance goal)."),
-              tags$li(tags$b("p\u2081:"), " Expected device or experimental event rate. Must be on the favourable side of p\u2080 \u2212 \u0394."),
-              tags$li(tags$b("\u0394:"), " Non-inferiority margin. The maximum clinically acceptable shortfall from the benchmark."),
-              tags$li(tags$b("Sensitivity window:"), " Half-width of the \u0394 range swept in the sensitivity plot (\u00b10.005 to \u00b10.150).")
+              tags$li(tags$b("p\u2080:"), " The performance goal \u2014 the benchmark event rate the device must exceed (higher is better) or stay below (lower is better)."),
+              tags$li(tags$b("p\u2081:"), " The expected true device event rate. Must be on the favourable side of p\u2080 for the study to be achievable.")
+            ),
+            tags$p(tags$b("Plots")),
+            tags$ul(
+              tags$li("The ", tags$b("power vs n plot"), " shows how achieved power varies with sample size at the current p\u2080, p\u2081, and \u03b1."),
+              tags$li("The ", tags$b("p\u2081 sensitivity plot"), " shows how required n changes as the assumed device rate varies.")
             ),
             tags$p(tags$b("n Result Box")),
-            tags$p("Below the \u0394 plot, an expandable box shows the required n at the chosen \u0394, together with the hypotheses, CI equivalent, min successes needed to reject H\u2080, and the dropout-adjusted enrolment target."),
+            tags$p("Below the plots, an expandable box shows the required n, together with the hypotheses, CI equivalent, min or max events needed, and the dropout-adjusted enrolment target."),
             tags$p(tags$b("Other Settings")),
             tags$ul(
-              tags$li("Toggle the n result box and selected-value crosshair on plots."),
-              tags$li("Show or hide the \u0394 and p\u2081 sensitivity tables below the plots."),
+              tags$li("Toggle the n result box and selected-value crosshair on the sensitivity plot."),
+              tags$li("Show or hide the p\u2081 sensitivity table below the plot."),
               tags$li("Adjust the ", tags$b("dropout rate"), " (1\u201320%) to set the enrolment inflation factor."),
-              tags$li("Download sensitivity tables as CSV or save either plot as a PNG."),
+              tags$li("Download the sensitivity table as CSV or save either plot as a PNG."),
               tags$li(tags$b("Defaults"), " resets all calculator inputs to their starting values.")
-            )
-          )
-        ),
-        
-        acc_panel(
-          id      = "acc_how_sim",
-          heading = "How the Sample Size Calculation Works",
-          open    = FALSE,
-          tags$div(
-            class = "ov-card",
-            
-            tags$p(tags$b("The Z formula (analytic method)")),
-            tags$p("The simplest approach. It plugs your p₀, p₁, Δ, α, and power into a
-                    closed-form equation derived from the normal distribution and returns n instantly.
-                    It is fast and produces the same answer every time."),
-            tags$p("The limitation is that it assumes the binomial distribution is well-approximated
-                    by a normal (bell) curve. This holds reasonably well when proportions are in the
-                    0.3–0.7 range but breaks down at extremes like 0.06 or 0.93, which are common
-                    in medical device studies. At these proportions the distribution is skewed, not
-                    symmetric, so the normal approximation overstates or understates the required n."),
-            
-            tags$hr(class = "pgp-hr"),
-            
-            tags$p(tags$b("The simulation approach (PG-Power’s CI-based methods)")),
-            tags$p("Instead of a formula, the app runs the trial on a computer thousands of times.
-                    For a given candidate n, it:"),
-            tags$ol(
-              tags$li("Generates ", tags$code("nsim"), " random trial outcomes by drawing from a
-                       binomial distribution at the assumed true rate p₁."),
-              tags$li("Computes the confidence interval for each simulated trial using whichever
-                       CI method is selected (Wilson, Exact, Wald, etc.)."),
-              tags$li("Counts how often the CI bound crosses the NI boundary — i.e. how often
-                       the trial would have been declared a success."),
-              tags$li("If that fraction is below the target power, n is increased and the process
-                       repeats. A binary search finds the smallest n that reaches the target.")
-            ),
-            tags$p("This approach directly powers the decision rule that will actually be used at
-                    analysis — a CI bound crossing a threshold — rather than an approximation of it.
-                    It makes no assumption about the shape of the distribution and handles extreme
-                    proportions correctly."),
-            tags$p("The trade-off is speed and a small amount of Monte Carlo noise. With 1,000
-                    simulations the result may vary by ±1–2 patients across runs. Increasing to
-                    3,000 simulations reduces this but takes longer."),
-            
-            tags$hr(class = "pgp-hr"),
-            
-            tags$p(tags$b("How this compares to PASS and other tools")),
-            tags$p("PASS offers several methods for the same calculation:"),
-            tags$ul(
-              tags$li(tags$b("Z-test (normal approximation):"), " Equivalent to PG-Power’s Z formula.
-                       Uses S(P₀) variance in the null term and S(P₁) in the power term.
-                       PASS and PG-Power agree to within 1–3 patients on this path, with small
-                       differences due to which variance estimate is used in each term."),
-              tags$li(tags$b("Exact binomial enumeration:"), " Enumerates every possible trial outcome
-                       using the exact binomial probability mass function and finds the smallest n
-                       where the sum of probabilities of favourable outcomes reaches the target power.
-                       Makes no distributional assumption. Generally gives a slightly smaller n than
-                       the Z formula because it exploits the discrete nature of the binomial rather
-                       than approximating it."),
-              tags$li(tags$b("CI-based simulation (PG-Power):"), " Similar in spirit to the exact
-                       binomial but ties the power calculation directly to the CI method that will
-                       be used in the actual analysis. Wilson simulation and exact binomial tend
-                       to give similar results; Clopper–Pearson simulation is more conservative
-                       because that CI is wider by design.")
-            ),
-            tags$p("For a regulatory submission, the most defensible approach is to run all three,
-                    confirm they broadly agree (within a few patients), and report the CI simulation
-                    as the primary justification since it directly powers your pre-specified
-                    analysis decision rule. The Z formula serves as a transparent cross-check
-                    that reviewers can verify by hand."),
-            
-            tags$hr(class = "pgp-hr"),
-            
-            tags$p(tags$b("App source code")),
-            tags$p(
-              style = "font-size:12px; color:#64748b; margin-bottom:8px;",
-              "The three core functions from the app are shown below. Click each block to expand.
-               The full source is available on ",
-              tags$a(href = "https://github.com/FilipMKgit/MDX2526",
-                     target = "_blank", style = "color:#5b35d5;", "GitHub"), "."
-            ),
-            
-            # -- Z formula block ---
-            tags$div(
-              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
-              tags$div(
-                style = "display:flex; justify-content:space-between; align-items:center;
-                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
-                onclick = "pgpToggleCode('code_z', this);",
-                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
-                          "total_sample_size_prop_1arm()  —  Z formula (single-arm)"),
-                tags$span(style = "font-size:11px; color:#64748b;", "▾")
-              ),
-              tags$div(id = "code_z", style = "display:none;",
-                       tags$pre(
-                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
-                           font-family:'DM Mono',monospace; color:#1a2e35;
-                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
-                         "# H0: p >= p0 - delta   vs.   H1: p > p0 - delta
-total_sample_size_prop_1arm <- function(p0, p1, delta, sig.level, power) {
-  p_thr   <- p0 - delta          # NI boundary
-  eff     <- p1 - p_thr          # effect size vs boundary
-  if (eff <= 0) return(Inf)
-
-  z_alpha <- qnorm(1 - sig.level)
-  z_beta  <- qnorm(power)
-
-  ceiling(
-    (z_alpha * sqrt(p_thr * (1 - p_thr)) +
-     z_beta  * sqrt(p1   * (1 - p1  )))^2 /
-    eff^2
-  )
-}"
-                       )
-              )
-            ),
-            
-            # -- Simulation power check block ---
-            tags$div(
-              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
-              tags$div(
-                style = "display:flex; justify-content:space-between; align-items:center;
-                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
-                onclick = "pgpToggleCode('code_sim_power', this);",
-                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
-                          "prop_power_ci_sim_1arm()  —  empirical power at a given n"),
-                tags$span(style = "font-size:11px; color:#64748b;", "▾")
-              ),
-              tags$div(id = "code_sim_power", style = "display:none;",
-                       tags$pre(
-                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
-                           font-family:'DM Mono',monospace; color:#1a2e35;
-                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
-                         "# Simulates nsim trials at p1 and checks: CI_lower > p0 - delta
-prop_power_ci_sim_1arm <- function(p0, p1, delta, alpha,
-                                   ci_method = 'wilson', n,
-                                   nsim = 1000, seed = 1) {
-  p_thr      <- p0 - delta
-  conf.level <- 1 - 2 * alpha    # two-sided CI for one-sided test
-  set.seed(seed)
-
-  x  <- rbinom(nsim, n, p1)     # simulate nsim trial outcomes
-  ci <- prop_ci_vec(x, n, conf.level, ci_method)
-
-  hit <- ci$lower > p_thr       # did the CI lower bound exceed boundary?
-  mean(hit, na.rm = TRUE)        # fraction of trials that declared NI
-}"
-                       )
-              )
-            ),
-            
-            # -- Binary search block ---
-            tags$div(
-              style = "margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;",
-              tags$div(
-                style = "display:flex; justify-content:space-between; align-items:center;
-                         padding:8px 14px; background:#f8fafc; cursor:pointer;",
-                onclick = "pgpToggleCode('code_binary', this);",
-                tags$span(style = "font-size:12px; font-weight:600; color:#374151; font-family:'DM Mono',monospace;",
-                          "total_sample_size_prop_ci_power_1arm()  —  binary search"),
-                tags$span(style = "font-size:11px; color:#64748b;", "▾")
-              ),
-              tags$div(id = "code_binary", style = "display:none;",
-                       tags$pre(
-                         style = "margin:0; padding:14px 16px; font-size:11.5px; line-height:1.75;
-                           font-family:'DM Mono',monospace; color:#1a2e35;
-                           background:#fff; border-top:1px solid #e2e8f0; overflow-x:auto;",
-                         "# Finds the smallest n where empirical power >= target power
-total_sample_size_prop_ci_power_1arm <- function(
-    p0, p1, delta, alpha, power,
-    ci_method = 'wilson', nsim = 1000, seed = 1) {
-
-  lo <- 2; hi <- 200000
-
-  # Quick feasibility check at upper bound
-  if (prop_power_ci_sim_1arm(p0, p1, delta, alpha,
-        ci_method, n = hi, nsim = nsim, seed = seed + 999) < power)
-    return(Inf)
-
-  # Binary search
-  while (lo < hi) {
-    mid   <- floor((lo + hi) / 2)
-    p_mid <- prop_power_ci_sim_1arm(p0, p1, delta, alpha,
-               ci_method, n = mid, nsim = nsim, seed = seed + mid)
-    if (p_mid >= power) hi <- mid else lo <- mid + 1
-  }
-
-  lo   # single-arm: total N = n
-}"
-                       )
-              )
-            ),
-            
-            tags$div(
-              style = "margin-top:12px; background:#f0eeff; border:1px solid #5b35d5;
-                       border-radius:8px; padding:11px 14px;",
-              tags$p(style = "margin:0; font-size:12px; color:#3d21b7; line-height:1.65;",
-                     tags$b("In practice: "),
-                     "use Z (power formula) for a quick check and to compare with PASS.
-                 Use Wilson or Exact CI simulation as the primary sample size justification.
-                 If Z and simulation agree within 5–10%, your design is robust to the
-                 choice of method."
-              )
             )
           )
         ),
@@ -441,11 +238,11 @@ total_sample_size_prop_ci_power_1arm <- function(
               tags$li(tags$b("Bayes:"), " Bayesian credible interval \u2014 not a frequentist CI.")
             ),
             tags$hr(class = "pgp-hr"),
-            tags$p(tags$b("Decision rules used in simulation:")),
-            tags$p("Two-arm:"),
-            tags$pre("Lower(RD) = Lower(p\u2081) \u2212 Upper(p\u2080)\nDeclare NI if Lower(RD) > \u2212\u0394"),
-            tags$p("Single-arm:"),
-            tags$pre("Declare NI if Lower(p) > p\u2080 \u2212 \u0394"),
+            tags$p(tags$b("Decision rule used in simulation:")),
+            tags$p("Higher is better:"),
+            tags$pre("Declare success if CI lower bound > p\u2080"),
+            tags$p("Lower is better:"),
+            tags$pre("Declare success if CI upper bound < p\u2080"),
             tags$div(
               style = "margin-top:14px; background:#f0eeff; border:1px solid #5b35d5;
                        border-radius:8px; padding:11px 14px; display:flex;
@@ -461,40 +258,6 @@ total_sample_size_prop_ci_power_1arm <- function(
                   style  = "font-size:12px; color:#5b35d5; font-weight:600;",
                   "Read: Small Proportions and Confidence Intervals \u2197"
                 )
-              )
-            )
-          )
-        ),
-        
-        acc_panel(
-          id      = "acc_interim_info",
-          heading = "Interim Analysis",
-          open    = FALSE,
-          tags$div(
-            class = "ov-card",
-            tags$p("The Interim Analysis tab lets you monitor a study in progress against its pre-specified NI boundary."),
-            tags$ul(
-              tags$li(tags$b("Inputs:"), " Enter the number of patients enrolled so far and the events observed. For two-arm designs, enter events for both arms."),
-              tags$li(tags$b("Boundary:"), " Pulled automatically from the Calculator tab \u2014 set p\u2080, p\u2081, and \u0394 there first."),
-              tags$li(tags$b("Status box:"), " Shows whether NI is currently demonstrated based on the observed CI bound vs the NI boundary."),
-              tags$li(tags$b("Position plot:"), " Visualises the observed estimate and CI relative to the NI boundary."),
-              tags$li(tags$b("Calculation table:"), " Step-by-step breakdown of every number in the status box."),
-              tags$li(tags$b("CI method comparison:"), " For single-arm designs, shows how many events are needed (or allowed) to demonstrate NI under each CI method at the current n, and whether the observed x passes.")
-            ),
-            tags$p(
-              tags$b("Other Settings"), " includes toggles for the calculation table, CI comparison table,
-              and calculation code. The position plot and both data tables can be downloaded directly
-              from Other Settings."
-            ),
-            tags$div(
-              style = "margin-top:12px; padding:10px 14px;
-                       background:#fff8ee; border:1px solid #e8c96a; border-radius:8px;",
-              tags$p(
-                style = "margin:0; font-size:11.5px; color:#7a5c00; line-height:1.65;",
-                tags$b("Note: "),
-                "The interim tool is descriptive, not a formal interim analysis with alpha-spending.
-                 It does not adjust for multiplicity or provide stopping boundaries.
-                 Consult a qualified statistician before making any stopping decision."
               )
             )
           )
@@ -524,8 +287,7 @@ total_sample_size_prop_ci_power_1arm <- function(
             tags$p("Toggle any combination of sections:"),
             tags$ul(
               tags$li(tags$b("General:"), " Results table, full n summary, interpretation, CI comparison, definitions, calculation code."),
-              tags$li(tags$b("Sensitivity:"), " \u0394 and p\u2081 plots and/or tables."),
-              tags$li(tags$b("Interim Analysis:"), " Data summary, interpretation, CI comparison, position plot.")
+              tags$li(tags$b("Sensitivity:"), " p\u2081 sensitivity plot and/or table.")
             ),
             tags$p("The live ", tags$b("Report contents"), " checklist in the top-right of the tab reflects your current selections.")
           )
@@ -617,10 +379,7 @@ total_sample_size_prop_ci_power_1arm <- function(
               tags$a(href = "https://github.com/FilipMKgit/MDX2526",
                      target = "_blank", style = "color:#5b35d5;", "GitHub"), "."
             ),
-            tags$p(
-              style = "font-size:12px; color:#374151; line-height:1.8;",
-              "Logo by ", tags$b("Daniel Breheny"), ", University of Galway."
-            ),
+            
             tags$hr(style = "border-color:#f1f5f9; margin:8px 0;"),
             tags$p(
               style = "font-size:11.5px; color:#64748b; line-height:1.8;",
@@ -628,6 +387,7 @@ total_sample_size_prop_ci_power_1arm <- function(
               tags$code("shiny"), ", ", tags$code("bslib"), ", ",
               tags$code("ggplot2"), ", ", tags$code("plotly"), ", ",
               tags$code("DT"), ", ", tags$code("binom"), ", ",
+              tags$code("TrialSize"), ", ",
               tags$code("officer"), ", ", tags$code("base64enc"), ", ",
               tags$code("shinybusy")
             ),
@@ -742,20 +502,7 @@ total_sample_size_prop_ci_power_1arm <- function(
             heading = "Trial Design Settings",
             open    = TRUE,
             
-            # Design — simplified labels
-            selectInput(
-              "prop_design", "Design",
-              choices  = c("Single-arm NI" = "one_arm", "Two-arm NI" = "two_arm"),
-              selected = "one_arm"
-            ),
-            conditionalPanel(
-              condition = "input.show_calc_hints == true",
-              tags$p(
-                HTML("Single-arm NI: device vs a fixed performance goal (benchmark). &nbsp;
-                      Two-arm NI: experimental treatment vs concurrent control."),
-                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
-              )
-            ),
+            
             
             # Endpoint — shows H1 framing in hint
             selectInput(
@@ -769,18 +516,14 @@ total_sample_size_prop_ci_power_1arm <- function(
             conditionalPanel(
               condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
               tags$p(
-                HTML("H\u2081: p > p\u2080 &minus; \u0394 &nbsp;&mdash;&nbsp;
-                      device rate must exceed the NI boundary.<br>
-                      Use when a <em>higher</em> observed rate means the device performed well."),
+                HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device rate must exceed the performance goal.<br>Use when a <em>higher</em> observed rate means the device performed well."),
                 style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
               )
             ),
             conditionalPanel(
               condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
               tags$p(
-                HTML("H\u2081: p < p\u2080 + \u0394 &nbsp;&mdash;&nbsp;
-                      device rate must stay below the NI boundary.<br>
-                      Use when a <em>lower</em> observed rate means the device performed well."),
+                HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device rate must stay below the performance goal.<br>Use when a <em>lower</em> observed rate means the device performed well."),
                 style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
               )
             ),
@@ -825,14 +568,7 @@ total_sample_size_prop_ci_power_1arm <- function(
               )
             ),
             
-            conditionalPanel(
-              condition = "input.prop_design != 'one_arm'",
-              selectInput(
-                "r", "Allocation ratio (treatment : control)",
-                choices  = c("1:1" = 1, "2:1" = 2, "3:1" = 3, "4:1" = 4, "5:1" = 5),
-                selected = 1
-              )
-            ),
+            
             
             tags$hr(class = "pgp-hr"),
             
@@ -868,44 +604,21 @@ total_sample_size_prop_ci_power_1arm <- function(
             open    = TRUE,
             
             sliderInput("p0.expected",
-                        "Benchmark / performance goal (p\u2080):",
+                        "Performance goal (PG):",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.88),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p("The reference or control rate. For single-arm studies, this is the performance goal (OPC) from the literature.",
+              tags$p("The pre-specified benchmark rate the device must meet or exceed. Typically sourced from published literature, prior device data, or a regulatory guidance document.",
                      style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
             
             sliderInput("p1.expected",
-                        "Expected device event rate (p\u2081):",
+                        "Expected device rate:",
                         min = 0.00, max = 1.00, step = 0.01, value = 0.93),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p("The true rate you expect the device to achieve. Must exceed p\u2080 \u2212 \u0394 for the study to be powerable.",
+              tags$p("The true rate you expect the device to achieve. Must be more favourable than the performance goal for the study to be achievable.",
                      style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
-            ),
-            
-            sliderInput("p1.tolerable",
-                        "Non-inferiority margin (\u0394):",
-                        min = 0.00, max = 0.20, step = 0.01, value = 0.05),
-            conditionalPanel(
-              condition = "input.show_calc_hints == true",
-              tags$p("Maximum acceptable shortfall below p\u2080. Set to 0 for a pure superiority test. Must be clinically justified.",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
-            ),
-            
-            selectInput(
-              "WindowMargin", "Sensitivity window for NI margin (\u00b1)",
-              choices = c(
-                "\u00b10.005 (very narrow)" = 0.005,
-                "\u00b10.010"               = 0.010,
-                "\u00b10.020"               = 0.020,
-                "\u00b10.050 (default)"     = 0.050,
-                "\u00b10.075"               = 0.075,
-                "\u00b10.100 (wide)"        = 0.100,
-                "\u00b10.150 (very wide)"   = 0.150
-              ),
-              selected = 0.050
             )
           ),
           
@@ -935,10 +648,10 @@ total_sample_size_prop_ci_power_1arm <- function(
             open    = FALSE,
             
             checkboxInput("show_calc_code", "Show calculation code",           value = FALSE),
-            checkboxInput("showNBox_prop",  "Show n at chosen \u0394",           value = TRUE),
+            checkboxInput("showNBox_prop",  "Show n result box",  value = TRUE),
             checkboxInput("showVline",      "Show selected value crosshair",    value = FALSE),
-            checkboxInput("showTable",      "Show \u0394 sensitivity table",    value = FALSE),
-            checkboxInput("showTable2",     "Show p\u2081 sensitivity table",   value = FALSE),
+            
+            checkboxInput("showTable2",     "Show device rate sensitivity table", value = FALSE),
             
             tags$hr(class = "pgp-hr"),
             
@@ -965,13 +678,9 @@ total_sample_size_prop_ci_power_1arm <- function(
             tags$div(
               class = "dl-btn-col",
               style = "margin-top: 10px;",
-              downloadButton("downloadData_plot1", "\u2193 Download \u0394 table",
+              downloadButton("downloadData_plot2", "\u2193 Download sensitivity table",
                              class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadData_plot2", "\u2193 Download p\u2081 table",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlot1",      "\u2193 Download \u0394 plot",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlot2",      "\u2193 Download p\u2081 plot",
+              downloadButton("downloadPlot2",      "\u2193 Download sensitivity plot",
                              class = "btn-sm btn-outline-primary pgp-btn")
             ),
             
@@ -993,17 +702,12 @@ total_sample_size_prop_ci_power_1arm <- function(
           
           conditionalPanel(
             condition = "input.show_calc_hints == true",
-            tags$p("How total sample size changes as the NI margin varies. A tighter margin (smaller \u0394) requires more patients.",
+            tags$p("Power vs sample size for the current performance goal and device rate. The orange dot marks the required n and the dashed line is the target power.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
-          plotlyOutput("plot1", height = "420px"),
+          plotlyOutput("plot_power", height = "380px"),
           uiOutput("n_box_prop"),
           tags$div(style = "height:22px;"),
-          conditionalPanel(
-            condition = "input.show_calc_hints == true",
-            tags$p("How total sample size changes as the expected device rate (p\u2081) varies. A rate closer to p\u2080 requires more patients.",
-                   style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
-          ),
           plotlyOutput("plot2", height = "420px"),
           uiOutput("compare_section"),
           DTOutput("dataTable"),
@@ -1011,125 +715,6 @@ total_sample_size_prop_ci_power_1arm <- function(
           conditionalPanel(
             condition = "input.show_calc_code == true",
             uiOutput("calc_code_ui")
-          )
-        )
-      )
-    ),
-    
-    # --------------------------------------------------------------------------
-    # Tab 3 - Interim Analysis
-    # --------------------------------------------------------------------------
-    tabPanel(
-      title = "Interim Analysis",
-      
-      fluidRow(
-        style = "margin: 18px 8px 0;",
-        
-        column(
-          width = 4,
-          class = "main-left",
-          
-          acc_panel(
-            id = "acc_interim_inputs", heading = "Interim Analysis", open = TRUE,
-            
-            conditionalPanel(
-              condition = "input.show_interim_hints == true",
-              uiOutput("interim_sidebar_label")
-            ),
-            
-            numericInput("interim_n", "Patients enrolled so far (n):",
-                         value = 0, min = 0, step = 1),
-            conditionalPanel(
-              condition = "input.prop_design == 'two_arm'",
-              tags$p("(n is per arm \u2014 equal allocation assumed)",
-                     style = "font-size:11px; color:#94a3b8; margin:-6px 0 8px;")
-            ),
-            numericInput("interim_x", "Events observed (treatment arm, x\u2081):",
-                         value = 0, min = 0, step = 1),
-            
-            conditionalPanel(
-              condition = "input.prop_design == 'two_arm'",
-              numericInput("interim_x_control",
-                           "Events observed (control arm, x\u2080):",
-                           value = 0, min = 0, step = 1)
-            ),
-            
-            tags$hr(class = "pgp-hr"),
-            tags$p("Values", class = "sidebar-section-label"),
-            uiOutput("interim_pulled_vals")
-          ),
-          
-          acc_panel(
-            id = "acc_interim_other", heading = "Other Settings", open = FALSE,
-            
-            checkboxInput("show_interim_calctbl", "Show calculation table",   value = TRUE),
-            checkboxInput("show_interim_citbl",   "Show CI comparison table", value = TRUE),
-            checkboxInput("show_interim_code",    "Show calculation code",    value = FALSE),
-            
-            tags$div(
-              class = "dl-btn-col",
-              style = "margin-top:10px;",
-              downloadButton("download_interim_calc_csv",
-                             "\u2193 Download calc table",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("download_interim_ci_csv",
-                             "\u2193 Download CI table",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadInterimPlot",
-                             "\u2193 Download position plot",
-                             class = "btn-sm btn-outline-primary pgp-btn")
-            ),
-            
-            tags$div(
-              style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
-                onclick = "pgpResetInterimSettings();",
-                "\u21ba Defaults"
-              )
-            )
-          )
-        ),
-        
-        column(
-          width = 8,
-          class = "main-right pgp-main",
-          
-          conditionalPanel(
-            condition = "input.show_interim_hints == true",
-            uiOutput("interim_orientation_text"),
-            tags$div(style = "height:10px;")
-          ),
-          uiOutput("interim_status_box"),
-          tags$div(style = "height:14px;"),
-          plotlyOutput("interim_position_plot", height = "260px"),
-          conditionalPanel(
-            condition = "input.show_interim_hints == true",
-            tags$p(
-              style = "font-size:11px; color:#718096; margin: 4px 0 18px; line-height:1.6;",
-              HTML(paste0(
-                "<span style='color:#e07b39; font-weight:600;'>--- NI boundary</span>",
-                "&nbsp;&nbsp;|&nbsp;&nbsp;",
-                "<span style='color:#718096;'>--- Reference (p\u2080 or zero diff.)</span>",
-                "&nbsp;&nbsp;|&nbsp;&nbsp;",
-                "<span style='color:#5b35d5; font-weight:600;'>\u25cf with bars</span>",
-                " = observed estimate \u00b1 95% CI"
-              ))
-            )
-          ),
-          conditionalPanel(
-            condition = "input.show_interim_calctbl != false",
-            uiOutput("interim_calc_table"),
-            tags$div(style = "height:18px;")
-          ),
-          conditionalPanel(
-            condition = "input.show_interim_citbl != false",
-            uiOutput("interim_ci_threshold_table")
-          ),
-          conditionalPanel(
-            condition = "input.show_interim_code == true",
-            uiOutput("interim_code_ui")
           )
         )
       )
@@ -1265,22 +850,11 @@ total_sample_size_prop_ci_power_1arm <- function(
                            letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
           tags$div(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_plot_delta",  "\u0394 plot",  value = FALSE),
-            checkboxInput("rpt_plot_p1",     "p\u2081 plot", value = FALSE),
-            checkboxInput("rpt_table_delta", "\u0394 table", value = FALSE),
-            checkboxInput("rpt_table_p1",    "p\u2081 table",value = FALSE)
+            checkboxInput("rpt_plot_p1",   "p\u2081 sensitivity plot",  value = FALSE),
+            checkboxInput("rpt_table_p1",  "p\u2081 sensitivity table", value = FALSE)
           ),
           
-          tags$p("Interim Analysis",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
-          tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_interim_summ",   "Data summary",   value = FALSE),
-            checkboxInput("rpt_interim_interp", "Interpretation", value = FALSE),
-            checkboxInput("rpt_interim_ci",     "CI comparison",  value = FALSE),
-            checkboxInput("rpt_interim_plot",   "Position plot",  value = FALSE)
-          ),
+          
           
           tags$div(
             style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
@@ -1354,7 +928,6 @@ total_sample_size_prop_ci_power_1arm <- function(
                            border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
                   tags$option(value = "default",    "Default \u2014 single-arm, device success rate"),
                   tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
-                  tags$option(value = "two_arm",    "Two-arm \u2014 risk difference framing"),
                   tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
                   tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
                   tags$option(value = "blank",      "Blank \u2014 start from scratch")
@@ -1396,10 +969,9 @@ total_sample_size_prop_ci_power_1arm <- function(
                   list(tag = "{n_dropout}",   label = "n (dropout)"),
                   list(tag = "{n_successes}", label = "n-successes"),
                   list(tag = "{power_pct}",   label = "Power %"),
-                  list(tag = "{p0_pct}",      label = "p\u2080 %"),
-                  list(tag = "{p1_pct}",      label = "p\u2081 %"),
+                  list(tag = "{pg_pct}",      label = "PG %"),
+                  list(tag = "{pd_pct}",      label = "device rate %"),
                   list(tag = "{alpha}",       label = "\u03b1"),
-                  list(tag = "{delta}",       label = "\u0394"),
                   list(tag = "{ci_method}",   label = "CI method"),
                   list(tag = "{dropout_pct}", label = "Dropout %")
                 ),
@@ -1453,7 +1025,6 @@ total_sample_size_prop_ci_power_1arm <- function(
       btn.style.borderColor  = window.pgpHintsOn ? '#5b35d5' : '#e2e8f0';
       if (window.Shiny) {
         Shiny.setInputValue('show_calc_hints',    window.pgpHintsOn, {priority: 'event'});
-        Shiny.setInputValue('show_interim_hints', window.pgpHintsOn, {priority: 'event'});
       }
     };
 
@@ -1538,9 +1109,7 @@ total_sample_size_prop_ci_power_1arm <- function(
     // -- Include checkboxes --------------------------------------------------
     var pgpIncludeIds = [
         'rpt_results','rpt_interp_inc','rpt_ci_compare','rpt_definitions',
-        'rpt_calc_code','rpt_n_box','rpt_plot_delta','rpt_plot_p1',
-        'rpt_table_delta','rpt_table_p1','rpt_interim_summ','rpt_interim_interp',
-        'rpt_interim_ci','rpt_interim_plot'
+        'rpt_calc_code','rpt_n_box','rpt_plot_p1','rpt_table_p1'
       ];
 
     window.pgpTickAllIncludes = function() {
@@ -1565,10 +1134,7 @@ total_sample_size_prop_ci_power_1arm <- function(
       var defaults = {
         'rpt_results': true, 'rpt_interp_inc': true, 'rpt_ci_compare': false,
         'rpt_definitions': true, 'rpt_calc_code': true, 'rpt_n_box': false,
-        'rpt_plot_delta': false, 'rpt_plot_p1': false,
-        'rpt_table_delta': false, 'rpt_table_p1': false,
-        'rpt_interim_summ': false, 'rpt_interim_interp': false,
-        'rpt_interim_ci': false, 'rpt_interim_plot': false
+        'rpt_plot_p1': false, 'rpt_table_p1': false
       };
       Object.keys(defaults).forEach(function(id) {
         var cb = document.getElementById(id);
@@ -1581,11 +1147,11 @@ total_sample_size_prop_ci_power_1arm <- function(
     // -- Interpretation templates --------------------------------------------
     window.interpTemplates = {
       'blank':      '',
-      'default':    'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device success rate exceeds the performance goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients are free from a major adverse event at 12 months.',
-      'concise':    'A sample size of {n} patients provides {power_pct}% power (one-sided α = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, with an NI margin of Δ = {delta}, assuming a true device success rate of {p1_pct}%.',
-      'two_arm':    'A total of {n} patients are required to demonstrate non-inferiority of the treatment versus the control, with {power_pct}% power and a one-sided significance level of {alpha}. The assumed event rates are {p1_pct}% (treatment) and {p0_pct}% (control), with a non-inferiority margin of {delta} on the risk difference scale. Allowing for {dropout_pct}% dropout, {n_dropout} patients should be enrolled.',
-      'regulatory': 'The study is designed as a single-arm, non-inferiority study comparing the device success rate to an objective performance criterion (OPC) of {p0_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the lower bound of the {ci_method} confidence interval for the device success rate exceeds the performance goal less the non-inferiority margin ({delta}). Accounting for a {dropout_pct}% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve procedural success.',
-      'safety':     'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided α = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% and an acceptable margin of {delta}. With an anticipated dropout rate of {dropout_pct}%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients.'
+      'default':    'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device rate meets the performance goal of {pg_pct}%, assuming a true device rate of {pd_pct}%. Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients achieve the primary endpoint.',
+      'concise':    'A sample size of {n} patients provides {power_pct}% power (one-sided α = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, assuming a true device success rate of {p1_pct}%.',
+      
+      'regulatory': 'The study is designed as a single-arm performance goal study comparing the device rate to an objective performance criterion (OPC) of {pg_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the {ci_method} confidence interval bound for the device rate meets the performance goal. Accounting for a {dropout_pct}% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve the primary endpoint.',
+      'safety':     'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided α = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% . With an anticipated dropout rate of {dropout_pct}%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients.'
     };
 
     window.pgpSetInterp = function(txt) {
@@ -1624,11 +1190,7 @@ total_sample_size_prop_ci_power_1arm <- function(
       S.setInputValue('rpt_include_author', false, {priority: 'event'});
       S.setInputValue('report_format',      'pdf', {priority: 'event'});
 
-      S.setInputValue('interim_n',         0, {priority: 'event'});
-      S.setInputValue('interim_x',         0, {priority: 'event'});
-      S.setInputValue('interim_x_control', 0, {priority: 'event'});
 
-      window.pgpResetInterimSettings();
 
       window.pgpHintsOn = true;
       var lbl = document.getElementById('hints_toggle_label');
@@ -1636,7 +1198,6 @@ total_sample_size_prop_ci_power_1arm <- function(
       var btn = document.getElementById('hints_toggle_btn');
       if (btn) { btn.style.background = '#f0eeff'; btn.style.borderColor = '#5b35d5'; }
       S.setInputValue('show_calc_hints',    true, {priority: 'event'});
-      S.setInputValue('show_interim_hints', true, {priority: 'event'});
       // Reset plot colour to purple
       document.querySelectorAll('.pgp-swatch').forEach(function(s) { s.classList.remove('active'); });
       var ps = document.getElementById('swatch_purple');
@@ -1644,34 +1205,23 @@ total_sample_size_prop_ci_power_1arm <- function(
       S.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
     };
 
-    window.pgpResetInterimSettings = function() {
-      var S = window.Shiny;
-      if (!S) return;
-      S.setInputValue('show_interim_calctbl', true,  {priority: 'event'});
-      S.setInputValue('show_interim_citbl',   true,  {priority: 'event'});
-      S.setInputValue('show_interim_code',    false, {priority: 'event'});
-    };
+
 
     window.pgpResetCalculator = function() {
       var S = window.Shiny;
       if (!S) return;
-      S.setInputValue('prop_design',    'one_arm',  {priority: 'event'});
       S.setInputValue('endpoint',       'efficacy', {priority: 'event'});
       S.setInputValue('sig.level',      '0.025',    {priority: 'event'});
       S.setInputValue('power',          0.80,       {priority: 'event'});
-      S.setInputValue('r',              '1',        {priority: 'event'});
       S.setInputValue('ci_method_prop', 'wilson',   {priority: 'event'});
       S.setInputValue('showCompare',    false,      {priority: 'event'});
       S.setInputValue('p0.expected',    0.88,       {priority: 'event'});
       S.setInputValue('p1.expected',    0.93,       {priority: 'event'});
-      S.setInputValue('p1.tolerable',   0.05,       {priority: 'event'});
-      S.setInputValue('WindowMargin',   '0.05',     {priority: 'event'});
       S.setInputValue('sim_quality',    '1000',     {priority: 'event'});
       S.setInputValue('sim_seed',       1,          {priority: 'event'});
       S.setInputValue('show_calc_code', false,      {priority: 'event'});
       S.setInputValue('showNBox_prop',  true,       {priority: 'event'});
       S.setInputValue('showVline',      false,      {priority: 'event'});
-      S.setInputValue('showTable',      false,      {priority: 'event'});
       S.setInputValue('showTable2',     false,      {priority: 'event'});
       S.setInputValue('dropout_rate',   10,         {priority: 'event'});
     };
