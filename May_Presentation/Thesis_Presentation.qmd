@@ -259,7 +259,7 @@ Similar to Agresti-Coull but adds 0.5 successes and 0.5 failures
 
 Similar workflow to **Pires & Amado, 2008** paper: *Interval estimators for a binomial proportion: Comparison of twenty methods*
 
-evaluated under:
+Behaviour evaluated under:
 
 -   Coverage probability
 -   min coverage probability vs Sample size
@@ -349,17 +349,23 @@ coverage_plot_binom <- function(n          = 50,
 }
 ```
 
+How often does CI actually contain p?
+
 ```{r cp-n50, echo=FALSE, fig.cap="Coverage probability for each method as a function of p (n = 50, α = 0.05). The dashed red line marks the nominal 95% level."}
 coverage_plot_binom(n = 50)
 ```
 
 ## 
 
+What if we increase sample size?
+
 ```{r cp-n200, echo=FALSE, fig.cap="Coverage probability for each method as a function of p (n = 200, α = 0.05). The dashed red line marks the nominal 95% level."}
 coverage_plot_binom(n = 200)
 ```
 
 ## 
+
+Worst case performance?
 
 ```{r min-cp-function, echo=FALSE}
 # ============================================================
@@ -451,6 +457,8 @@ min_cp_vs_n_binom()
 
 ## 
 
+On average wide are the CIs?
+
 ```{r width-function, echo=FALSE}
 # ============================================================
 # FUNCTION: expected_width_vs_p_binom()
@@ -540,12 +548,12 @@ expected_width_vs_p_binom <- function(n          = 20,
 expected_width_vs_p_binom()
 ```
 
-## Interesting Insights
+## Insight Summary
 
 - Agresti–Coull interval appears to be a strong choice
 - Often less preferred than the Wilson interval in practice
 - Similar coverage with narrower intervals
-- 
+- [go deeper]
 
 
 # Sample size calculation
@@ -715,6 +723,8 @@ for (n in 1:max_n) {
 :::
 :::::
 
+[add 2 or 3 more methods]
+
 ##
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ################################################################
@@ -810,11 +820,13 @@ legend(
 )
 ```
 
+[mark the ~89 % power on plot clearly]
+
 # Shiny App
 
 ## 
 
-POSIT LINK:
+[POSIT LINK:]
 
 | Parameter | Value |
 |-----------|-------|
@@ -833,6 +845,7 @@ POSIT LINK:
 -   Internim analysis
 
 -   Synthetic Data
+
 
 ## References
 

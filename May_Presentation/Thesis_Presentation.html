@@ -310,7 +310,7 @@ X \sim \text{Binomial}(n, p)
 <section id="section-4" class="slide level2">
 <h2></h2>
 <p>Similar workflow to <strong>Pires &amp; Amado, 2008</strong> paper: <em>Interval estimators for a binomial proportion: Comparison of twenty methods</em></p>
-<p>evaluated under:</p>
+<p>Behaviour evaluated under:</p>
 <ul>
 <li>Coverage probability</li>
 <li>min coverage probability vs Sample size</li>
@@ -319,27 +319,31 @@ X \sim \text{Binomial}(n, p)
 </section>
 <section id="section-5" class="slide level2">
 <h2></h2>
+<p>How often does CI actually contain p?</p>
 
 <img data-src="Thesis_Presentation_files/figure-revealjs/cp-n50-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 50, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
 <section id="section-6" class="slide level2">
 <h2></h2>
+<p>What if we increase sample size?</p>
 
 <img data-src="Thesis_Presentation_files/figure-revealjs/cp-n200-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 200, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
 <section id="section-7" class="slide level2">
 <h2></h2>
+<p>Worst case performance?</p>
 
 <img data-src="Thesis_Presentation_files/figure-revealjs/min-cp-plot-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Minimum coverage probability across different sample sizes for each method. The dashed red line shows the nominal 95% level.</p></section>
 <section id="section-8" class="slide level2">
 <h2></h2>
+<p>On average wide are the CIs?</p>
 
 <img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
-<section id="interesting-insights" class="slide level2">
-<h2>Interesting Insights</h2>
+<section id="insight-summary" class="slide level2">
+<h2>Insight Summary</h2>
 <ul>
-<li><p>Wilson and Agresti-Coull are the best practical choices — they maintain near-nominal coverage even for small <span class="math inline">\(p\)</span>, without the excessive width of Clopper-Pearson</p></li>
-<li><p>Clopper-Pearson guarantees <span class="math inline">\(\geq 95\%\)</span> coverage but is conservative — its intervals are wider than necessary, which increases required sample size</p></li>
-<li><p>Wald interval fails badly at boundaries — undercoverage is severe for <span class="math inline">\(p &lt; 0.1\)</span>, making it unsuitable for clinical settings where event rates (e.g.&nbsp;TVR) are small</p></li>
-<li><p>Jeffreys interval performs comparably to Wilson, with slightly better behaviour at the boundaries — a good Bayesian-inspired alternative when approximate methods are acceptable</p></li>
+<li>Agresti–Coull interval appears to be a strong choice</li>
+<li>Often less preferred than the Wilson interval in practice</li>
+<li>Similar coverage with narrower intervals</li>
+<li></li>
 </ul>
 </section></section>
 <section>
@@ -401,6 +405,7 @@ X \sim \text{Binomial}(n, p)
 <p><strong>R EnvStats</strong> n = 220</p>
 <p><strong>R binom</strong> n = 256</p>
 </div></div>
+<p>[add 2 or 3 more methods]</p>
 </section>
 <section id="section-11" class="slide level2">
 <h2></h2>
@@ -413,7 +418,7 @@ X \sim \text{Binomial}(n, p)
 </section>
 <section id="section-12" class="slide level2">
 <h2></h2>
-<p>POSIT LINK:</p>
+<p>[POSIT LINK:]</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
