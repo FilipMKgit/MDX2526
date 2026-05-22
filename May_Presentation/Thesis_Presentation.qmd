@@ -33,25 +33,24 @@ Overview
 
 ## Problem
 
-::::: columns
-
+::::::: columns
 ::: {.column width="30%"}
 ![](images/complications_image.png){width="100%"}
 
 **Complications** = lower boundary
 :::
 
-::: {.column width="10%"}
-<div style="border-left: 2px solid gray; height: 100%; margin: auto;"></div>
+:::: {.column width="10%"}
+::: {style="border-left: 2px solid gray; height: 100%; margin: auto;"}
 :::
+::::
 
 ::: {.column width="45%"}
 ![](images/success_image.jpg){width="100%"}
 
 **High Success Rate** = upper boundary
 :::
-
-:::::
+:::::::
 
 ## Wald's confidence interval
 
@@ -63,11 +62,12 @@ $$
 ::: {.column width="25%"}
 ![](images/clipboard-1473646001.jpeg){width="100%"}
 :::
+
 ::: {.column width="75%"}
-- **Violated symmetry assumption** underlying the normal approximation
-- Narrow CI
-- Extend beyond the [0,1] range
-- Substantial **undercoverage**
+-   **Violated symmetry assumption** underlying the normal approximation
+-   Narrow CI
+-   Extend beyond the \[0,1\] range
+-   Substantial **undercoverage**
 :::
 :::::
 
@@ -220,6 +220,7 @@ $$
 
 -   AKA exact binomial confidence interval
 -   based directly on the binomial probability model
+-   Finds range of true p that would make the observed result x plausible
 
 $$
 X \sim \text{Binomial}(n, p)
@@ -237,7 +238,7 @@ Similar to wald but uses a score based interval
 
 Score based interval = CI made by testing which true proportions are reasonable
 
-(only keeps values of p0 that are not rejected)
+i.e. values of p that beat the PG
 
 ## Jeffrey Interval
 
@@ -255,7 +256,7 @@ Starts with a weak prior belief on p
 
 Similar to Agresti-Coull but adds 0.5 successes and 0.5 failures
 
-##
+## 
 
 Similar workflow to **Pires & Amado, 2008** paper: *Interval estimators for a binomial proportion: Comparison of twenty methods*
 
@@ -550,15 +551,14 @@ expected_width_vs_p_binom()
 
 ## Insight Summary
 
-- Agresti–Coull interval appears to be a strong choice
-- Often less preferred than the Wilson interval in practice
-- Similar coverage with narrower intervals
-- [go deeper]
-
+-   Agresti–Coull interval appears to be a strong choice
+-   Often less preferred than the Wilson interval in practice
+-   Similar coverage with narrower intervals
+-   \[go deeper\]
 
 # Sample size calculation
 
-##
+## 
 
 ```{r include=FALSE, echo=FALSE}
 
@@ -684,20 +684,21 @@ for (n in 1:max_n) {
 }
 ```
 
-| Parameter | Value |
-|-----------|-------|
-| Endpoint | 30-Day TVR |
-| $\alpha$ (one-sided) | 0.025 |
-| Power | 90% |
-| Performance Goal (PG) | 0.11 |
-| Expected Rate (P1) | 0.05 |
+| Parameter             | Value      |
+|-----------------------|------------|
+| Endpoint              | 30-Day TVR |
+| $\alpha$ (one-sided)  | 0.025      |
+| Power                 | 90%        |
+| Performance Goal (PG) | 0.11       |
+| Expected Rate (P1)    | 0.05       |
 
-##
+## 
 
 ::::: columns
 ::: {.column width="20%"}
 ![](images/ncss_pass_logo.jpg)
 :::
+
 ::: {.column width="80%"}
 **NCSS PASS** n = 220
 :::
@@ -707,6 +708,7 @@ for (n in 1:max_n) {
 ::: {.column width="20%"}
 ![](images/nqueryimage.PNG)
 :::
+
 ::: {.column width="80%"}
 **nQuery** n = 232
 :::
@@ -716,6 +718,7 @@ for (n in 1:max_n) {
 ::: {.column width="20%"}
 ![](images/rimage.png)
 :::
+
 ::: {.column width="80%"}
 **R EnvStats** n = 220
 
@@ -723,9 +726,10 @@ for (n in 1:max_n) {
 :::
 :::::
 
-[add 2 or 3 more methods]
+\[add 2 or 3 more methods\]
 
-##
+## 
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ################################################################
 #plot sample size comparison
@@ -820,21 +824,21 @@ legend(
 )
 ```
 
-[mark the ~89 % power on plot clearly]
+\[mark the \~89 % power on plot clearly\]
 
 # Shiny App
 
 ## 
 
-[POSIT LINK:]
+\[POSIT LINK:\]
 
-| Parameter | Value |
-|-----------|-------|
-| Endpoint | 30-Day TVR |
-| $\alpha$ (one-sided) | 0.025 |
-| Power | 90% |
-| Performance Goal (PG) | 0.11 |
-| Expected Rate (P1) | 0.05 |
+| Parameter             | Value      |
+|-----------------------|------------|
+| Endpoint              | 30-Day TVR |
+| $\alpha$ (one-sided)  | 0.025      |
+| Power                 | 90%        |
+| Performance Goal (PG) | 0.11       |
+| Expected Rate (P1)    | 0.05       |
 
 ## Final steps
 
@@ -846,10 +850,7 @@ legend(
 
 -   Synthetic Data
 
-
 ## References
-
-
 
 ## Thank you for your attention!
 

@@ -278,6 +278,7 @@ n+4
 <ul>
 <li>AKA exact binomial confidence interval</li>
 <li>based directly on the binomial probability model</li>
+<li>Finds range of true p that would make the observed result x plausible</li>
 </ul>
 <p><span class="math display">\[
 X \sim \text{Binomial}(n, p)
@@ -292,7 +293,7 @@ X \sim \text{Binomial}(n, p)
 \]</span></p>
 <p>Similar to wald but uses a score based interval</p>
 <p>Score based interval = CI made by testing which true proportions are reasonable</p>
-<p>(only keeps values of p0 that are not rejected)</p>
+<p>i.e.&nbsp;values of p that beat the PG</p>
 </section>
 <section id="jeffrey-interval" class="slide level2">
 <h2>Jeffrey Interval</h2>
@@ -343,7 +344,7 @@ X \sim \text{Binomial}(n, p)
 <li>Agresti–Coull interval appears to be a strong choice</li>
 <li>Often less preferred than the Wilson interval in practice</li>
 <li>Similar coverage with narrower intervals</li>
-<li></li>
+<li>[go deeper]</li>
 </ul>
 </section></section>
 <section>
@@ -410,7 +411,8 @@ X \sim \text{Binomial}(n, p)
 <section id="section-11" class="slide level2">
 <h2></h2>
 
-<img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"></section></section>
+<img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"><p>[mark the ~89 % power on plot clearly]</p>
+</section></section>
 <section>
 <section id="shiny-app" class="title-slide slide level1 center">
 <h1>Shiny App</h1>
