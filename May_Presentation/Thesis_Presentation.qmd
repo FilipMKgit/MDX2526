@@ -542,13 +542,11 @@ expected_width_vs_p_binom()
 
 ## Interesting Insights
 
-- Wilson and Agresti-Coull are the best practical choices — they maintain near-nominal coverage even for small $p$, without the excessive width of Clopper-Pearson
+- Agresti–Coull interval appears to be a strong choice
+- Often less preferred than the Wilson interval in practice
+- Similar coverage with narrower intervals
+- 
 
-- Clopper-Pearson guarantees $\geq 95\%$ coverage but is conservative — its intervals are wider than necessary, which increases required sample size
-
-- Wald interval fails badly at boundaries — undercoverage is severe for $p < 0.1$, making it unsuitable for clinical settings where event rates (e.g. TVR) are small
-
-- Jeffreys interval performs comparably to Wilson, with slightly better behaviour at the boundaries — a good Bayesian-inspired alternative when approximate methods are acceptable
 
 # Sample size calculation
 

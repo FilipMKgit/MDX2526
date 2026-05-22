@@ -582,458 +582,459 @@ ui <- fluidPage(
                          "All methods run a binom CI simulation search. Wilson is the recommended default; Clopper-Pearson is the most conservative.",
                          style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
                        )
-                     ),
-                   ),  # end z-index wrapper
-                   
-                   acc_panel(
-                     id      = "acc_props",
-                     heading = "Proportions",
-                     open    = TRUE,
-                     
-                     sliderInput("p0.expected",
-                                 "Performance goal (PG):",
-                                 min = 0.00, max = 1.00, step = 0.01, value = 0.88),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true",
-                       tags$p("The pre-specified benchmark rate the device must meet or exceed. Typically sourced from published literature, prior device data, or a regulatory guidance document.",
-                              style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
-                     ),
-                     
-                     sliderInput("p1.expected",
-                                 "Expected device rate:",
-                                 min = 0.00, max = 1.00, step = 0.01, value = 0.93),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true",
-                       tags$p("The true rate you expect the device to achieve. Must be more favourable than the performance goal for the study to be achievable.",
-                              style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
                      )
-                   ),
-                   
-                   acc_panel(
-                     id      = "acc_sim",
-                     heading = "Simulation Settings",
-                     open    = FALSE,
-                     selectInput(
-                       "sim_quality", "Simulation quality",
-                       choices = c(
-                         "Fast (400 sims)"       = 400,
-                         "Normal (1 000 sims)"   = 1000,
-                         "Accurate (3 000 sims)" = 3000
-                       ),
-                       selected = 1000
-                     ),
-                     numericInput("sim_seed", "Simulation seed", value = 1, min = 1, step = 1)
-                   ),
-                   
-                   acc_panel(
-                     id      = "acc_other",
-                     heading = "Other Settings",
-                     open    = FALSE,
-                     
-                     checkboxInput("show_calc_code",   "Show calculation code",                      value = FALSE),
-                     checkboxInput("showNBox_prop",   "Show n result box",                          value = TRUE),
-                     checkboxInput("showVline",       "Show crosshair at required n",               value = TRUE),
-                     checkboxInput("showCIDiagram",   "Show CI diagram",                            value = FALSE),
-                     checkboxInput("showAllCI",       "Show all CI methods in diagram",             value = FALSE),
-                     checkboxInput("showPowerTable",  "Show power vs n table",                      value = FALSE),
-                     checkboxInput("showTable2",      "Show device rate sensitivity plot and table", value = FALSE),
-                     
-                     tags$hr(class = "pgp-hr"),
-                     
-                     tags$label(
-                       style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
-                       "Power plot range (± n around required n)"
-                     ),
-                     sliderInput(
-                       "power_plot_range",
-                       label  = NULL,
-                       min    = 10, max    = 300,
-                       step   = 10, value = 50,
-                       ticks  = FALSE
-                     ),
-                     
-                     tags$hr(class = "pgp-hr"),
-                     
-                     # Dropout rate slider
-                     tags$label(
-                       style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
-                       "Dropout rate for enrolment estimate (%)"
-                     ),
-                     sliderInput(
-                       "dropout_rate",
-                       label  = NULL,
-                       min    = 1, max = 20,
-                       step   = 1, value = 10,
-                       ticks  = FALSE
-                     ),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true",
-                       tags$p(
-                         "Used to inflate n to account for expected dropout. Enrolment target = n / (1 \u2212 dropout%).",
-                         style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
-                       )
-                     ),
-                     
-                     
-                     tags$div(
-                       class = "dl-btn-col",
-                       style = "margin-top: 10px;",
-                       downloadButton("downloadPowerTable", "↓ Download power table (.csv)",
-                                      class = "btn-sm btn-outline-primary pgp-btn"),
-                       downloadButton("downloadData_plot2", "↓ Download sensitivity table",
-                                      class = "btn-sm btn-outline-primary pgp-btn"),
-                       downloadButton("downloadPlot2",      "↓ Download sensitivity plot",
-                                      class = "btn-sm btn-outline-primary pgp-btn")
-                     ),
-                     
-                     tags$div(
-                       style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
-                       tags$button(
-                         class   = "btn btn-sm btn-outline-secondary",
-                         style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
-                         onclick = "pgpResetCalculator();",
-                         "\u21ba Defaults"
-                       )
-                     )
-                   )
-          ),
+                   ),  # end acc_panel acc_design
+          ),  # end z-index wrapper
           
-          column(
-            width = 8,
-            class = "main-right pgp-main",
+          acc_panel(
+            id      = "acc_props",
+            heading = "Proportions",
+            open    = TRUE,
             
+            sliderInput("p0.expected",
+                        "Performance goal (PG):",
+                        min = 0.00, max = 1.00, step = 0.01, value = 0.88),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p("Power vs sample size for the current performance goal and device rate. The orange dot marks the required n and the dashed line is the target power.",
-                     style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
+              tags$p("The pre-specified benchmark rate the device must meet or exceed. Typically sourced from published literature, prior device data, or a regulatory guidance document.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
-            plotlyOutput("plot_power", height = "380px"),
-            uiOutput("n_box_prop"),
-            tags$div(style = "height:22px;"),
+            
+            sliderInput("p1.expected",
+                        "Expected device rate:",
+                        min = 0.00, max = 1.00, step = 0.01, value = 0.93),
             conditionalPanel(
-              condition = "input.showTable2 == true",
-              plotlyOutput("plot2", height = "380px"),
-              tags$div(style = "height:12px;")
-            ),
-            uiOutput("compare_section"),
-            conditionalPanel(
-              condition = "input.showCIDiagram == true",
-              tags$div(style = "height:16px;"),
-              uiOutput("ci_diagram_wrapper")
-            ),
-            conditionalPanel(
-              condition = "input.showPowerTable == true",
-              tags$div(style = "height:16px;"),
-              uiOutput("power_table_ui")
-            ),
-            conditionalPanel(
-              condition = "input.showTable2 == true",
-              tags$div(style = "height:8px;"),
-              DTOutput("dataTable2")
-            ),
-            conditionalPanel(
-              condition = "input.show_calc_code == true",
-              uiOutput("calc_code_ui")
+              condition = "input.show_calc_hints == true",
+              tags$p("The true rate you expect the device to achieve. Must be more favourable than the performance goal for the study to be achievable.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             )
-          )
-        )
-      ),
-      
-      # --------------------------------------------------------------------------
-      # Tab 4 - Generate Report
-      # --------------------------------------------------------------------------
-      tabPanel(
-        title = "Generate Report",
-        
-        tags$div(
-          class = "report-panel",
+          ),
           
-          tags$div(
-            class = "report-export-row",
+          acc_panel(
+            id      = "acc_sim",
+            heading = "Simulation Settings",
+            open    = FALSE,
+            selectInput(
+              "sim_quality", "Simulation quality",
+              choices = c(
+                "Fast (400 sims)"       = 400,
+                "Normal (1 000 sims)"   = 1000,
+                "Accurate (3 000 sims)" = 3000
+              ),
+              selected = 1000
+            ),
+            numericInput("sim_seed", "Simulation seed", value = 1, min = 1, step = 1)
+          ),
+          
+          acc_panel(
+            id      = "acc_other",
+            heading = "Other Settings",
+            open    = FALSE,
+            
+            checkboxInput("show_calc_code",   "Show calculation code",                      value = FALSE),
+            checkboxInput("showNBox_prop",   "Show n result box",                          value = TRUE),
+            checkboxInput("showVline",       "Show crosshair at required n",               value = TRUE),
+            checkboxInput("showCIDiagram",   "Show CI diagram",                            value = FALSE),
+            checkboxInput("showAllCI",       "Show all CI methods in diagram",             value = FALSE),
+            checkboxInput("showPowerTable",  "Show power vs n table",                      value = FALSE),
+            checkboxInput("showTable2",      "Show device rate sensitivity plot and table", value = FALSE),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            tags$label(
+              style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
+              "Power plot range (± n around required n)"
+            ),
+            sliderInput(
+              "power_plot_range",
+              label  = NULL,
+              min    = 10, max    = 300,
+              step   = 10, value = 50,
+              ticks  = FALSE
+            ),
+            
+            tags$hr(class = "pgp-hr"),
+            
+            # Dropout rate slider
+            tags$label(
+              style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
+              "Dropout rate for enrolment estimate (%)"
+            ),
+            sliderInput(
+              "dropout_rate",
+              label  = NULL,
+              min    = 1, max = 20,
+              step   = 1, value = 10,
+              ticks  = FALSE
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints == true",
+              tags$p(
+                "Used to inflate n to account for expected dropout. Enrolment target = n / (1 \u2212 dropout%).",
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
+            ),
+            
             
             tags$div(
-              class = "report-export-left",
-              tags$div(
-                style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
-                radioButtons(
-                  "report_format", label = NULL,
-                  choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
-                  selected = "pdf", inline = TRUE
-                ),
-                uiOutput("report_download_ui")
+              class = "dl-btn-col",
+              style = "margin-top: 10px;",
+              downloadButton("downloadPowerTable", "↓ Download power table (.csv)",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadData_plot2", "↓ Download sensitivity table",
+                             class = "btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlot2",      "↓ Download sensitivity plot",
+                             class = "btn-sm btn-outline-primary pgp-btn")
+            ),
+            
+            tags$div(
+              style = "margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; padding:4px 14px; border-color:#e2e8f0; color:#374151;",
+                onclick = "pgpResetCalculator();",
+                "\u21ba Defaults"
+              )
+            )
+          )
+        ),
+        
+        column(
+          width = 8,
+          class = "main-right pgp-main",
+          
+          conditionalPanel(
+            condition = "input.show_calc_hints == true",
+            tags$p("Power vs sample size for the current performance goal and device rate. The orange dot marks the required n and the dashed line is the target power.",
+                   style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
+          ),
+          plotlyOutput("plot_power", height = "380px"),
+          uiOutput("n_box_prop"),
+          tags$div(style = "height:22px;"),
+          conditionalPanel(
+            condition = "input.showTable2 == true",
+            plotlyOutput("plot2", height = "380px"),
+            tags$div(style = "height:12px;")
+          ),
+          uiOutput("compare_section"),
+          conditionalPanel(
+            condition = "input.showCIDiagram == true",
+            tags$div(style = "height:16px;"),
+            uiOutput("ci_diagram_wrapper")
+          ),
+          conditionalPanel(
+            condition = "input.showPowerTable == true",
+            tags$div(style = "height:16px;"),
+            uiOutput("power_table_ui")
+          ),
+          conditionalPanel(
+            condition = "input.showTable2 == true",
+            tags$div(style = "height:8px;"),
+            DTOutput("dataTable2")
+          ),
+          conditionalPanel(
+            condition = "input.show_calc_code == true",
+            uiOutput("calc_code_ui")
+          )
+        )
+      )
+    ),
+    
+    # --------------------------------------------------------------------------
+    # Tab 4 - Generate Report
+    # --------------------------------------------------------------------------
+    tabPanel(
+      title = "Generate Report",
+      
+      tags$div(
+        class = "report-panel",
+        
+        tags$div(
+          class = "report-export-row",
+          
+          tags$div(
+            class = "report-export-left",
+            tags$div(
+              style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
+              radioButtons(
+                "report_format", label = NULL,
+                choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
+                selected = "pdf", inline = TRUE
               ),
-              tags$p(
-                class = "report-note",
-                style = "margin-top:6px;",
-                "Report is built from your current Calculator tab inputs."
+              uiOutput("report_download_ui")
+            ),
+            tags$p(
+              class = "report-note",
+              style = "margin-top:6px;",
+              "Report is built from your current Calculator tab inputs."
+            )
+          ),
+          
+          tags$div(
+            class = "report-export-right",
+            tags$p(style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                            letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
+                   "Report contents"),
+            uiOutput("report_contents_ui")
+          )
+        ),
+        
+        # Title & Header
+        acc_panel(
+          id = "acc_rpt_header", heading = "Title & Header", open = FALSE,
+          
+          tags$div(
+            style = "display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
+            tags$div(
+              style = "flex:1 1 auto; min-width:180px;",
+              tags$label(
+                style = "font-size:11px; font-weight:700; text-transform:uppercase;
+                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                "Title template"
+              ),
+              tags$select(
+                id    = "title_template_select",
+                class = "form-control",
+                style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                tags$option(value = "default",  "Default \u2014 PG-Power Sample Size Report"),
+                tags$option(value = "study",    "Study protocol title"),
+                tags$option(value = "clinical", "Clinical investigation title"),
+                tags$option(value = "stats",    "Statistical analysis plan title"),
+                tags$option(value = "blank",    "Blank \u2014 enter your own")
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpLoadTitleTemplate();",
+                "\u21ba Load template"
+              )
+            ),
+            tags$div(
+              style = "flex:0 0 auto; padding-top:20px;",
+              tags$button(
+                class   = "btn btn-sm btn-outline-secondary",
+                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
+                           color:#374151; white-space:nowrap;",
+                onclick = "pgpRestoreTitleDefault();",
+                "\u21ba Defaults"
+              )
+            )
+          ),
+          
+          textInput(
+            "rpt_title", label = "Report title",
+            value       = "PG-Power \u2014 Sample Size Report",
+            placeholder = "Report title..."
+          ),
+          
+          tags$div(
+            style = "display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
+            checkboxInput("rpt_include_date",   "Include generation date", value = TRUE),
+            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE),
+            checkboxInput("rpt_include_author", "Include author name",     value = FALSE)
+          ),
+          
+          conditionalPanel(
+            condition = "input.rpt_include_author == true",
+            textInput(
+              "rpt_author_name", label = NULL,
+              value = "", placeholder = "Author name..."
+            )
+          )
+        ),
+        
+        # Include in Report
+        acc_panel(
+          id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
+          
+          tags$p("General",
+                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
+          tags$div(
+            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_results",      "Results table",         value = TRUE),
+            checkboxInput("rpt_interp_inc",   "Interpretation",        value = TRUE),
+            checkboxInput("rpt_definitions",  "Definitions",           value = TRUE),
+            checkboxInput("rpt_calc_code",    "Calculation code",      value = TRUE),
+            checkboxInput("rpt_ci_compare",   "CI comparison table",   value = FALSE),
+            checkboxInput("rpt_n_box",        "Full n summary table",  value = FALSE)
+          ),
+          
+          tags$p("Plots & tables",
+                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
+          tags$div(
+            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_ci_diagram", "CI diagram",                   value = FALSE),
+            checkboxInput("rpt_plot_power", "Power vs n plot",              value = FALSE),
+            checkboxInput("rpt_plot_p1",    "Device rate sensitivity plot", value = FALSE),
+            checkboxInput("rpt_table_p1",   "Device rate sensitivity table",value = FALSE)
+          ),
+          
+          
+          
+          tags$div(
+            style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
+                     display:flex; gap:6px; flex-wrap:wrap;",
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpRestoreIncludes();",
+              "\u21ba Defaults"
+            ),
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpTickAllIncludes();",
+              "\u2713 Tick all"
+            ),
+            tags$button(
+              class   = "btn btn-sm btn-outline-secondary",
+              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+              onclick = "pgpUntickAllIncludes();",
+              "\u2715 Untick all"
+            )
+          )
+        ),
+        
+        # Interpretation
+        acc_panel(
+          id = "acc_rpt_interp", heading = "Interpretation", open = FALSE,
+          
+          tags$div(
+            style = "margin-top:4px;",
+            
+            # Collapsible current calculator values panel
+            tags$div(
+              style = "margin-bottom:14px;",
+              tags$div(
+                style = "display:flex; align-items:center; justify-content:space-between;
+                         background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
+                         padding:8px 14px; cursor:pointer;",
+                onclick = "pgpToggleCalcSummary(this);",
+                tags$span(
+                  style = "font-size:12px; font-weight:600; color:#374151;",
+                  "Current calculator values"
+                ),
+                tags$span(
+                  id    = "calc_summary_chevron",
+                  style = "font-size:11px; color:#64748b; transition:transform 0.2s;",
+                  "\u25be"
+                )
+              ),
+              tags$div(
+                id    = "calc_summary_body",
+                style = "display:none;",
+                uiOutput("rpt_calc_summary_ui")
               )
             ),
             
             tags$div(
-              class = "report-export-right",
-              tags$p(style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                            letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
-                     "Report contents"),
-              uiOutput("report_contents_ui")
-            )
-          ),
-          
-          # Title & Header
-          acc_panel(
-            id = "acc_rpt_header", heading = "Title & Header", open = FALSE,
-            
-            tags$div(
-              style = "display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
+              style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
               tags$div(
                 style = "flex:1 1 auto; min-width:180px;",
                 tags$label(
                   style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
-                  "Title template"
+                            letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                  "Template"
                 ),
                 tags$select(
-                  id    = "title_template_select",
+                  id    = "interp_template_select",
                   class = "form-control",
                   style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
-                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
-                  tags$option(value = "default",  "Default \u2014 PG-Power Sample Size Report"),
-                  tags$option(value = "study",    "Study protocol title"),
-                  tags$option(value = "clinical", "Clinical investigation title"),
-                  tags$option(value = "stats",    "Statistical analysis plan title"),
-                  tags$option(value = "blank",    "Blank \u2014 enter your own")
+                           border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                  tags$option(value = "default",    "Default \u2014 single-arm, device success rate"),
+                  tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
+                  tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
+                  tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
+                  tags$option(value = "blank",      "Blank \u2014 start from scratch")
                 )
               ),
               tags$div(
                 style = "flex:0 0 auto; padding-top:20px;",
                 tags$button(
+                  id      = "interp_load_template",
                   class   = "btn btn-sm btn-outline-secondary",
                   style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
-                  onclick = "pgpLoadTitleTemplate();",
+                             color:#374151; white-space:nowrap;",
+                  onclick = "pgpLoadTemplate();",
                   "\u21ba Load template"
                 )
               ),
               tags$div(
                 style = "flex:0 0 auto; padding-top:20px;",
                 tags$button(
+                  id      = "interp_restore_default",
                   class   = "btn btn-sm btn-outline-secondary",
                   style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
-                  onclick = "pgpRestoreTitleDefault();",
+                             color:#374151; white-space:nowrap;",
+                  onclick = "pgpRestoreDefault();",
                   "\u21ba Defaults"
                 )
               )
             ),
             
-            textInput(
-              "rpt_title", label = "Report title",
-              value       = "PG-Power \u2014 Sample Size Report",
-              placeholder = "Report title..."
+            tags$p(
+              style = "font-size:11.5px; color:#64748b; margin-bottom:6px;",
+              "Insert live values into your text using these tags:"
             ),
-            
             tags$div(
-              style = "display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
-              checkboxInput("rpt_include_date",   "Include generation date", value = TRUE),
-              checkboxInput("rpt_include_method", "Include CI method",       value = TRUE),
-              checkboxInput("rpt_include_author", "Include author name",     value = FALSE)
-            ),
-            
-            conditionalPanel(
-              condition = "input.rpt_include_author == true",
-              textInput(
-                "rpt_author_name", label = NULL,
-                value = "", placeholder = "Author name..."
-              )
-            )
-          ),
-          
-          # Include in Report
-          acc_panel(
-            id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
-            
-            tags$p("General",
-                   style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
-            tags$div(
-              style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-              checkboxInput("rpt_results",      "Results table",         value = TRUE),
-              checkboxInput("rpt_interp_inc",   "Interpretation",        value = TRUE),
-              checkboxInput("rpt_definitions",  "Definitions",           value = TRUE),
-              checkboxInput("rpt_calc_code",    "Calculation code",      value = TRUE),
-              checkboxInput("rpt_ci_compare",   "CI comparison table",   value = FALSE),
-              checkboxInput("rpt_n_box",        "Full n summary table",  value = FALSE)
-            ),
-            
-            tags$p("Plots & tables",
-                   style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
-            tags$div(
-              style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-              checkboxInput("rpt_ci_diagram", "CI diagram",                   value = FALSE),
-              checkboxInput("rpt_plot_power", "Power vs n plot",              value = FALSE),
-              checkboxInput("rpt_plot_p1",    "Device rate sensitivity plot", value = FALSE),
-              checkboxInput("rpt_table_p1",   "Device rate sensitivity table",value = FALSE)
-            ),
-            
-            
-            
-            tags$div(
-              style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
-                     display:flex; gap:6px; flex-wrap:wrap;",
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-                onclick = "pgpRestoreIncludes();",
-                "\u21ba Defaults"
-              ),
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-                onclick = "pgpTickAllIncludes();",
-                "\u2713 Tick all"
-              ),
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-                onclick = "pgpUntickAllIncludes();",
-                "\u2715 Untick all"
-              )
-            )
-          ),
-          
-          # Interpretation
-          acc_panel(
-            id = "acc_rpt_interp", heading = "Interpretation", open = FALSE,
-            
-            tags$div(
-              style = "margin-top:4px;",
-              
-              # Collapsible current calculator values panel
-              tags$div(
-                style = "margin-bottom:14px;",
-                tags$div(
-                  style = "display:flex; align-items:center; justify-content:space-between;
-                         background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
-                         padding:8px 14px; cursor:pointer;",
-                  onclick = "pgpToggleCalcSummary(this);",
-                  tags$span(
-                    style = "font-size:12px; font-weight:600; color:#374151;",
-                    "Current calculator values"
-                  ),
-                  tags$span(
-                    id    = "calc_summary_chevron",
-                    style = "font-size:11px; color:#64748b; transition:transform 0.2s;",
-                    "\u25be"
-                  )
+              style = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;",
+              tagList(lapply(
+                list(
+                  list(tag = "{n}",           label = "n"),
+                  list(tag = "{n_dropout}",   label = "n (dropout)"),
+                  list(tag = "{n_successes}", label = "n-successes"),
+                  list(tag = "{power_pct}",   label = "Power %"),
+                  list(tag = "{pg_pct}",      label = "PG %"),
+                  list(tag = "{pd_pct}",      label = "device rate %"),
+                  list(tag = "{alpha}",       label = "\u03b1"),
+                  list(tag = "{ci_method}",   label = "CI method"),
+                  list(tag = "{dropout_pct}", label = "Dropout %")
                 ),
-                tags$div(
-                  id    = "calc_summary_body",
-                  style = "display:none;",
-                  uiOutput("rpt_calc_summary_ui")
-                )
-              ),
-              
-              tags$div(
-                style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
-                tags$div(
-                  style = "flex:1 1 auto; min-width:180px;",
-                  tags$label(
-                    style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                            letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
-                    "Template"
-                  ),
-                  tags$select(
-                    id    = "interp_template_select",
-                    class = "form-control",
-                    style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
-                           border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
-                    tags$option(value = "default",    "Default \u2014 single-arm, device success rate"),
-                    tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
-                    tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
-                    tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
-                    tags$option(value = "blank",      "Blank \u2014 start from scratch")
+                function(v) {
+                  ins <- v$tag
+                  js  <- paste0(
+                    "var ta=document.getElementById(\"rpt_interp_text\");",
+                    "var s=ta.selectionStart,e=ta.selectionEnd;",
+                    "var ins=\"", ins, "\";",
+                    "ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);",
+                    "ta.selectionStart=ta.selectionEnd=s+ins.length;",
+                    "ta.focus();",
+                    "Shiny.setInputValue(\"rpt_interp_text\",ta.value,{priority:\"event\"});"
                   )
-                ),
-                tags$div(
-                  style = "flex:0 0 auto; padding-top:20px;",
-                  tags$button(
-                    id      = "interp_load_template",
-                    class   = "btn btn-sm btn-outline-secondary",
-                    style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                             color:#374151; white-space:nowrap;",
-                    onclick = "pgpLoadTemplate();",
-                    "\u21ba Load template"
-                  )
-                ),
-                tags$div(
-                  style = "flex:0 0 auto; padding-top:20px;",
-                  tags$button(
-                    id      = "interp_restore_default",
-                    class   = "btn btn-sm btn-outline-secondary",
-                    style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                             color:#374151; white-space:nowrap;",
-                    onclick = "pgpRestoreDefault();",
-                    "\u21ba Defaults"
-                  )
-                )
-              ),
-              
-              tags$p(
-                style = "font-size:11.5px; color:#64748b; margin-bottom:6px;",
-                "Insert live values into your text using these tags:"
-              ),
-              tags$div(
-                style = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;",
-                tagList(lapply(
-                  list(
-                    list(tag = "{n}",           label = "n"),
-                    list(tag = "{n_dropout}",   label = "n (dropout)"),
-                    list(tag = "{n_successes}", label = "n-successes"),
-                    list(tag = "{power_pct}",   label = "Power %"),
-                    list(tag = "{pg_pct}",      label = "PG %"),
-                    list(tag = "{pd_pct}",      label = "device rate %"),
-                    list(tag = "{alpha}",       label = "\u03b1"),
-                    list(tag = "{ci_method}",   label = "CI method"),
-                    list(tag = "{dropout_pct}", label = "Dropout %")
-                  ),
-                  function(v) {
-                    ins <- v$tag
-                    js  <- paste0(
-                      "var ta=document.getElementById(\"rpt_interp_text\");",
-                      "var s=ta.selectionStart,e=ta.selectionEnd;",
-                      "var ins=\"", ins, "\";",
-                      "ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);",
-                      "ta.selectionStart=ta.selectionEnd=s+ins.length;",
-                      "ta.focus();",
-                      "Shiny.setInputValue(\"rpt_interp_text\",ta.value,{priority:\"event\"});"
-                    )
-                    tags$button(v$label, class = "var-chip", onclick = js)
-                  }
-                ))
-              ),
-              
-              tags$textarea(
-                id          = "rpt_interp_text",
-                class       = "form-control interp-textarea",
-                rows        = "6",
-                placeholder = "Interpretation text...",
-                paste0(
-                  "A total of {n} evaluable patients are required to demonstrate, with ",
-                  "{power_pct}% power, that the device success rate exceeds the performance ",
-                  "goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. ",
-                  "Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. ",
-                  "The study will be deemed successful if at least {n_successes} out of {n} ",
-                  "evaluable patients are free from a major adverse event at 12 months."
-                )
+                  tags$button(v$label, class = "var-chip", onclick = js)
+                }
+              ))
+            ),
+            
+            tags$textarea(
+              id          = "rpt_interp_text",
+              class       = "form-control interp-textarea",
+              rows        = "6",
+              placeholder = "Interpretation text...",
+              paste0(
+                "A total of {n} evaluable patients are required to demonstrate, with ",
+                "{power_pct}% power, that the device success rate exceeds the performance ",
+                "goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. ",
+                "Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. ",
+                "The study will be deemed successful if at least {n_successes} out of {n} ",
+                "evaluable patients are free from a major adverse event at 12 months."
               )
             )
           )
         )
       )
-    ),
-    
-    # ── JavaScript ──────────────────────────────────────────────────────────────
-    tags$script(HTML("$(document).ready(function() {
+    )
+  ),
+  
+  # ── JavaScript ──────────────────────────────────────────────────────────────
+  tags$script(HTML("$(document).ready(function() {
 
 // -- Hints state (global, default ON) ------------------------------------
     window.pgpHintsOn = true;
@@ -1264,43 +1265,43 @@ ui <- fluidPage(
         'padding:24px 28px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.18);' +
         'max-width:380px;width:90%;font-family:DM Sans,sans-serif;';
       d.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
-        '  <span style="font-weight:700;font-size:14px;color:#1a2e35;">Source code</span>' +
-                       '  <button onclick="window.pgpClosePopup();" ' +
-                       '    style="background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;">&#x2715;</button>' +
-                       '</div>' +
-                       '<p style="font-size:12px;color:#374151;margin:0 0 14px;line-height:1.6;">' +
-                       'The full source code for PG-Power is available on GitHub.</p>' +
-                       '<a href="' + url + '" target="_blank" style="display:inline-flex;align-items:center;' +
-                       'gap:6px;background:#5b35d5;color:#fff;text-decoration:none;padding:8px 16px;' +
-                       'border-radius:7px;font-size:12px;font-weight:600;">&#x2197; Open on GitHub</a>' +
-                       '<button onclick="window.pgpClosePopup();" ' +
-                       'style="display:inline-block;margin-left:10px;background:none;border:1px solid #e2e8f0;' +
-                       'border-radius:7px;padding:8px 14px;font-size:12px;color:#374151;cursor:pointer;">Close</button>';
-                     document.body.appendChild(d);
-                     setTimeout(function() {
-                       document.addEventListener('click', function pgpClose(e) {
-                         if (!d.contains(e.target)) { d.remove(); document.removeEventListener('click', pgpClose); }
-                       });
-                     }, 100);
-                     });
-                
-                // -- Accordion toggle ----------------------------------------------------
-                  $(document).on('click', '.pgp-accordion-header', function() {
-                    var $hdr  = $(this);
-                    var $body = $hdr.next('.pgp-accordion-body');
-                    $hdr.toggleClass('open');
-                    $body.toggleClass('open');
-                  });
-                
-                // -- Sync interp textarea to Shiny ---------------------------------------
-                  var ta = document.getElementById('rpt_interp_text');
-                if (ta) {
-                  Shiny.setInputValue('rpt_interp_text', ta.value);
-                  ta.addEventListener('input', function() {
-                    Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
-                  });
-                }
-                
-                });"))
+        '<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;\">' +
+        '  <span style=\"font-weight:700;font-size:14px;color:#1a2e35;\">Source code</span>' +
+        '  <button onclick=\"window.pgpClosePopup();\" ' +
+        '    style=\"background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;\">&#x2715;</button>' +
+        '</div>' +
+        '<p style=\"font-size:12px;color:#374151;margin:0 0 14px;line-height:1.6;\">' +
+        'The full source code for PG-Power is available on GitHub.</p>' +
+        '<a href=\"' + url + '\" target=\"_blank\" style=\"display:inline-flex;align-items:center;' +
+        'gap:6px;background:#5b35d5;color:#fff;text-decoration:none;padding:8px 16px;' +
+        'border-radius:7px;font-size:12px;font-weight:600;\">&#x2197; Open on GitHub</a>' +
+        '<button onclick=\"window.pgpClosePopup();\" ' +
+        'style=\"display:inline-block;margin-left:10px;background:none;border:1px solid #e2e8f0;' +
+        'border-radius:7px;padding:8px 14px;font-size:12px;color:#374151;cursor:pointer;\">Close</button>';
+      document.body.appendChild(d);
+      setTimeout(function() {
+        document.addEventListener('click', function pgpClose(e) {
+          if (!d.contains(e.target)) { d.remove(); document.removeEventListener('click', pgpClose); }
+        });
+      }, 100);
+    });
+
+    // -- Accordion toggle ----------------------------------------------------
+    $(document).on('click', '.pgp-accordion-header', function() {
+      var $hdr  = $(this);
+      var $body = $hdr.next('.pgp-accordion-body');
+      $hdr.toggleClass('open');
+      $body.toggleClass('open');
+    });
+
+    // -- Sync interp textarea to Shiny ---------------------------------------
+    var ta = document.getElementById('rpt_interp_text');
+    if (ta) {
+      Shiny.setInputValue('rpt_interp_text', ta.value);
+      ta.addEventListener('input', function() {
+        Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
+      });
+    }
+
+});"))
 )
