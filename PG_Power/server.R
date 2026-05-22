@@ -21,67 +21,45 @@ server <- function(input, output, session) {
   # ── Calculation code text ────────────────────────────────────────────────────
   build_calc_code_txt <- function() {
     is_safety <- isTRUE(input$endpoint == "safety")
-    ci_m   <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
-    use_z  <- isTRUE(ci_m == "z_power")
     alpha  <- as.numeric(input$sig.level)
     pwr    <- input$power
-    pg     <- input$p0.expected   # performance goal
-    pd     <- input$p1.expected   # expected device rate
+    pg     <- input$p0.expected
+    pd     <- input$p1.expected
+    ci_lbl_map <- c(asymptotic="asymptotic", wilson="wilson", ac="ac",
+                    exact="exact", prop.test="prop.test", bayes="bayes")
+    cm <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+    conf_lev <- round(1 - 2 * alpha, 3)
     
-    if (use_z && !is_safety) {
-      paste(c(
-        "# Single-arm performance goal  —  TrialSize::OneSampleProportion.NIS",
-        "# H0: device rate <= PG   H1: device rate > PG  (higher is better)",
-        "",
-        "library(TrialSize)",
-        paste0("PG    <- ", pg,  "   # performance goal"),
-        paste0("p_dev <- ", pd,  "   # expected device rate"),
-        paste0("alpha <- ", alpha, "   # one-sided alpha"),
-        paste0("beta  <- ", round(1 - pwr, 3), "   # 1 - power"),
-        "",
-        "n <- ceiling(",
-        "  OneSampleProportion.NIS(alpha, beta,",
-        "    p = p_dev, delta = PG, differ = p_dev - PG)",
-        ")"
-      ), collapse = "\n")
-      
-    } else if (use_z && is_safety) {
-      paste(c(
-        "# Single-arm performance goal  —  TrialSize::OneSampleProportion.NIS",
-        "# H0: device rate >= PG   H1: device rate < PG  (lower is better)",
-        "# Mirror: test (1 - device rate) > (1 - PG)",
-        "",
-        "library(TrialSize)",
-        paste0("PG    <- ", pg,  "   # performance goal (max acceptable rate)"),
-        paste0("p_dev <- ", pd,  "   # expected device rate"),
-        paste0("alpha <- ", alpha, "   # one-sided alpha"),
-        paste0("beta  <- ", round(1 - pwr, 3), "   # 1 - power"),
-        "",
-        "PG_m    <- 1 - PG",
-        "p_dev_m <- 1 - p_dev",
-        "n <- ceiling(",
-        "  OneSampleProportion.NIS(alpha, beta,",
-        "    p = p_dev_m, delta = PG_m, differ = p_dev_m - PG_m)",
-        ")"
-      ), collapse = "\n")
-      
-    } else {
-      conf_lev <- round(1 - 2 * alpha, 3)
-      dir_txt  <- if (is_safety) "lower is better" else "higher is better"
-      paste(c(
-        paste0("# Single-arm performance goal  —  CI simulation  (", dir_txt, ")"),
-        paste0("# CI method: ", ci_m, "   conf.level: ", conf_lev),
-        "",
-        paste0("PG    <- ", pg, ";  p_dev <- ", pd),
-        paste0("conf_level <- ", conf_lev, "   # = 1 - 2*alpha"),
-        "",
-        "# Simulate nsim trials; check CI bound vs performance goal",
-        paste0('ci <- prop_ci_vec(x, n, conf_level, method = "', ci_m, '")'),
-        if (is_safety) "# Declare success if ci$upper < PG"
-        else           "# Declare success if ci$lower > PG",
-        "# Binary search finds smallest n achieving target power"
-      ), collapse = "\n")
-    }
+    mirror_note <- if (is_safety) c(
+      "# Safety direction: mirror so test becomes 'higher is better'",
+      paste0("PG_m    <- 1 - ", pg, "   # = ", round(1-pg,3)),
+      paste0("p_dev_m <- 1 - ", pd, "   # = ", round(1-pd,3)),
+      "# Then apply the efficacy formula with PG_m, p_dev_m",
+      "") else character(0)
+    
+    paste(c(
+      paste0("# Single-arm performance goal  —  binom CI simulation"),
+      paste0("# Endpoint: ", if (is_safety) "lower is better (safety)" else "higher is better (efficacy)"),
+      paste0("# Decision rule: CI ", if (is_safety) "upper < PG" else "lower > PG"),
+      "",
+      "library(binom)",
+      paste0("PG    <- ", pg,    "   # performance goal"),
+      paste0("p_dev <- ", pd,    "   # expected device rate"),
+      paste0("alpha <- ", alpha, "   # one-sided alpha"),
+      paste0("power <- ", pwr,   "   # desired power"),
+      paste0("conf_level <- ", conf_lev, "   # = 1 - 2*alpha"),
+      "",
+      mirror_note,
+      paste0('ci_method <- "', cm, '"'),
+      "",
+      "# Binary search: smallest n where CI bound clears the performance goal",
+      "# (uses binom::binom.confint internally via prop_ci_vec)",
+      "# n <- total_sample_size_prop_ci_power_1arm(",
+      paste0("#   p0=", if(is_safety) paste0("1-PG=",round(1-pg,3)) else paste0("PG=",pg),
+             ", p1=", if(is_safety) paste0("1-p_dev=",round(1-pd,3)) else paste0("p_dev=",pd), ","),
+      paste0("#   delta=0, alpha=", alpha, ", power=", pwr, ", ci_method=ci_method)")
+    ), collapse = "
+")
   }
   
   # ── Endpoint presets ─────────────────────────────────────────────────────────
@@ -154,54 +132,30 @@ server <- function(input, output, session) {
   })
   
   # ── Core N calculation ────────────────────────────────────────────────────────
-  # Primary: TrialSize::OneSampleProportion.NIS (Z formula)
-  # Fallback: CI simulation (prop_ci_vec binary search) for non-z methods
-  # Returns the smaller of the two when both are finite.
+  # Uses binom CI simulation (binary search) as the primary calculation.
+  # Safety direction mirrors proportions: testing p < PG = testing (1-p) > (1-PG).
   #
-  # Safety direction uses mirror: test (1-p) > (1-PG)
-  #
-  calc_n_trialsize <- function(pg, pd, alpha, beta, is_safety) {
-    if (is_safety) { p_ts <- 1 - pd; d_ts <- 1 - pg }
-    else           { p_ts <- pd;     d_ts <- pg       }
-    differ <- p_ts - d_ts
-    if (differ <= 0 || p_ts <= 0 || p_ts >= 1 || d_ts <= 0 || d_ts >= 1) return(Inf)
-    result <- tryCatch(
-      TrialSize::OneSampleProportion.NIS(alpha, beta, p_ts, d_ts, differ),
-      error = function(e) Inf
-    )
-    if (is.null(result) || is.na(result) || result <= 0) Inf else ceiling(result)
-  }
-  
-  calc_n_sim <- function(pg, pd, alpha, power, ci_method, sim_n, seed, is_safety) {
-    if (is_safety)
-      total_sample_size_prop_ci_power_1arm(1-pg, 1-pd, 0, alpha, power,
-                                           ci_method = ci_method, nsim = sim_n, seed = seed)
-    else
-      total_sample_size_prop_ci_power_1arm(pg, pd, 0, alpha, power,
-                                           ci_method = ci_method, nsim = sim_n, seed = seed)
-  }
-  
   prop_total_n <- function(pg, pd,
                            ci_method = input$ci_method_prop,
-                           sim_n     = as.numeric(input$sim_quality),
-                           seed      = as.numeric(input$sim_seed)) {
+                           sim_n     = {
+                             v <- as.numeric(input$sim_quality)
+                             if (is.null(v) || is.na(v)) 1000L else as.integer(v)
+                           },
+                           seed      = {
+                             v <- as.numeric(input$sim_seed)
+                             if (is.null(v) || is.na(v)) 1L else as.integer(v)
+                           }) {
     alpha     <- as.numeric(input$sig.level)
-    beta      <- 1 - input$power
+    power     <- as.numeric(input$power)
     is_safety <- isTRUE(input$endpoint == "safety")
+    cm        <- if (is.null(ci_method) || !nzchar(ci_method)) "asymptotic" else ci_method
     
-    n_ts  <- calc_n_trialsize(pg, pd, alpha, beta, is_safety)
-    
-    if (isTRUE(ci_method == "z_power")) return(n_ts)
-    
-    n_sim <- tryCatch(
-      calc_n_sim(pg, pd, alpha, input$power, ci_method, sim_n, seed, is_safety),
-      error = function(e) Inf
-    )
-    
-    # Return the smaller of the two finite estimates
-    vals <- c(n_ts, n_sim)
-    vals <- vals[is.finite(vals)]
-    if (length(vals) == 0) Inf else min(vals)
+    if (is_safety)
+      total_sample_size_prop_ci_power_1arm(1-pg, 1-pd, 0, alpha, power,
+                                           ci_method=cm, nsim=sim_n, seed=seed)
+    else
+      total_sample_size_prop_ci_power_1arm(pg, pd, 0, alpha, power,
+                                           ci_method=cm, nsim=sim_n, seed=seed)
   }
   
   # ── Debounced inputs ─────────────────────────────────────────────────────────
@@ -230,42 +184,54 @@ server <- function(input, output, session) {
     data.frame(x = x, y = y)
   })
   
-  # Exact binomial power curve — preserves the sawtooth pattern
+  # Exact binomial power curve — preserves the sawtooth pattern.
+  # Uses qbinom/pbinom directly — no simulation noise, instant computation.
+  # Range is controlled by power_plot_range input (±n around required n).
   prop_df_power <- reactive({
     req(pg_d(), pd_d(), power_d(), alpha_d())
-    n_req <- tryCatch(prop_n(), error = function(e) NA)
-    if (is.na(n_req) || is.infinite(n_req)) return(data.frame(x = numeric(0), y = numeric(0)))
     alpha   <- as.numeric(alpha_d())
+    target  <- as.numeric(power_d())
     is_sfty <- isTRUE(input$endpoint == "safety")
-    pg <- if (is_sfty) 1 - pg_d() else pg_d()
-    pd <- if (is_sfty) 1 - pd_d() else pd_d()
-    n_max <- min(ceiling(n_req * 2.2), 2000)
-    n_seq <- seq(max(2, floor(n_req * 0.1)), n_max, by = 1)
-    y <- sapply(n_seq, function(n) {
-      x_crit <- qbinom(1 - alpha, n, pg) + 1L
-      if (x_crit > n) return(NA_real_)
-      1 - pbinom(x_crit - 1L, n, pd)
-    })
-    data.frame(x = n_seq, y = y)
+    pg <- if (is_sfty) 1 - as.numeric(pg_d()) else as.numeric(pg_d())
+    pd <- if (is_sfty) 1 - as.numeric(pd_d()) else as.numeric(pd_d())
+    
+    if (is.na(pg) || is.na(pd) || pg <= 0 || pg >= 1 || pd <= 0 || pd >= 1)
+      return(data.frame(x=numeric(0), y=numeric(0), x_crit=integer(0)))
+    if (pd <= pg)
+      return(data.frame(x=numeric(0), y=numeric(0), x_crit=integer(0)))
+    
+    # Analytic Z approximation to find required n for sweep centre
+    z_a      <- qnorm(1 - alpha)
+    z_b      <- qnorm(target)
+    n_approx <- ceiling((z_a*sqrt(pg*(1-pg)) + z_b*sqrt(pd*(1-pd)))^2 / (pd-pg)^2)
+    if (is.na(n_approx) || n_approx <= 0 || is.infinite(n_approx)) n_approx <- 200L
+    
+    rng   <- if (is.null(input$power_plot_range) || is.na(input$power_plot_range))
+      50L else as.integer(input$power_plot_range)
+    n_lo  <- max(2L, n_approx - rng)
+    n_hi  <- min(n_approx + rng, 5000L)
+    n_seq <- seq(n_lo, n_hi, by = 1L)
+    
+    res <- t(sapply(n_seq, function(n) {
+      xc <- qbinom(1 - alpha, n, pg) + 1L   # critical threshold
+      pw <- if (xc > n) NA_real_ else 1 - pbinom(xc - 1L, n, pd)
+      c(power=pw, x_crit=xc)
+    }))
+    data.frame(x=n_seq, y=res[,"power"], x_crit=as.integer(res[,"x_crit"]))
   })
   
   # ── CI comparison table ───────────────────────────────────────────────────────
   all_compare_methods <- c(
-    "TrialSize (Z)"             = "z_power",
-    "Wilson"                    = "wilson",
-    "Exact (Clopper-Pearson)"   = "exact",
-    "Agresti-Coull"             = "ac",
-    "Asymptotic (Wald)"         = "asymptotic",
-    "prop.test"                 = "prop.test",
-    "Bayes"                     = "bayes",
-    "Logit"                     = "logit",
-    "Cloglog"                   = "cloglog",
-    "Probit"                    = "probit"
+    "Wald (Z-score)"    = "asymptotic",
+    "Wilson Score"      = "wilson",
+    "Agresti-Coull"     = "ac",
+    "Clopper-Pearson"   = "exact",
+    "Prop.test"         = "prop.test",
+    "Jeffreys"          = "bayes"
   )
   
   compare_df <- reactive({
-    req(input$showCompare)
-    if (!isTRUE(input$showCompare)) return(NULL)
+    req(pg_d(), pd_d(), power_d(), alpha_d())
     ns <- vapply(all_compare_methods, function(m) {
       prop_total_n(pg_d(), pd_d(), ci_method = m)
     }, numeric(1))
@@ -285,8 +251,12 @@ server <- function(input, output, session) {
     dropout_r <- get_dropout_rate()
     alpha_val <- as.numeric(alpha_d())
     is_safety <- isTRUE(input$endpoint == "safety")
-    method_label <- if (isTRUE(input$ci_method_prop == "z_power"))
-      "TrialSize (Z formula)" else paste0("CI simulation (", input$ci_method_prop, ")")
+    ci_lbl_map <- c(asymptotic="Wald (Z-score)", wilson="Wilson Score",
+                    ac="Agresti-Coull", exact="Clopper-Pearson",
+                    prop.test="Prop.test", bayes="Jeffreys")
+    cm_cur <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+    method_label <- paste0("CI simulation (", 
+                           unname(ci_lbl_map[cm_cur] %||% cm_cur), ")")
     
     if (is.infinite(n_out)) return(box_ui(
       "Required sample size",
@@ -309,15 +279,34 @@ server <- function(input, output, session) {
       h1_txt <- paste0("H\u2081: device rate < ", pg_val, " (device meets performance goal)")
     }
     reject_rule <- if (!is_safety)
-      paste0("Reject H\u2080 if \u2265 ", n_events, " of ", format(n_out, big.mark=","),
-             " patients succeed  (CI lower > ", pg_val, ")")
+      tagList("Reject H₀ if ", tags$b(paste0("≥ ", n_events)),
+              " of ", tags$b(format(n_out, big.mark=",")),
+              " patients succeed  (CI lower > ", tags$b(pg_val), ")")
     else
-      paste0("Reject H\u2080 if \u2264 ", n_events, " of ", format(n_out, big.mark=","),
-             " patients experience the event  (CI upper < ", pg_val, ")")
+      tagList("Reject H₀ if ", tags$b(paste0("≤ ", n_events)),
+              " of ", tags$b(format(n_out, big.mark=",")),
+              " patients experience the event  (CI upper < ", tags$b(pg_val), ")")
+    
+    
+    # Actual power at required n from power curve (exact binomial)
+    actual_pw <- tryCatch({
+      df_pw <- prop_df_power()
+      if (nrow(df_pw) > 0) {
+        df_c <- df_pw[!is.na(df_pw$y), ]
+        if (nrow(df_c) > 0) {
+          idx <- which.min(abs(df_c$x - n_out))
+          if (length(idx) > 0) df_c$y[idx] else NA_real_
+        } else NA_real_
+      } else NA_real_
+    }, error = function(e) NA_real_)
+    actual_pw_txt <- if (!is.na(actual_pw))
+      paste0(round(actual_pw * 100, 1), "%") else paste0(round(power_d()*100), "%")
     
     tagList(
-      box_ui("Required sample size", paste0(
-        "n = ", format(n_out, big.mark=","), "  [", method_label, "]"
+      box_ui("Required sample size", tagList(
+        tags$b(format(n_out, big.mark=",")), " patients",
+        tags$span(style="color:#64748b; font-size:11px;",
+                  paste0("  [", method_label, "]"))
       )),
       tags$div(style="text-align:right;margin-top:4px;",
                tags$button(class="n-box-toggle", onclick="pgpToggleNBox(this);", "collapse \u25b4")
@@ -337,8 +326,11 @@ server <- function(input, output, session) {
                         tags$span(class="nb-label", "Method:"),
                         tags$span(class="nb-val",   method_label)),
                tags$div(class="nb-row",
-                        tags$span(class="nb-label", "Power:"),
+                        tags$span(class="nb-label", "Target power:"),
                         tags$span(class="nb-val",   paste0(round(power_d()*100), "%"))),
+               tags$div(class="nb-row",
+                        tags$span(class="nb-label", "Actual power at n:"),
+                        tags$span(class="nb-val",   tags$b(actual_pw_txt))),
                tags$div(class="nb-row",
                         tags$span(class="nb-label", "Required n (evaluable):"),
                         tags$span(class="nb-val",   format(n_out, big.mark=","))),
@@ -368,35 +360,107 @@ server <- function(input, output, session) {
   }
   
   output$plot_power <- renderPlotly({
-    df    <- prop_df_power()
-    pc    <- get_plot_colour()
-    n_req <- tryCatch(prop_n(), error = function(e) NA)
+    df      <- prop_df_power()
+    pc      <- get_plot_colour()
+    n_req   <- tryCatch(prop_n(), error = function(e) NA)
+    is_sfty <- isTRUE(input$endpoint == "safety")
+    
     validate(need(nrow(df) > 0 && !all(is.na(df$y)),
-                  "Could not compute power curve — check performance goal and device rate."))
+                  "Device rate must be more favourable than the performance goal to compute a power curve."))
+    
     df_c   <- df[!is.na(df$y), ]
     target <- as.numeric(power_d())
-    p <- ggplot(df_c, aes(x=x, y=y)) +
-      geom_hline(yintercept=target, linetype="dashed", colour="#e07b39", linewidth=0.8) +
-      geom_line(colour=pc, linewidth=1.1) +
-      geom_point(colour=pc, size=1.8) +
-      scale_y_continuous(labels=scales::percent_format(accuracy=1), limits=c(0,1)) +
-      labs(title="Sample size vs achieved power", x="Sample size (n)", y="Achieved power") +
-      plot_theme_large
-    if (!is.na(n_req) && !is.infinite(n_req)) {
-      pw <- df_c$y[which.min(abs(df_c$x - n_req))]
-      if (length(pw) > 0 && !is.na(pw))
-        p <- p + geom_point(data=data.frame(x=n_req, y=pw), aes(x=x,y=y),
-                            colour="#e07b39", size=5, shape=21, fill="#e07b39", alpha=0.85)
+    
+    col_target <- "#475569"
+    col_n      <- "#16a34a"
+    
+    n_at <- NA_real_; pw_at <- NA_real_; xc_at <- NA_integer_
+    if (!is.na(n_req) && !is.infinite(n_req) && nrow(df_c) > 0) {
+      idx   <- which.min(abs(df_c$x - n_req))
+      n_at  <- df_c$x[idx]
+      pw_at <- df_c$y[idx]
+      xc_at <- df_c$x_crit[idx]
     }
-    ggplotly(p) %>%
-      layout(hovermode="x unified", paper_bgcolor="transparent", plot_bgcolor="white",
-             font=list(family="DM Sans, sans-serif"),
-             annotations=list(list(
-               x=max(df_c$x)*0.98, y=target+0.03, yref="y",
-               text=paste0("Target: ", round(target*100), "%"),
-               showarrow=FALSE, xanchor="right",
-               font=list(color="#e07b39", size=11)))) %>%
-      config(displaylogo=FALSE, displayModeBar=FALSE)
+    
+    dir_sym <- if (is_sfty) "≤" else "≥"
+    pct_vals <- round(df_c$y * 100, 1)
+    y_lo     <- max(0, min(pct_vals, na.rm=TRUE) - 4)
+    
+    # Build entirely with plotly — avoids ggplotly aes() tooltip bugs
+    fig <- plot_ly() %>%
+      # Power curve line
+      add_trace(
+        x          = df_c$x,
+        y          = pct_vals,
+        type       = "scatter",
+        mode       = "lines",
+        line       = list(color=pc, width=2),
+        hovertemplate = "n: %{x}<br>Power: %{y}%<extra></extra>",
+        name       = "Power curve",
+        showlegend = FALSE
+      ) %>%
+      # Target power dashed line (drawn as a shape below)
+      layout(
+        title       = list(text="Sample size (n) vs Achieved power (%)",
+                           font=list(size=17, color="#1a2e35", family="DM Sans, sans-serif"),
+                           x=0, xanchor="left"),
+        xaxis       = list(title="n", gridcolor="#edf0f4",
+                           zeroline=FALSE, showline=FALSE),
+        yaxis       = list(title="%", range=list(y_lo, 100),
+                           gridcolor="#edf0f4", zeroline=FALSE,
+                           ticksuffix=""),
+        hovermode   = "x unified",
+        paper_bgcolor = "transparent",
+        plot_bgcolor  = "white",
+        font          = list(family="DM Sans, sans-serif"),
+        margin        = list(t=60, r=20, b=50, l=50),
+        shapes = list(list(
+          type="line", x0=min(df_c$x), x1=max(df_c$x),
+          y0=target*100, y1=target*100,
+          line=list(color=col_target, width=1.5, dash="dash")
+        )),
+        annotations = c(
+          list(list(
+            x=max(df_c$x), y=target*100 + 2.5,
+            text=paste0("Target: ", round(target*100), "%"),
+            showarrow=FALSE, xanchor="right",
+            font=list(color=col_target, size=11),
+            bgcolor="rgba(255,255,255,0)"
+          )),
+          if (!is.na(n_at)) list(list(
+            x=n_at, y=round(pw_at*100,1) + 5.5,
+            text=paste0("<b>", dir_sym, " ", xc_at, " of ", n_at, "</b> must succeed"),
+            showarrow=TRUE, arrowhead=2, arrowsize=0.6, arrowcolor=col_n,
+            ax=0, ay=-30, xanchor="center",
+            font=list(color=col_n, size=10),
+            bgcolor="rgba(255,255,255,0.88)", bordercolor=col_n, borderwidth=1
+          )) else NULL,
+          if (!is.na(pw_at)) list(list(
+            x=n_at, y=round(pw_at*100,1) - 5.5,
+            text=paste0("Actual power at n=", n_at, ": <b>",
+                        round(pw_at*100,1), "%</b>"),
+            showarrow=FALSE, xanchor="center",
+            font=list(color=col_n, size=10),
+            bgcolor="rgba(255,255,255,0.88)", bordercolor=col_n, borderwidth=1
+          )) else NULL
+        )
+      )
+    
+    # Required n marker dot
+    if (!is.na(n_at))
+      fig <- fig %>% add_trace(
+        x          = n_at,
+        y          = round(pw_at*100, 1),
+        type       = "scatter",
+        mode       = "markers",
+        marker     = list(color=col_n, size=9, symbol="circle",
+                          line=list(color=col_n, width=2)),
+        hovertemplate = paste0("n: ", n_at, "<br>Power: ",
+                               round(pw_at*100,1), "%<extra></extra>"),
+        showlegend = FALSE
+      )
+    
+    fig %>% config(displaylogo=FALSE, displayModeBar=FALSE)
   })
   
   output$plot2 <- renderPlotly({
@@ -423,21 +487,75 @@ server <- function(input, output, session) {
     finish_plotly(p)
   })
   
-  # ── CI comparison section ────────────────────────────────────────────────────
+  # ── CI comparison section — always shown, colour-coded rows ─────────────────
   output$compare_section <- renderUI({
-    if (!isTRUE(input$showCompare)) return(NULL)
     df <- compare_df()
     if (is.null(df)) return(NULL)
+    n_req_cmp <- tryCatch(as.integer(prop_n()), error = function(e) NA_integer_)
+    alpha_v   <- as.numeric(alpha_d())
+    is_sfty   <- isTRUE(input$endpoint == "safety")
+    
+    # Compute exact binomial achieved power at each method's recommended n
+    get_power_at_n <- function(n_val) {
+      if (is.na(n_val) || !is.finite(n_val)) return(NA_real_)
+      pg <- if (is_sfty) 1 - as.numeric(pg_d()) else as.numeric(pg_d())
+      pd <- if (is_sfty) 1 - as.numeric(pd_d()) else as.numeric(pd_d())
+      xc <- qbinom(1 - alpha_v, n_val, pg) + 1L
+      if (xc > n_val) return(NA_real_)
+      1 - pbinom(xc - 1L, n_val, pd)
+    }
+    
+    rows_html <- lapply(seq_len(nrow(df)), function(i) {
+      n_i   <- df[i, "Total N"]
+      sel   <- df[i, "Selected"] == "✓"
+      n_num <- suppressWarnings(as.integer(gsub(",","", n_i)))
+      passes <- !is.na(n_num) && !is.na(n_req_cmp) && n_num <= n_req_cmp
+      bg      <- if (n_i == "Not achievable") "#fef3c7"
+      else if (passes)              "#dcfce7"
+      else                          "#fff7ed"
+      col_txt <- if (n_i == "Not achievable") "#92400e"
+      else if (passes)              "#166534"
+      else                          "#9a3412"
+      pw_val  <- get_power_at_n(n_num)
+      pw_txt  <- if (is.na(pw_val)) "—"
+      else paste0(round(pw_val * 100, 1), "%")
+      tags$tr(style=paste0("background:", bg, ";"),
+              tags$td(style=paste0("padding:5px 10px;font-size:12px;border:1px solid #e2e8f0;",
+                                   "font-weight:", if(sel) "700" else "400", ";color:#1a2e35;"),
+                      df[i,"Method"]),
+              tags$td(style=paste0("padding:5px 10px;font-size:12px;border:1px solid #e2e8f0;",
+                                   "text-align:center;font-family:'DM Mono',monospace;color:", col_txt,
+                                   ";font-weight:600;"), n_i),
+              tags$td(style=paste0("padding:5px 10px;font-size:12px;border:1px solid #e2e8f0;",
+                                   "text-align:center;font-family:'DM Mono',monospace;color:", col_txt, ";"),
+                      pw_txt)
+      )
+    })
+    
     tagList(
       tags$hr(),
-      tags$div(class="compare-header",
-               tags$h5("CI method comparison \u2014 n for each method (\u2713 = selected)"),
-               tags$p(class="compare-params", paste0(
-                 "PG = ", input$p0.expected, "  |  device rate = ", input$p1.expected,
-                 "  |  \u03b1 = ", input$sig.level, "  |  power = ", input$power))
+      tags$p(style="font-size:11px;font-weight:700;color:#64748b;margin:0 0 6px;",
+             "CI method comparison"),
+      tags$p(style="font-size:11px;color:#94a3b8;margin:0 0 8px;",
+             paste0("PG = ", input$p0.expected, "  ·  device rate = ", input$p1.expected,
+                    "  ·  α = ", input$sig.level, "  ·  power = ", input$power)),
+      tags$div(style="overflow-x:auto;",
+               tags$table(style="border-collapse:collapse;width:100%;",
+                          tags$thead(tags$tr(
+                            tags$th(style="padding:5px 10px;background:#f1f5f9;border:1px solid #e2e8f0;
+                            font-size:11px;font-weight:700;color:#64748b;", "Method"),
+                            tags$th(style="padding:5px 10px;background:#f1f5f9;border:1px solid #e2e8f0;
+                            font-size:11px;font-weight:700;color:#64748b;text-align:center;",
+                                    "Required n"),
+                            tags$th(style="padding:5px 10px;background:#f1f5f9;border:1px solid #e2e8f0;
+                            font-size:11px;font-weight:700;color:#64748b;text-align:center;",
+                                    "Achieved power (%)")
+                          )),
+                          tags$tbody(rows_html)
+               )
       ),
-      DT::renderDT(DT::datatable(df, rownames=FALSE, class="stripe hover compact",
-                                 options=list(dom="t", paging=FALSE, searching=FALSE)))
+      tags$p(style="font-size:10.5px;color:#94a3b8;margin:6px 0 0;",
+             "■ Green = meets or beats required n  ·  Amber = larger n  ·  Bold = currently selected method")
     )
   })
   
@@ -448,6 +566,240 @@ server <- function(input, output, session) {
     DT::datatable(df, rownames=FALSE, class="stripe hover compact",
                   options=list(pageLength=15))
   })
+  
+  # ── CI diagram ───────────────────────────────────────────────────────────────
+  # Shows the confidence interval for the current observed device rate (p1)
+  # at the required n, using all selected or all CI methods.
+  # Also shows where the performance goal boundary falls.
+  
+  ci_diagram_data <- reactive({
+    req(pg_d(), pd_d(), power_d(), alpha_d())
+    n_val    <- tryCatch(as.integer(prop_n()), error=function(e) NA_integer_)
+    if (is.na(n_val) || !is.finite(n_val)) return(NULL)
+    is_sfty  <- isTRUE(input$endpoint == "safety")
+    alpha_v  <- as.numeric(alpha_d())
+    conf_lev <- 1 - 2 * alpha_v   # two-sided CI for one-sided alpha
+    pg       <- as.numeric(pg_d())
+    pd       <- as.numeric(pd_d())
+    
+    # x_obs: number of events that exactly represent the expected device rate
+    # For safety (lower is better): events are adverse; round up to be conservative
+    # For efficacy (higher is better): successes; round to nearest
+    x_obs <- as.integer(round(pd * n_val))
+    x_obs <- max(0L, min(x_obs, n_val))
+    
+    methods <- if (isTRUE(input$showAllCI))
+      all_compare_methods
+    else {
+      cm <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+      nm <- names(all_compare_methods)[all_compare_methods == cm]
+      if (length(nm)==0) nm <- cm
+      setNames(cm, nm)
+    }
+    
+    rows <- lapply(names(methods), function(nm) {
+      m  <- methods[[nm]]
+      ci <- tryCatch(
+        prop_ci_vec(x_obs, n_val, conf_lev, m),
+        error=function(e) list(lower=NA_real_, upper=NA_real_))
+      # Pass/fail: for efficacy CI lower must exceed PG; for safety CI upper must be below PG
+      passes <- if (is_sfty) !is.na(ci$upper) && ci$upper < pg
+      else          !is.na(ci$lower) && ci$lower > pg
+      data.frame(method=nm, lower=ci$lower, upper=ci$upper,
+                 est=pd, pg=pg, n=n_val, x=x_obs,
+                 is_sfty=is_sfty, passes=passes,
+                 stringsAsFactors=FALSE)
+    })
+    do.call(rbind, rows)
+  })
+  
+  output$plot_ci_diagram <- renderPlotly({
+    df <- ci_diagram_data()
+    if (is.null(df) || nrow(df)==0) return(NULL)
+    pg       <- df$pg[1]
+    is_sfty  <- df$is_sfty[1]
+    n_val    <- df$n[1]
+    x_obs    <- df$x[1]
+    est      <- df$est[1]
+    pc       <- get_plot_colour()     # user-chosen swatch colour from Overview
+    col_pg   <- "#475569"             # slate dashed line for PG
+    alpha_v  <- as.numeric(alpha_d())
+    conf_pct <- round((1 - 2*alpha_v)*100, 0)
+    nr       <- nrow(df)
+    
+    # Passing intervals = user colour; failing = desaturated grey
+    df$col <- ifelse(df$passes, pc, "#94a3b8")
+    
+    fig <- plot_ly() %>%
+      layout(
+        title=list(
+          text=paste0(conf_pct, "% confidence intervals  —  n = ",
+                      format(n_val, big.mark=","),
+                      ",  x = ", x_obs,
+                      "  (", round(est*100, 1), "% observed)"),
+          font=list(size=13, color="#1a2e35", family="DM Sans, sans-serif"),
+          x=0, xanchor="left"),
+        xaxis=list(title="Proportion", zeroline=FALSE, gridcolor="#edf0f4",
+                   tickformat=".3f"),
+        yaxis=list(title="", tickvals=seq_len(nr),
+                   ticktext=df$method, autorange="reversed",
+                   gridcolor="#edf0f4"),
+        hovermode="closest",
+        paper_bgcolor="transparent", plot_bgcolor="white",
+        font=list(family="DM Sans, sans-serif", size=12),
+        margin=list(l=140, r=40, t=65, b=50),
+        shapes=list(list(
+          type="line", x0=pg, x1=pg, y0=0.4, y1=nr+0.6,
+          line=list(color=col_pg, width=1.5, dash="dash"))),
+        annotations=list(list(
+          x=pg, y=0.4, yanchor="bottom", xanchor="center",
+          text=paste0("PG = ", pg),
+          showarrow=FALSE, font=list(color=col_pg, size=10),
+          bgcolor="rgba(255,255,255,0.85)"))
+      )
+    
+    for (i in seq_len(nr)) {
+      row   <- df[i, ]
+      col_i <- row$col
+      lbl   <- paste0(
+        "<b>", row$method, "</b><br>",
+        conf_pct, "% CI: [", round(row$lower, 4), ", ", round(row$upper, 4), "]<br>",
+        "Point estimate: ", round(row$est, 4), "  (x = ", row$x, " / n = ", row$n, ")<br>",
+        if (row$passes) "<b style='color:#16a34a;'>✓ Passes</b>"
+        else            "<b style='color:#dc2626;'>✗ Fails</b>",
+        " (PG = ", pg, ")"
+      )
+      fig <- fig %>%
+        # CI bar
+        add_segments(x=row$lower, xend=row$upper, y=i, yend=i,
+                     line=list(color=col_i, width=3.5),
+                     hoverinfo="text", text=lbl, showlegend=FALSE) %>%
+        # Endpoint whiskers
+        add_segments(x=row$lower, xend=row$lower, y=i-0.2, yend=i+0.2,
+                     line=list(color=col_i, width=2),
+                     hoverinfo="none", showlegend=FALSE) %>%
+        add_segments(x=row$upper, xend=row$upper, y=i-0.2, yend=i+0.2,
+                     line=list(color=col_i, width=2),
+                     hoverinfo="none", showlegend=FALSE) %>%
+        # Point estimate dot
+        add_trace(x=row$est, y=i, type="scatter", mode="markers",
+                  marker=list(color="#fff", size=7, symbol="circle",
+                              line=list(color=col_i, width=2.5)),
+                  hoverinfo="none", showlegend=FALSE)
+    }
+    fig %>% config(displaylogo=FALSE, displayModeBar=FALSE)
+  })
+  
+  # ── Power vs n table ─────────────────────────────────────────────────────────
+  # Build a rich data frame from prop_df_power() for display and download.
+  # Columns: n | Achieved Power | Beats 90% | CI methods that land here
+  power_table_df <- reactive({
+    req(pg_d(), pd_d(), power_d(), alpha_d())
+    df     <- prop_df_power()
+    if (nrow(df) == 0) return(NULL)
+    df_c   <- df[!is.na(df$y), ]
+    if (nrow(df_c) == 0) return(NULL)
+    target <- as.numeric(power_d())
+    
+    # Which n does each CI method recommend?
+    ci_n_map <- vapply(names(all_compare_methods), function(nm) {
+      m  <- all_compare_methods[nm]
+      n  <- tryCatch(
+        prop_total_n(pg_d(), pd_d(), ci_method = m, sim_n = 400L, seed = 1L),
+        error = function(e) Inf
+      )
+      if (is.finite(n)) as.integer(n) else NA_integer_
+    }, integer(1))
+    
+    # For each row in the power curve, collect which method(s) land there
+    ci_labels_at_n <- sapply(df_c$x, function(n_val) {
+      hits <- names(ci_n_map)[!is.na(ci_n_map) & ci_n_map == n_val]
+      if (length(hits) == 0) "" else paste(hits, collapse=" / ")
+    })
+    
+    data.frame(
+      n                                  = df_c$x,
+      `Achieved Power (%)`               = round(df_c$y * 100, 1),
+      `Beats target`                     = ifelse(df_c$y >= target, "Yes", "No"),
+      `CI method(s) recommending this n` = ci_labels_at_n,
+      check.names    = FALSE,
+      stringsAsFactors = FALSE
+    )
+  })
+  
+  output$power_table_ui <- renderUI({
+    df <- power_table_df()
+    if (is.null(df)) return(tags$p("No data available.", style="color:#94a3b8;font-size:12px;"))
+    
+    target <- as.numeric(power_d())
+    
+    rows_html <- lapply(seq_len(nrow(df)), function(i) {
+      beats  <- df[i, "Beats target"] == "Yes"
+      has_ci <- nzchar(df[i, "CI method(s) recommending this n"])
+      bg     <- if (beats && has_ci)  "#dcfce7"
+      else if (beats)       "#f0fdf4"
+      else                  "#fff"
+      border <- if (has_ci) "border-left:3px solid #16a34a;" else ""
+      
+      tags$tr(style = paste0("background:", bg, ";", border),
+              tags$td(style = "padding:4px 10px;font-size:12px;border:1px solid #e2e8f0;
+                          font-family:'DM Mono',monospace;text-align:center;",
+                      df[i, "n"]),
+              tags$td(style = paste0("padding:4px 10px;font-size:12px;border:1px solid #e2e8f0;
+                          font-family:'DM Mono',monospace;text-align:center;",
+                                     if (beats) "color:#166534;font-weight:600;" else "color:#374151;"),
+                      paste0(df[i, "Achieved Power (%)"])),
+              tags$td(style = paste0("padding:4px 10px;font-size:12px;border:1px solid #e2e8f0;
+                          text-align:center;",
+                                     if (beats) "color:#166534;font-weight:600;" else "color:#9a3412;"),
+                      df[i, "Beats target"]),
+              tags$td(style = "padding:4px 10px;font-size:11px;border:1px solid #e2e8f0;
+                          color:#374151;font-style:italic;",
+                      df[i, "CI method(s) recommending this n"])
+      )
+    })
+    
+    tagList(
+      tags$p(style = "font-size:11px;font-weight:700;text-transform:uppercase;
+                      letter-spacing:0.06em;color:#64748b;margin:0 0 6px;",
+             "Power vs n table"),
+      tags$p(style = "font-size:11px;color:#94a3b8;margin:0 0 8px;",
+             paste0("PG = ", pg_d(), "  ·  device rate = ", pd_d(),
+                    "  ·  target power = ", round(target*100), "%",
+                    "  ·  α = ", alpha_d())),
+      tags$div(style = "overflow-x:auto; max-height:400px; overflow-y:auto;",
+               tags$table(style = "border-collapse:collapse;width:100%;",
+                          tags$thead(style = "position:sticky;top:0;background:#f1f5f9;",
+                                     tags$tr(
+                                       tags$th(style = "padding:5px 10px;border:1px solid #e2e8f0;font-size:11px;
+                               font-weight:700;color:#64748b;text-align:center;", "n"),
+                                       tags$th(style = "padding:5px 10px;border:1px solid #e2e8f0;font-size:11px;
+                               font-weight:700;color:#64748b;text-align:center;",
+                                               "Achieved Power (%)"),
+                                       tags$th(style = "padding:5px 10px;border:1px solid #e2e8f0;font-size:11px;
+                               font-weight:700;color:#64748b;text-align:center;",
+                                               paste0("Beats ", round(target*100), "%")),
+                                       tags$th(style = "padding:5px 10px;border:1px solid #e2e8f0;font-size:11px;
+                               font-weight:700;color:#64748b;",
+                                               "CI method(s) recommending this n")
+                                     )
+                          ),
+                          tags$tbody(rows_html)
+               )
+      ),
+      tags$p(style = "font-size:10.5px;color:#94a3b8;margin:6px 0 0;",
+             "■ Green = beats target  ·  Green left border = a CI method recommends this exact n")
+    )
+  })
+  
+  output$downloadPowerTable <- downloadHandler(
+    filename = function() paste0("PGPower_power_table_", Sys.Date(), ".csv"),
+    content  = function(file) {
+      df <- power_table_df()
+      if (is.null(df)) df <- data.frame(Note = "No data available.")
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
   
   # ── Generate Report helpers ──────────────────────────────────────────────────
   output$rpt_calc_summary_ui <- renderUI({
@@ -521,6 +873,8 @@ server <- function(input, output, session) {
       list(label="Calculation code",         on=isTRUE(input$rpt_calc_code))
     )
     sens_items <- list(
+      list(label="CI diagram",                    on=isTRUE(input$rpt_ci_diagram)),
+      list(label="Power vs n plot",               on=isTRUE(input$rpt_plot_power)),
       list(label="Device rate sensitivity plot",  on=isTRUE(input$rpt_plot_p1)),
       list(label="Device rate sensitivity table", on=isTRUE(input$rpt_table_p1))
     )
@@ -548,10 +902,9 @@ server <- function(input, output, session) {
                           ci_method=ci_m,
                           sim_n=if (is.null(input$sim_quality)) 1000 else as.numeric(input$sim_quality),
                           seed =if (is.null(input$sim_seed))    1    else as.numeric(input$sim_seed))
-    ci_labels <- c(z_power="TrialSize (Z Formula)", wilson="Wilson Score",
-                   exact="Clopper-Pearson", ac="Agresti-Coull", asymptotic="Wald",
-                   prop.test="prop.test", bayes="Bayes", logit="Logit",
-                   cloglog="Cloglog", probit="Probit")
+    ci_labels <- c(asymptotic="Wald (Z-score)", wilson="Wilson Score",
+                   ac="Agresti-Coull", exact="Clopper-Pearson",
+                   prop.test="Prop.test", bayes="Jeffreys")
     ci_lbl  <- unname(ci_labels[ci_m]); if (is.na(ci_lbl)) ci_lbl <- ci_m
     is_sfty <- isTRUE(input$endpoint == "safety")
     pg_val  <- as.numeric(input$p0.expected)
@@ -570,23 +923,81 @@ server <- function(input, output, session) {
   }
   
   get_section_order <- function() c("results","n_box","interp","ci_compare",
-                                    "definitions","calc_code","plot_p1","table_p1")
+                                    "definitions","calc_code","ci_diagram",
+                                    "plot_power","plot_p1","table_p1")
   
-  capture_plots <- function() {
-    pc <- get_plot_colour()
-    list(p1 = tryCatch({
+  capture_plots <- function(include_power = FALSE, include_sens = FALSE, include_ci_diag = FALSE) {
+    pc         <- get_plot_colour()
+    col_target <- "#475569"
+    col_n      <- "#16a34a"
+    
+    pwr_file <- if (include_power) tryCatch({
+      df_pw  <- prop_df_power()
+      df_c   <- df_pw[!is.na(df_pw$y), ]
+      target <- as.numeric(power_d())
+      n_req  <- tryCatch(as.integer(prop_n()), error=function(e) NA_integer_)
+      p <- ggplot(df_c, aes(x=x, y=y)) +
+        geom_hline(yintercept=target, linetype="dashed", colour=col_target, linewidth=0.9) +
+        geom_line(colour=pc, linewidth=1.1) +
+        scale_y_continuous(labels=scales::percent_format(accuracy=1),
+                           limits=c(max(0, min(df_c$y, na.rm=TRUE)-0.04), 1)) +
+        labs(title="Sample size (n) vs achieved power", x="n", y="Achieved power") +
+        plot_theme_large
+      if (!is.na(n_req)) {
+        idx <- which.min(abs(df_c$x - n_req))
+        if (length(idx) > 0)
+          p <- p + geom_point(data=data.frame(x=df_c$x[idx], y=df_c$y[idx]),
+                              aes(x=x, y=y), colour=col_n, size=3, shape=21, fill=col_n, alpha=0.95)
+      }
+      tmp <- tempfile(fileext=".png")
+      ggsave(tmp, p, width=6, height=3.5, dpi=150, bg="white")
+      tmp
+    }, error=function(e) NULL) else NULL
+    
+    sens_file <- if (include_sens) tryCatch({
       df  <- prop_df_sens()
       lbl <- if (isTRUE(input$endpoint=="safety")) "Expected device event rate"
       else "Expected device success rate"
       p <- ggplot(df, aes(x=x, y=y)) +
         geom_line(colour=pc, linewidth=1.1) + geom_point(colour=pc, size=2) +
-        labs(title="Device rate vs required sample size", x=lbl, y="n") +
+        labs(title="Device rate vs required sample size", x=lbl, y="Required n") +
         plot_theme_large
       tmp <- tempfile(fileext=".png")
       ggsave(tmp, p, width=6, height=3.5, dpi=150, bg="white")
       tmp
-    }, error=function(e) NULL))
+    }, error=function(e) NULL) else NULL
+    
+    ci_diag_file <- if (include_ci_diag) tryCatch({
+      df_ci <- ci_diagram_data()
+      if (is.null(df_ci) || nrow(df_ci)==0) NULL else {
+        pg_v    <- as.numeric(pg_d())
+        col_pg  <- "#475569"
+        is_sfty <- isTRUE(input$endpoint=="safety")
+        df_ci$passes <- if (is_sfty) df_ci$upper < pg_v else df_ci$lower > pg_v
+        df_ci$col    <- ifelse(df_ci$passes, "#16a34a", "#dc2626")
+        df_ci$y      <- seq_len(nrow(df_ci))
+        # Build static ggplot version
+        p <- ggplot(df_ci) +
+          geom_vline(xintercept=pg_v, linetype="dashed", colour=col_pg, linewidth=0.8) +
+          geom_segment(aes(x=lower, xend=upper, y=y, yend=y, colour=col),
+                       linewidth=2.5) +
+          geom_point(aes(x=est, y=y, colour=col), size=3) +
+          scale_colour_identity() +
+          scale_y_reverse(breaks=df_ci$y, labels=df_ci$method) +
+          labs(title=paste0("Confidence intervals at n = ", df_ci$n[1]),
+               x="Proportion", y=NULL) +
+          plot_theme_large +
+          theme(axis.text.y=element_text(size=10))
+        h <- max(2.5, nrow(df_ci)*0.55)
+        tmp <- tempfile(fileext=".png")
+        ggsave(tmp, p, width=6, height=h, dpi=150, bg="white")
+        tmp
+      }
+    }, error=function(e) NULL) else NULL
+    
+    list(power=pwr_file, p1=sens_file, ci_diag=ci_diag_file)
   }
+  
   
   build_interp_text <- function(rd) {
     tpl <- if (!is.null(input$rpt_interp_text) && nchar(trimws(input$rpt_interp_text)) > 0)
@@ -635,143 +1046,245 @@ server <- function(input, output, session) {
     contentType = "application/pdf",
     content = function(file) {
       tryCatch({
-        rd   <- build_report_data()
-        n_val <- rd$n_val; ci_label <- rd$ci_label
-        n_fmt <- rd$n_fmt; ns_fmt <- rd$ns_fmt; nd_fmt <- rd$nd_fmt
+        # ── Pull all values from live reactives ──────────────────────────────
+        rd       <- build_report_data()
+        n_val    <- rd$n_val
+        ci_label <- rd$ci_label
+        n_fmt    <- rd$n_fmt
+        ns_fmt   <- rd$ns_fmt
+        nd_fmt   <- rd$nd_fmt
+        is_sfty  <- isTRUE(input$endpoint == "safety")
+        ep_txt   <- if (is_sfty) "Lower is better" else "Higher is better"
+        av       <- as.numeric(input$sig.level)
+        pg_val   <- as.numeric(pg_d())
+        pd_val   <- as.numeric(pd_d())
+        pwr_val  <- as.numeric(power_d())
+        dr_r     <- get_dropout_rate()
         
-        show_results <- !isTRUE(input$rpt_results   == FALSE)
-        show_interp  <- !isTRUE(input$rpt_interp_inc== FALSE) && !is.infinite(n_val) && !is.na(rd$n_successes)
-        show_ci_cmp  <- !isTRUE(input$rpt_ci_compare== FALSE)
-        show_defs    <- !isTRUE(input$rpt_definitions==FALSE)
-        show_code    <- !isTRUE(input$rpt_calc_code  ==FALSE)
-        show_n_box   <- !isTRUE(input$rpt_n_box      ==FALSE)
-        show_plot_p1 <- isTRUE(input$rpt_plot_p1)
-        show_table_p1<- isTRUE(input$rpt_table_p1)
+        # Actual achieved power at required n (exact binomial)
+        actual_pw_rpt <- tryCatch({
+          df_pw <- prop_df_power()
+          df_c  <- df_pw[!is.na(df_pw$y), ]
+          if (nrow(df_c) > 0 && !is.infinite(n_val)) {
+            idx <- which.min(abs(df_c$x - n_val))
+            round(df_c$y[idx] * 100, 1)
+          } else NA_real_
+        }, error = function(e) NA_real_)
+        actual_pw_txt <- if (!is.na(actual_pw_rpt)) paste0(actual_pw_rpt, "%") else "—"
         
-        plot_files <- if (show_plot_p1) capture_plots() else list(p1=NULL)
-        blue <- "#2E74B5"
-        td <- function(v) paste0("<td style='padding:5px 9px;border:1px solid #dde3ea;font-size:9.5px;'>",v,"</td>")
-        th <- function(v) paste0("<th style='padding:5px 9px;background:#eef3f8;border:1px solid #dde3ea;text-align:left;font-size:9.5px;'>",v,"</th>")
-        h2s <- paste0("color:",blue,";font-size:13px;margin:20px 0 6px;")
-        hr  <- paste0("<hr style='border-color:",blue,";margin:14px 0;'>")
-        is_sfty <- isTRUE(input$endpoint=="safety")
-        ep_txt <- if (is_sfty) "Lower is better" else "Higher is better"
+        show_results    <- !isTRUE(input$rpt_results    == FALSE)
+        show_interp     <- !isTRUE(input$rpt_interp_inc == FALSE) && !is.infinite(n_val) && !is.na(rd$n_successes)
+        show_ci_cmp     <- !isTRUE(input$rpt_ci_compare == FALSE)
+        show_defs       <- !isTRUE(input$rpt_definitions== FALSE)
+        show_code       <- !isTRUE(input$rpt_calc_code  == FALSE)
+        show_n_box      <- !isTRUE(input$rpt_n_box      == FALSE)
+        show_plot_power <- isTRUE(input$rpt_plot_power)
+        show_plot_p1    <- isTRUE(input$rpt_plot_p1)
+        show_table_p1   <- isTRUE(input$rpt_table_p1)
         
+        show_ci_diag    <- isTRUE(input$rpt_ci_diagram)
+        plot_files <- capture_plots(
+          include_power   = show_plot_power,
+          include_sens    = show_plot_p1,
+          include_ci_diag = show_ci_diag
+        )
+        
+        # ── HTML helpers ─────────────────────────────────────────────────────
+        blue  <- "#1e40af"
+        grey  <- "#64748b"
+        lbl_s <- "padding:6px 10px;border:1px solid #e2e8f0;font-size:9px;
+                  font-weight:600;color:#374151;white-space:nowrap;background:#f8fafc;"
+        val_s <- "padding:6px 10px;border:1px solid #e2e8f0;font-size:9px;color:#1a2e35;"
+        th_s  <- paste0("padding:6px 10px;background:",blue,";color:#fff;",
+                        "font-size:9px;font-weight:600;text-align:left;border:1px solid #1e3a8a;")
+        td_s  <- "padding:6px 10px;border:1px solid #e2e8f0;font-size:9px;color:#1a2e35;"
+        td_c  <- paste0(td_s, "text-align:center;font-family:'Courier New',monospace;")
+        th    <- function(v) paste0("<th style='",th_s,"'>",v,"</th>")
+        td    <- function(v) paste0("<td style='",td_s,"'>",v,"</td>")
+        tdc   <- function(v) paste0("<td style='",td_c,"'>",v,"</td>")
+        lbl   <- function(v) paste0("<td style='",lbl_s,"'>",v,"</td>")
+        val   <- function(v) paste0("<td style='",val_s,"'>",v,"</td>")
+        h2s   <- paste0("color:",blue,";font-size:12px;font-weight:700;",
+                        "margin:22px 0 8px;padding-bottom:4px;",
+                        "border-bottom:2px solid #e2e8f0;")
+        hr    <- "<hr style='border:none;border-top:1px solid #e2e8f0;margin:18px 0;'>"
+        tbl   <- function(inner) paste0(
+          "<table style='border-collapse:collapse;width:100%;margin-bottom:6px;'>",
+          inner,"</table>")
+        
+        # ── Results table ─────────────────────────────────────────────────────
         results_html <- if (show_results) paste0(
           "<h2 style='",h2s,"'>Results</h2>",
-          "<p style='font-size:9.5px;color:#444;'>",
-          if (is_sfty) "H\u2080: device rate \u2265 PG &nbsp; H\u2081: device rate &lt; PG"
-          else         "H\u2080: device rate \u2264 PG &nbsp; H\u2081: device rate &gt; PG",
+          "<p style='font-size:9px;color:",grey,";margin:0 0 8px;'>",
+          if (is_sfty) "H\u2080: device rate \u2265 PG &nbsp;\u2014&nbsp; H\u2081: device rate &lt; PG"
+          else         "H\u2080: device rate \u2264 PG &nbsp;\u2014&nbsp; H\u2081: device rate &gt; PG",
           "</p>",
-          "<table style='border-collapse:collapse;width:100%;'>",
-          "<tr>",th("Power"),th("n"),th("n-events"),
-          th(paste0(rd$dropout_r,"% dropout")),
-          th("PG"),th("Device rate"),th("\u03b1"),th("Method"),"</tr>",
-          "<tr>",td(format(input$power,nsmall=2)),td(n_fmt),td(ns_fmt),td(nd_fmt),
-          td(input$p0.expected),td(input$p1.expected),
-          td(input$sig.level),td(ci_label),"</tr></table>",hr
+          tbl(paste0(
+            "<tr>",th("PG"),th("Device rate"),th("\u03b1"),th("Target power"),
+            th("Required n"),th("Actual power"),th("Events threshold"),
+            th(paste0(dr_r,"% dropout enrolment")),th("Method"),"</tr>",
+            "<tr>",tdc(pg_val),tdc(pd_val),tdc(av),
+            tdc(paste0(round(pwr_val*100),"%")),
+            tdc(n_fmt),tdc(actual_pw_txt),tdc(ns_fmt),tdc(nd_fmt),
+            tdc(ci_label),"</tr>"
+          )),hr
         ) else ""
         
+        # ── Full n summary ────────────────────────────────────────────────────
         n_box_html <- if (show_n_box) {
-          dr_r <- get_dropout_rate(); av <- as.numeric(input$sig.level)
-          pg_v <- as.numeric(pg_d()); z_nb <- qnorm(1-av)
+          z_nb <- qnorm(1-av)
           n_sn <- if (is.infinite(n_val)) NA_integer_
-          else if (is_sfty) floor(n_val*pg_v  - z_nb*sqrt(n_val*pg_v*(1-pg_v)))
-          else              ceiling(n_val*pg_v + z_nb*sqrt(n_val*pg_v*(1-pg_v)))
+          else if (is_sfty) floor(n_val*pg_val  - z_nb*sqrt(n_val*pg_val*(1-pg_val)))
+          else              ceiling(n_val*pg_val + z_nb*sqrt(n_val*pg_val*(1-pg_val)))
           nd_n <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val/(1-dr_r/100))
-          rows <- list(
-            c("Endpoint direction", ep_txt),
-            c("Performance goal (PG)", as.character(pg_d())),
-            c("Expected device rate",  as.character(pd_d())),
-            c("\u03b1 / CI equivalent",paste0(av," / ",round((1-2*av)*100,1),"% CI")),
-            c("Power",                 paste0(round(power_d()*100),"%")),
-            c("Method",                ci_label),
-            c("Required n",            n_fmt),
-            c("Events threshold",      if(is.na(n_sn)) "—" else format(n_sn, big.mark=",")),
-            c(paste0("Enrolment (",dr_r,"% dropout)"),
-              if(is.na(nd_n)) "—" else format(nd_n, big.mark=","))
+          rows_nb <- list(
+            c("Endpoint direction",        ep_txt),
+            c("Performance goal (PG)",     as.character(pg_val)),
+            c("Expected device rate",      as.character(pd_val)),
+            c("\u03b1 (one-sided)",         paste0(av, " \u2192 ", round((1-2*av)*100,1), "% CI")),
+            c("Target power",              paste0(round(pwr_val*100), "%")),
+            c("Actual achieved power",     actual_pw_txt),
+            c("CI method",                 ci_label),
+            c("Required n",                n_fmt),
+            c("Events threshold",          if(is.na(n_sn)) "\u2014" else format(n_sn, big.mark=",")),
+            c(paste0("Enrolment (",dr_r,"% dropout)"), if(is.na(nd_n)) "\u2014" else format(nd_n, big.mark=","))
           )
           paste0("<h2 style='",h2s,"'>Sample Size Summary</h2>",
-                 "<table style='border-collapse:collapse;width:100%;'>",
-                 "<tr>",th("Parameter"),th("Value"),"</tr>",
-                 paste(sapply(rows, function(r) paste0("<tr>",td(r[1]),td(r[2]),"</tr>")), collapse=""),
-                 "</table>",hr)
+                 tbl(paste0(
+                   "<tr>",th("Parameter"),th("Value"),"</tr>",
+                   paste(sapply(rows_nb, function(r)
+                     paste0("<tr>",lbl(r[1]),val(r[2]),"</tr>")), collapse="")
+                 )),hr)
         } else ""
         
+        # ── Interpretation ────────────────────────────────────────────────────
         interp_html <- if (show_interp) paste0(
           "<h2 style='",h2s,"'>Interpretation</h2>",
-          "<p style='font-size:9.5px;line-height:1.7;'>",build_interp_text(rd),"</p>",hr
+          "<p style='font-size:9.5px;line-height:1.75;color:#374151;'>",
+          build_interp_text(rd),"</p>",hr
         ) else ""
         
-        all_m <- c("TrialSize(Z)"="z_power","Wilson"="wilson","Exact"="exact",
-                   "AC"="ac","Wald"="asymptotic","prop.test"="prop.test",
-                   "Bayes"="bayes","Logit"="logit","Cloglog"="cloglog","Probit"="probit")
-        m_ns <- sapply(all_m, function(m) {
-          n <- prop_total_n(input$p0.expected, input$p1.expected,
-                            ci_method=m, sim_n=400, seed=1)
-          if (is.infinite(n)) "\u2014" else format(n, big.mark=",")
-        })
-        ci_html <- if (show_ci_cmp) paste0(
-          "<h2 style='",h2s,"'>Sample size by method</h2>",
-          "<p style='font-size:9px;color:#555;'>PG = ",input$p0.expected,
-          " | device rate = ",input$p1.expected," | \u03b1 = ",input$sig.level,
-          " | power = ",input$power,"</p>",
-          "<table style='border-collapse:collapse;width:100%;'>",
-          "<tr>",paste(sapply(names(all_m),th),collapse=""),"</tr>",
-          "<tr>",paste(sapply(unname(m_ns),td),collapse=""),"</tr>",
-          "</table>",hr
-        ) else ""
+        # ── CI method comparison — correct methods, includes achieved power ───
+        ci_html <- if (show_ci_cmp) {
+          ci_methods <- all_compare_methods   # named vector from server scope
+          get_pw <- function(n_v) {
+            if (is.na(n_v) || !is.finite(n_v)) return(NA_real_)
+            pg_b <- if (is_sfty) 1-pg_val else pg_val
+            pd_b <- if (is_sfty) 1-pd_val else pd_val
+            xc   <- qbinom(1-av, n_v, pg_b) + 1L
+            if (xc > n_v) return(NA_real_)
+            1 - pbinom(xc-1L, n_v, pd_b)
+          }
+          cur_m <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+          rows_ci <- lapply(names(ci_methods), function(nm) {
+            m     <- ci_methods[[nm]]
+            n_m   <- tryCatch(
+              prop_total_n(pg_val, pd_val, ci_method=m, sim_n=400L, seed=1L),
+              error=function(e) Inf)
+            n_txt <- if (is.infinite(n_m)) "\u2014" else format(as.integer(n_m), big.mark=",")
+            pw_m  <- get_pw(if (is.finite(n_m)) as.integer(n_m) else NA_integer_)
+            pw_txt <- if (is.na(pw_m)) "\u2014" else paste0(round(pw_m*100,1),"%")
+            sel   <- m == cur_m
+            is_ok <- is.finite(n_m) && !is.na(n_val) && !is.infinite(n_val) &&
+              as.integer(n_m) <= as.integer(n_val)
+            bg    <- if (!is.finite(n_m)) "#fef3c7"
+            else if (is_ok)      "#dcfce7"
+            else                 "#fff7ed"
+            fg    <- if (!is.finite(n_m)) "#92400e"
+            else if (is_ok)      "#166534"
+            else                 "#9a3412"
+            name_cell <- paste0("<td style='",td_s,"font-weight:",
+                                if(sel)"700"else"400","'>",nm,"</td>")
+            n_cell    <- paste0("<td style='",td_c,"color:",fg,";font-weight:600;background:",
+                                bg,"'>",n_txt,"</td>")
+            pw_cell   <- paste0("<td style='",td_c,"color:",fg,";background:",bg,"'>",pw_txt,"</td>")
+            paste0("<tr>",name_cell,n_cell,pw_cell,"</tr>")
+          })
+          paste0(
+            "<h2 style='",h2s,"'>CI method comparison</h2>",
+            "<p style='font-size:9px;color:",grey,";margin:0 0 8px;'>",
+            "PG = ",pg_val,"  |  device rate = ",pd_val,
+            "  |  \u03b1 = ",av,"  |  target power = ",round(pwr_val*100),"%</p>",
+            tbl(paste0(
+              "<tr>",th("Method"),th("Required n"),th("Achieved power (%)"),"</tr>",
+              paste(rows_ci, collapse="")
+            )),
+            "<p style='font-size:8.5px;color:",grey,";margin:4px 0 0;font-style:italic;'>",
+            "Green = meets or beats required n \u00b7 Amber = larger n \u00b7 Bold = selected method</p>",
+            hr)
+        } else ""
         
+        # ── Definitions ───────────────────────────────────────────────────────
         defs_list <- list(
-          c("Power",             "Probability of correctly rejecting H\u2080."),
-          c("n",                 "Minimum evaluable patients required."),
-          c("Events threshold",  "Min/max events needed to meet the decision rule."),
-          c("PG (Performance Goal)", "Pre-specified benchmark rate from literature or prior data."),
-          c("Device rate",       "Expected true event/success rate of the device."),
-          c("\u03b1",            "Probability of a false-positive result (one-sided)."),
-          c("CI Method",         "Method used to construct the confidence interval.")
+          c("n",                     "Minimum number of evaluable patients required."),
+          c("Events threshold",      "Min successes (or max events) needed to meet the decision rule."),
+          c("Actual power",          "Exact binomial power at the required n."),
+          c("PG",                    "Performance goal \u2014 pre-specified benchmark rate."),
+          c("Device rate",           "Anticipated true event/success rate of the device."),
+          c("\u03b1",                "Probability of a false-positive result (one-sided)."),
+          c("CI method",             "Method used to construct the confidence interval for the decision rule.")
         )
         defs_html <- if (show_defs) paste0(
           "<h2 style='",h2s,"'>Definitions</h2>",
-          "<table style='border-collapse:collapse;width:100%;'>",
-          paste(sapply(defs_list, function(d) paste0(
-            "<tr><td style='padding:4px 9px;font-weight:600;border:1px solid #dde3ea;font-size:9px;white-space:nowrap;'>",d[1],"</td>",
-            "<td style='padding:4px 9px;border:1px solid #dde3ea;font-size:9px;'>",d[2],"</td></tr>"
-          )), collapse=""),
-          "</table>",hr
+          tbl(paste0(
+            "<tr>",th("Term"),th("Definition"),"</tr>",
+            paste(sapply(defs_list, function(d)
+              paste0("<tr>",lbl(d[1]),val(d[2]),"</tr>")), collapse="")
+          )),hr
         ) else ""
         
+        # ── Calculation code ──────────────────────────────────────────────────
         code_html <- if (show_code) paste0(
-          "<h2 style='",h2s,"'>Calculation</h2>",
-          "<pre style='background:#f1f5f9;border-radius:6px;padding:12px;",
-          "font-family:\"Courier New\",monospace;font-size:8.5px;color:#1a1a2e;line-height:1.75;'>",
-          build_calc_code_txt(),"</pre>"
+          "<h2 style='",h2s,"'>Calculation code</h2>",
+          "<pre style='background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;",
+          "padding:12px;font-family:\"Courier New\",monospace;font-size:8px;",
+          "color:#1a1a2e;line-height:1.75;overflow-x:auto;'>",
+          build_calc_code_txt(),"</pre>",hr
         ) else ""
         
+        # ── Plot images ───────────────────────────────────────────────────────
         img_tag <- function(f, cap) {
           if (is.null(f)||!file.exists(f)) return("")
           b64 <- base64enc::base64encode(f)
-          paste0("<figure style='margin:12px 0;'><img src='data:image/png;base64,",b64,
-                 "' style='width:100%;max-width:600px;'>",
-                 "<figcaption style='font-size:9px;color:#555;margin-top:4px;'>",cap,"</figcaption></figure>")
+          paste0("<figure style='margin:14px 0 6px;page-break-inside:avoid;'>",
+                 "<img src='data:image/png;base64,",b64,"' style='width:100%;max-width:560px;",
+                 "border:1px solid #e2e8f0;border-radius:4px;'>",
+                 "<figcaption style='font-size:8.5px;color:",grey,";margin-top:4px;font-style:italic;'>",
+                 cap,"</figcaption></figure>")
         }
+        plot_power_html <- if (show_plot_power) paste0(
+          "<h2 style='",h2s,"'>Power vs n</h2>",
+          img_tag(plot_files$power,"Sample size (n) vs achieved power (%)"),hr
+        ) else ""
         plot_p1_html <- if (show_plot_p1) paste0(
-          "<h2 style='",h2s,"'>Device Rate Sensitivity Plot</h2>",
-          img_tag(plot_files$p1, "Device rate vs required sample size"),hr
+          "<h2 style='",h2s,"'>Device rate sensitivity</h2>",
+          img_tag(plot_files$p1,"Expected device rate vs required sample size"),hr
         ) else ""
         
-        df_p1_pdf <- if (show_table_p1) tryCatch(prop_df_sens(), error=function(e) NULL) else NULL
+        # ── Sensitivity table ─────────────────────────────────────────────────
+        df_p1_pdf    <- if (show_table_p1) tryCatch(prop_df_sens(), error=function(e) NULL) else NULL
         table_p1_html <- if (show_table_p1 && !is.null(df_p1_pdf)) paste0(
-          "<h2 style='",h2s,"'>Device Rate Sensitivity Table</h2>",
+          "<h2 style='",h2s,"'>Device rate sensitivity table</h2>",
           make_sens_table_html(df_p1_pdf,
-                               col_names=c("Device Rate","Required N"),
-                               caption=paste0("PG = ",input$p0.expected),
+                               col_names=c("Device rate","Required n"),
+                               caption=paste0("PG = ",pg_val,"  |  \u03b1 = ",av,"  |  power = ",round(pwr_val*100),"%"),
                                blue=blue, th_fn=th, td_fn=td),hr
         ) else ""
         
-        section_map <- list(results=results_html, n_box=n_box_html, interp=interp_html,
-                            ci_compare=ci_html, definitions=defs_html, calc_code=code_html,
-                            plot_p1=plot_p1_html, table_p1=table_p1_html)
+        # ── Assemble body ─────────────────────────────────────────────────────
+        ci_diag_html <- if (show_ci_diag && !is.null(plot_files$ci_diag) &&
+                            file.exists(plot_files$ci_diag)) paste0(
+                              "<h2 style='",h2s,"'>Confidence interval diagram</h2>",
+                              img_tag(plot_files$ci_diag,
+                                      paste0("CI at n = ", tryCatch(as.integer(prop_n()),error=function(e)"?"),
+                                             "  (observed rate = ", pd_val, ")")),hr
+                            ) else ""
+        
+        section_map <- list(
+          results=results_html, n_box=n_box_html, interp=interp_html,
+          ci_compare=ci_html, definitions=defs_html, calc_code=code_html,
+          ci_diagram=ci_diag_html,
+          plot_power=plot_power_html, plot_p1=plot_p1_html, table_p1=table_p1_html)
         body_html <- paste(sapply(get_section_order(), function(s) section_map[[s]] %||% ""), collapse="")
         
         rpt_title <- if (!is.null(input$rpt_title) && nchar(trimws(input$rpt_title))>0)
@@ -785,29 +1298,59 @@ server <- function(input, output, session) {
         sub_line <- if (length(sub_parts)>0)
           paste0("<p class='sub'>",paste(sub_parts,collapse=" &nbsp;|&nbsp; "),"</p>") else ""
         
+        # ── Professional HTML/CSS with page numbers ───────────────────────────
         html_out <- paste0(
-          "<!DOCTYPE html><html><head><meta charset='UTF-8'>",
-          "<style>body{font-family:'Helvetica Neue',Arial,sans-serif;margin:40px;",
-          "color:#1a2e35;font-size:10px;line-height:1.5;}",
-          "h1{color:",blue,";font-size:17px;margin:0 0 4px;}",
-          ".sub{font-size:9px;color:#666;margin:0 0 10px;}",
-          "hr.top{border:none;border-top:2px solid ",blue,";margin:10px 0 16px;}",
-          "@page{size:A4;margin:18mm 18mm 22mm 18mm;}</style></head><body>",
-          "<h1>",rpt_title,"</h1>",sub_line,
-          "<hr class='top'>",body_html,
-          "<p style='margin-top:32px;font-size:8.5px;color:#94a3b8;font-style:italic;",
-          "border-top:1px solid #e2e8f0;padding-top:10px;'>",
-          "Generated by PG-Power.</p></body></html>"
+          "<!DOCTYPE html><html><head><meta charset='UTF-8'><style>",
+          "*, *::before, *::after { box-sizing: border-box; }",
+          "body { font-family: 'Helvetica Neue', Arial, sans-serif;",
+          "  margin: 0; padding: 0; color: #1a2e35; font-size: 10px;",
+          "  line-height: 1.55; background: #fff; }",
+          "h1  { color:",blue,"; font-size: 18px; margin: 0 0 3px; font-weight:700; }",
+          "h2  { color:",blue,"; font-size: 12px; font-weight:700;",
+          "      margin:22px 0 8px; padding-bottom:4px;",
+          "      border-bottom:2px solid #e2e8f0; }",
+          ".sub { font-size:8.5px; color:#64748b; margin:0 0 0; }",
+          "table { border-collapse:collapse; width:100%; margin-bottom:6px; }",
+          "pre   { white-space:pre-wrap; word-break:break-all; }",
+          "figure{ margin:14px 0 6px; page-break-inside:avoid; }",
+          "img   { max-width:100%; border:1px solid #e2e8f0; border-radius:4px; }",
+          "@page {",
+          "  size: A4;",
+          "  margin: 20mm 18mm 24mm 18mm;",
+          "  @bottom-right {",
+          "    content: 'Page ' counter(page) ' of ' counter(pages);",
+          "    font-size: 8px; color: #94a3b8;",
+          "    font-family: 'Helvetica Neue', Arial, sans-serif;",
+          "  }",
+          "  @bottom-left {",
+          "    content: 'Generated by PG-Power';",
+          "    font-size: 8px; color: #94a3b8;",
+          "    font-family: 'Helvetica Neue', Arial, sans-serif;",
+          "  }",
+          "}",
+          ".page-header { padding: 0 0 12px; border-bottom: 3px solid ",blue,";",
+          "  margin-bottom: 18px; }",
+          ".cover-rule { border:none; border-top:3px solid ",blue,";",
+          "  margin: 10px 0 18px; }",
+          "</style></head><body>",
+          "<div class='page-header'>",
+          "<h1>",rpt_title,"</h1>",
+          sub_line,
+          "</div>",
+          body_html,
+          "</body></html>"
         )
+        
         tmp_html <- tempfile(fileext=".html")
         writeLines(html_out, con=tmp_html, useBytes=FALSE)
         if (requireNamespace("pagedown", quietly=TRUE)) {
-          pagedown::chrome_print(tmp_html, output=file, wait=15); unlink(tmp_html)
+          pagedown::chrome_print(tmp_html, output=file, wait=20); unlink(tmp_html)
         } else if (requireNamespace("webshot2", quietly=TRUE)) {
           webshot2::webshot(tmp_html, file=file, vwidth=794, vheight=1123); unlink(tmp_html)
         } else {
           file.copy(tmp_html, file, overwrite=TRUE); unlink(tmp_html)
-          showNotification("PDF engine not found. Downloaded as HTML.", type="warning", duration=12)
+          showNotification("PDF engine not found. Downloaded as HTML. Install pagedown for PDF.",
+                           type="warning", duration=12)
         }
       }, error=function(e) message("PDF ERROR: ", conditionMessage(e)))
     }
@@ -826,7 +1369,13 @@ server <- function(input, output, session) {
         n_fmt <- rd$n_fmt; ns_fmt <- rd$ns_fmt; nd_fmt <- rd$nd_fmt
         show_plot_p1_w  <- isTRUE(input$rpt_plot_p1)
         show_table_p1_w <- isTRUE(input$rpt_table_p1)
-        plot_files_w    <- if (show_plot_p1_w) capture_plots() else list(p1=NULL)
+        show_plot_power_w <- isTRUE(input$rpt_plot_power)
+        show_ci_diag_w    <- isTRUE(input$rpt_ci_diagram)
+        plot_files_w      <- capture_plots(
+          include_power   = show_plot_power_w,
+          include_sens    = show_plot_p1_w,
+          include_ci_diag = show_ci_diag_w
+        )
         is_sfty <- isTRUE(input$endpoint=="safety")
         ep_txt  <- if (is_sfty) "Lower is better" else "Higher is better"
         
@@ -961,6 +1510,22 @@ server <- function(input, output, session) {
           doc <- officer::body_add_par(doc, "", style="Normal")
         }
         
+        if (show_ci_diag_w && !is.null(plot_files_w$ci_diag) && file.exists(plot_files_w$ci_diag)) {
+          n_ci_rows <- tryCatch(nrow(ci_diagram_data()) %||% 1L, error=function(e) 1L)
+          h_ci      <- max(2.0, n_ci_rows * 0.55)
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Confidence interval diagram", h2_fmt), fp_p=tight_p))
+          doc <- officer::body_add_img(doc, src=plot_files_w$ci_diag, width=5.5, height=h_ci)
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p=border_p))
+          doc <- officer::body_add_par(doc, "", style="Normal")
+        }
+        if (show_plot_power_w && !is.null(plot_files_w$power) && file.exists(plot_files_w$power)) {
+          doc <- officer::body_add_fpar(doc,
+                                        officer::fpar(officer::ftext("Power vs n Plot", h2_fmt), fp_p=tight_p))
+          doc <- officer::body_add_img(doc, src=plot_files_w$power, width=5.5, height=3.2)
+          doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p=border_p))
+          doc <- officer::body_add_par(doc, "", style="Normal")
+        }
         if (show_plot_p1_w && !is.null(plot_files_w$p1) && file.exists(plot_files_w$p1)) {
           doc <- officer::body_add_fpar(doc,
                                         officer::fpar(officer::ftext("Device Rate Sensitivity Plot", h2_fmt), fp_p=tight_p))
@@ -998,6 +1563,23 @@ server <- function(input, output, session) {
       }, error=function(e) message("Word ERROR: ", conditionMessage(e)))
     }
   )
+  
+  # ── Calculation code display ─────────────────────────────────────────────────
+  output$calc_code_ui <- renderUI({
+    if (!isTRUE(input$show_calc_code)) return(NULL)
+    # Send GitHub popup message when code is shown
+    session$sendCustomMessage("showGithubPopup", "https://github.com/FilipMKgit/MDX2526")
+    code_block_ui(build_calc_code_txt())
+  })
+  
+  # ── CI diagram wrapper — dynamic height based on number of methods ───────────
+  output$ci_diagram_wrapper <- renderUI({
+    if (!isTRUE(input$showCIDiagram)) return(NULL)
+    df <- ci_diagram_data()
+    n_rows <- if (is.null(df)) 1L else max(1L, nrow(df))
+    h_px   <- max(200L, n_rows * 60L + 80L)
+    plotlyOutput("plot_ci_diagram", height=paste0(h_px, "px"))
+  })
   
   # ── Download handlers (data/plots) ────────────────────────────────────────────
   output$downloadData_plot2 <- downloadHandler(

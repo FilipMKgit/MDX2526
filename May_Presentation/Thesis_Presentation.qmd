@@ -29,33 +29,47 @@ Overview
 
 -   To do
 
-## Simulation Study: Small Proportions
+# Simulation Study: Small Proportions
 
-Problem:
+## Problem
 
-![](images/complications_image.png){width="114"}
+::::: columns
 
-![](images/success_image.jpg){width="132"}
+::: {.column width="30%"}
+![](images/complications_image.png){width="100%"}
 
-Proportions of interest are close to boundaries
+**Complications** = lower boundary
+:::
 
-## Simulation Study: Small Proportions
+::: {.column width="10%"}
+<div style="border-left: 2px solid gray; height: 100%; margin: auto;"></div>
+:::
 
-Wald's confidence interval
+::: {.column width="45%"}
+![](images/success_image.jpg){width="100%"}
+
+**High Success Rate** = upper boundary
+:::
+
+:::::
+
+## Wald's confidence interval
 
 $$
 \hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
 $$
 
-![](images/clipboard-1473646001.jpeg){fig-align="left" width="104"}
-
--   **Violated symmetry assumption** underlying the normal approximation
-
--   Narrow CI
-
--   extend beyond the \[1,0\] range
-
--   Substantial **undercoverage** 
+::::: columns
+::: {.column width="25%"}
+![](images/clipboard-1473646001.jpeg){width="100%"}
+:::
+::: {.column width="75%"}
+- **Violated symmetry assumption** underlying the normal approximation
+- Narrow CI
+- Extend beyond the [0,1] range
+- Substantial **undercoverage**
+:::
+:::::
 
 ## 
 
@@ -129,8 +143,127 @@ legend(
 
 -   Jeffreys Interval
 
-Similar workflow to **Pires & Amado, 2008** paper: *Interval estimators for a binomial proportion: Comparison of twenty methods\
-*
+## Wilson Score Interval
+
+$$
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+\;\pm\;
+z \sqrt{
+\dfrac{\hat{p}(1 - \hat{p})}{n} + \dfrac{z^2}{4n^2}
+}
+}{
+1 + \dfrac{z^2}{n}
+}
+$$
+
+Think of it as an adjusted Wald CI
+
+Wald deems estimate to be center of interval
+
+## 
+
+Wilson fixes that with
+
+$$
+\tilde{p}
+=
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+}{
+1 + \dfrac{z^2}{n}
+}
+$$
+
+Adjusting center of interval
+
+$$
+\dfrac{z^2}{2n}
+$$
+
+Pulls centre away from 0 or 1\
+
+## Agresti-Coull Interval
+
+$$
+\hat{p} = \frac{x}{n}
+\qquad \longrightarrow \qquad
+\tilde{p} = \frac{x + 2}{n + 4}
+$$
+
+CI then calculated as:
+
+$$
+\tilde{p}
+\;\pm\;
+1.96
+\sqrt{
+\frac{
+\tilde{p}(1-\tilde{p})
+}{
+n+4
+}
+}
+$$
+
+Essentially improved Wald
+
+## Clopper-Pearson Interval
+
+$$
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
+\right]
+$$
+
+-   AKA exact binomial confidence interval
+-   based directly on the binomial probability model
+
+$$
+X \sim \text{Binomial}(n, p)
+$$
+
+## Prop.test Interval
+
+$$
+\text{derived from a score test:}
+\quad
+\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}
+$$
+
+Similar to wald but uses a score based interval
+
+Score based interval = CI made by testing which true proportions are reasonable
+
+(only keeps values of p0 that are not rejected)
+
+## Jeffrey Interval
+
+$$
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right)
+\right]
+$$
+
+Based on bayesian idea but often works for frequentists problems
+
+Starts with a weak prior belief on p
+
+Similar to Agresti-Coull but adds 0.5 successes and 0.5 failures
+
+##
+
+Similar workflow to **Pires & Amado, 2008** paper: *Interval estimators for a binomial proportion: Comparison of twenty methods*
+
+evaluated under:
+
+-   Coverage probability
+-   min coverage probability vs Sample size
+-   expected width of 95% CI
 
 ## 
 
@@ -407,53 +540,305 @@ expected_width_vs_p_binom <- function(n          = 20,
 expected_width_vs_p_binom()
 ```
 
-## Observations
+## Interesting Insights
 
--   .
+- Wilson and Agresti-Coull are the best practical choices — they maintain near-nominal coverage even for small $p$, without the excessive width of Clopper-Pearson
 
--   .
+- Clopper-Pearson guarantees $\geq 95\%$ coverage but is conservative — its intervals are wider than necessary, which increases required sample size
 
--   .
+- Wald interval fails badly at boundaries — undercoverage is severe for $p < 0.1$, making it unsuitable for clinical settings where event rates (e.g. TVR) are small
 
--   .
+- Jeffreys interval performs comparably to Wilson, with slightly better behaviour at the boundaries — a good Bayesian-inspired alternative when approximate methods are acceptable
 
-## Sample size
+# Sample size calculation
 
-![](images/ncss_pass_logo.jpg){width="206"}
+##
 
-![](images/nqueryimage.PNG){width="203"}
+```{r include=FALSE, echo=FALSE}
 
-n=
+#PASS CODE EQUIVILANT
+# https://stat.ethz.ch/pipermail/r-help/2011-November/294503.html
+N <- 150:250
+Alpha <- 0.025
+Pow <- 0.9
+p0 <- 0.89 
+p1 <- 0.95 
 
-n=
+# Required number of events, given a vector of sample sizes (N)
+# to be considered at the null proportion, for the given Alpha
+CritVal <- qbinom(p = 1 - Alpha, size = N, prob = p0)
 
-n=
+# Get Beta (Type II error) for each N at the alternate hypothesis
+# proportion
+Beta <- pbinom(CritVal, N, p1)
 
-## Why the differences?
+# Get the Power
+Power <- 1 - Beta
 
-Saw diagram
+# Find the smallest sample size yielding at least the required power
+SampSize <- min(which(Power > Pow))
 
-explain
+# Required Sample size
 
-best n is arguably the smallest because of money
+N[SampSize]
 
-## PG-Power
+# Get and print the required number of events to reject the null
+# given the sample size required
+(Res <- paste(N[SampSize]- (CritVal[SampSize] + 1), "out of", N[SampSize]))
 
-posit link, explore the settings
 
-show the plot
+# Plot it all 
+plot(N, Power, type = "b", las = 1)
 
-show report generation
+title(paste("One Sided Sample Size and Critical Value for H0 =", 1-p0, 
+            "versus HA = ", 1-p1, "\n",
+            "For Power = ", Pow),
+      cex.main = 0.95)
+
+points(N[SampSize], Power[SampSize], col = "red", pch = 19)
+
+text(N[SampSize], Power[SampSize], col = "red",
+     label = Res, pos = 3)
+
+abline(h = Pow, lty = "dashed")
+
+#ENVSTATS PACKAGE
+library(EnvStats)
+propTestN(
+  p.or.p1 = 0.05,
+  p0.or.p2 = 0.11,
+  alpha = 0.025,
+  power = 0.90,
+  sample.type = "one.sample",
+  alternative = "less",
+  approx = FALSE
+)
+
+################################################################
+#exact ci sample size using binom package
+
+library(binom)
+
+alpha <- 0.025
+target_power <- 0.90
+
+pg <- 0.11          #performance goal for TVR
+p_expected <- 0.05  #expected TVR rate
+
+max_n <- 1000
+
+for (n in 1:max_n) {
+  
+  possible_events <- 0:n
+  
+  upper_bounds <- sapply(possible_events, function(x) {
+    
+    binom.confint(
+      x = x,
+      n = n,
+      conf.level = 1 - alpha,
+      methods = "exact"
+    )$upper
+  })
+  
+  passing_events <- possible_events[upper_bounds < pg]
+  
+  if (length(passing_events) == 0) next
+  
+  max_tvr_allowed <- max(passing_events)
+  
+  actual_power <- pbinom(
+    q = max_tvr_allowed,
+    size = n,
+    prob = p_expected
+  )
+  
+  actual_alpha <- pbinom(
+    q = max_tvr_allowed,
+    size = n,
+    prob = pg
+  )
+  
+  if (actual_power >= target_power) {
+    
+    result <- data.frame(
+      method = "Exact Clopper-Pearson CI",
+      n = n,
+      performance_goal = pg,
+      expected_rate = p_expected,
+      max_TVR_allowed = max_tvr_allowed,
+      upper_exact_CI_at_boundary = upper_bounds[max_tvr_allowed + 1],
+      actual_alpha = actual_alpha,
+      actual_power = actual_power
+    )
+    
+    print(result)
+    break
+  }
+}
+```
+
+| Parameter | Value |
+|-----------|-------|
+| Endpoint | 30-Day TVR |
+| $\alpha$ (one-sided) | 0.025 |
+| Power | 90% |
+| Performance Goal (PG) | 0.11 |
+| Expected Rate (P1) | 0.05 |
+
+##
+
+::::: columns
+::: {.column width="20%"}
+![](images/ncss_pass_logo.jpg)
+:::
+::: {.column width="80%"}
+**NCSS PASS** n = 220
+:::
+:::::
+
+::::: columns
+::: {.column width="20%"}
+![](images/nqueryimage.PNG)
+:::
+::: {.column width="80%"}
+**nQuery** n = 232
+:::
+:::::
+
+::::: columns
+::: {.column width="20%"}
+![](images/rimage.png)
+:::
+::: {.column width="80%"}
+**R EnvStats** n = 220
+
+**R binom** n = 256
+:::
+:::::
+
+##
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+################################################################
+#plot sample size comparison
+
+N <- 150:270
+
+Alpha <- 0.025
+Pow <- 0.90
+
+p0 <- 0.89
+p1 <- 0.95
+
+CritVal <- qbinom(
+  p = 1 - Alpha,
+  size = N,
+  prob = p0
+)
+
+Beta <- pbinom(
+  q = CritVal,
+  size = N,
+  prob = p1
+)
+
+Power <- 1 - Beta
+
+method_n <- c(
+  "NCSS PASS & R EnvStats" = 220,
+  "nQuery" = 232,
+  "R binom" = 256
+)
+
+method_power <- Power[match(method_n, N)]
+
+legend_labels <- paste0(
+  names(method_n),
+  ": n = ",
+  method_n,
+  ", power = ",
+  round(method_power, 3)
+)
+
+plot(
+  N, Power,
+  type = "b",
+  las = 1,
+  xlab = "n",
+  ylab = "Power",
+  ylim = c(0.65, 1),
+  yaxt = "n",
+  main = paste(
+    "One-sided sample size comparison for 30-day TVR",
+    "\nPG =", 1 - p0,
+    "| Expected TVR =", 1 - p1,
+    "| Target power =", Pow
+  ),
+  cex.main = 0.9
+)
+
+axis(
+  side = 2,
+  at = c(0.65, 0.90, 1.00),
+  labels = c("0.65", "0.90", "1.00"),
+  las = 1
+)
+
+abline(
+  h = Pow,
+  lty = "dashed"
+)
+
+points(
+  method_n,
+  method_power,
+  pch = 19,
+  col = c("red", "darkgreen", "orange"),
+  cex = 1.4
+)
+
+legend(
+  "bottomright",
+  legend = c(
+    "Power curve",
+    "Target power",
+    legend_labels
+  ),
+  col = c("black", "black", "red", "darkgreen", "orange"),
+  lty = c(1, 2, NA, NA, NA),
+  pch = c(1, NA, 19, 19, 19),
+  bty = "n",
+  cex = 0.72
+)
+```
+
+# Shiny App
+
+## 
+
+POSIT LINK:
+
+| Parameter | Value |
+|-----------|-------|
+| Endpoint | 30-Day TVR |
+| $\alpha$ (one-sided) | 0.025 |
+| Power | 90% |
+| Performance Goal (PG) | 0.11 |
+| Expected Rate (P1) | 0.05 |
 
 ## Final steps
 
--   Bayesian
+-   Bayesian joint modelling
+
+-   bayes for gate keeping
 
 -   Internim analysis
 
 -   Synthetic Data
 
 ## References
+
+
 
 ## Thank you for your attention!
 

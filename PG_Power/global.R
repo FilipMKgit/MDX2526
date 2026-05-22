@@ -77,7 +77,9 @@ prop_ci_vec <- function(x, n, conf.level, method) {
     return(list(lower = pmax(0, p_hat - z*se), upper = pmin(1, p_hat + z*se)))
   }
   out <- tryCatch(
-    binom::binom.confint(x=x, n=n, conf.level=conf.level, methods=method),
+    suppressWarnings(
+      binom::binom.confint(x=x, n=n, conf.level=conf.level, methods=method)
+    ),
     error = function(e) NULL
   )
   if (is.null(out)) return(list(lower=rep(NA_real_, length(x)),

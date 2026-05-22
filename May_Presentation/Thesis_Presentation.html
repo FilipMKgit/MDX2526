@@ -158,26 +158,42 @@
 <li><p>To do</p></li>
 </ul>
 </section>
-<section id="simulation-study-small-proportions" class="slide level2">
-<h2>Simulation Study: Small Proportions</h2>
-<p>Problem:</p>
-<p><img data-src="images/complications_image.png" width="114"></p>
-<p><img data-src="images/success_image.jpg" width="132"></p>
-<p>Proportions of interest are close to boundaries</p>
+<section>
+<section id="simulation-study-small-proportions" class="title-slide slide level1 center">
+<h1>Simulation Study: Small Proportions</h1>
+
 </section>
-<section id="simulation-study-small-proportions-1" class="slide level2">
-<h2>Simulation Study: Small Proportions</h2>
-<p>Wald’s confidence interval</p>
+<section id="problem" class="slide level2">
+<h2>Problem</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/complications_image.png" style="width:100.0%"></p>
+<p><strong>Complications</strong> = lower boundary</p>
+</div><div class="column" style="width:10%;">
+<div style="border-left: 2px solid gray; height: 100%; margin: auto;">
+
+</div>
+</div><div class="column" style="width:45%;">
+<p><img data-src="images/success_image.jpg" style="width:100.0%"></p>
+<p><strong>High Success Rate</strong> = upper boundary</p>
+</div></div>
+</section>
+<section id="walds-confidence-interval" class="slide level2">
+<h2>Wald’s confidence interval</h2>
 <p><span class="math display">\[
 \hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
 \]</span></p>
-
-<img data-src="images/clipboard-1473646001.jpeg" class="quarto-figure quarto-figure-left r-stretch" width="104"><ul>
-<li><p><strong>Violated symmetry assumption</strong> underlying the normal approximation</p></li>
-<li><p>Narrow CI</p></li>
-<li><p>extend beyond the [1,0] range</p></li>
-<li><p>Substantial&nbsp;<strong>undercoverage</strong>&nbsp;</p></li>
+<div class="columns">
+<div class="column" style="width:25%;">
+<p><img data-src="images/clipboard-1473646001.jpeg" style="width:100.0%"></p>
+</div><div class="column" style="width:75%;">
+<ul>
+<li><strong>Violated symmetry assumption</strong> underlying the normal approximation</li>
+<li>Narrow CI</li>
+<li>Extend beyond the [0,1] range</li>
+<li>Substantial <strong>undercoverage</strong></li>
 </ul>
+</div></div>
 </section>
 <section id="section" class="slide level2">
 <h2></h2>
@@ -192,58 +208,248 @@
 <li><p>Prop.test Interval</p></li>
 <li><p>Jeffreys Interval</p></li>
 </ul>
-<p>Similar workflow to <strong>Pires &amp; Amado, 2008</strong> paper: <em>Interval estimators for a binomial proportion: Comparison of twenty methods<br>
-</em></p>
+</section>
+<section id="wilson-score-interval" class="slide level2">
+<h2>Wilson Score Interval</h2>
+<p><span class="math display">\[
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+\;\pm\;
+z \sqrt{
+\dfrac{\hat{p}(1 - \hat{p})}{n} + \dfrac{z^2}{4n^2}
+}
+}{
+1 + \dfrac{z^2}{n}
+}
+\]</span></p>
+<p>Think of it as an adjusted Wald CI</p>
+<p>Wald deems estimate to be center of interval</p>
 </section>
 <section id="section-3" class="slide level2">
 <h2></h2>
-
-<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n50-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 50, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
+<p>Wilson fixes that with</p>
+<p><span class="math display">\[
+\tilde{p}
+=
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+}{
+1 + \dfrac{z^2}{n}
+}
+\]</span></p>
+<p>Adjusting center of interval</p>
+<p><span class="math display">\[
+\dfrac{z^2}{2n}
+\]</span></p>
+<p>Pulls centre away from 0 or 1<br>
+</p>
+</section>
+<section id="agresti-coull-interval" class="slide level2">
+<h2>Agresti-Coull Interval</h2>
+<p><span class="math display">\[
+\hat{p} = \frac{x}{n}
+\qquad \longrightarrow \qquad
+\tilde{p} = \frac{x + 2}{n + 4}
+\]</span></p>
+<p>CI then calculated as:</p>
+<p><span class="math display">\[
+\tilde{p}
+\;\pm\;
+1.96
+\sqrt{
+\frac{
+\tilde{p}(1-\tilde{p})
+}{
+n+4
+}
+}
+\]</span></p>
+<p>Essentially improved Wald</p>
+</section>
+<section id="clopper-pearson-interval" class="slide level2">
+<h2>Clopper-Pearson Interval</h2>
+<p><span class="math display">\[
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
+\right]
+\]</span></p>
+<ul>
+<li>AKA exact binomial confidence interval</li>
+<li>based directly on the binomial probability model</li>
+</ul>
+<p><span class="math display">\[
+X \sim \text{Binomial}(n, p)
+\]</span></p>
+</section>
+<section id="prop.test-interval" class="slide level2">
+<h2>Prop.test Interval</h2>
+<p><span class="math display">\[
+\text{derived from a score test:}
+\quad
+\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}
+\]</span></p>
+<p>Similar to wald but uses a score based interval</p>
+<p>Score based interval = CI made by testing which true proportions are reasonable</p>
+<p>(only keeps values of p0 that are not rejected)</p>
+</section>
+<section id="jeffrey-interval" class="slide level2">
+<h2>Jeffrey Interval</h2>
+<p><span class="math display">\[
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right)
+\right]
+\]</span></p>
+<p>Based on bayesian idea but often works for frequentists problems</p>
+<p>Starts with a weak prior belief on p</p>
+<p>Similar to Agresti-Coull but adds 0.5 successes and 0.5 failures</p>
+</section>
 <section id="section-4" class="slide level2">
 <h2></h2>
-
-<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n200-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 200, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
+<p>Similar workflow to <strong>Pires &amp; Amado, 2008</strong> paper: <em>Interval estimators for a binomial proportion: Comparison of twenty methods</em></p>
+<p>evaluated under:</p>
+<ul>
+<li>Coverage probability</li>
+<li>min coverage probability vs Sample size</li>
+<li>expected width of 95% CI</li>
+</ul>
+</section>
 <section id="section-5" class="slide level2">
 <h2></h2>
 
-<img data-src="Thesis_Presentation_files/figure-revealjs/min-cp-plot-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Minimum coverage probability across different sample sizes for each method. The dashed red line shows the nominal 95% level.</p></section>
+<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n50-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 50, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
 <section id="section-6" class="slide level2">
 <h2></h2>
 
+<img data-src="Thesis_Presentation_files/figure-revealjs/cp-n200-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Coverage probability for each method as a function of p (n = 200, α = 0.05). The dashed red line marks the nominal 95% level.</p></section>
+<section id="section-7" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/min-cp-plot-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Minimum coverage probability across different sample sizes for each method. The dashed red line shows the nominal 95% level.</p></section>
+<section id="section-8" class="slide level2">
+<h2></h2>
+
 <img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
-<section id="observations" class="slide level2">
-<h2>Observations</h2>
+<section id="interesting-insights" class="slide level2">
+<h2>Interesting Insights</h2>
 <ul>
-<li><p>.</p></li>
-<li><p>.</p></li>
-<li><p>.</p></li>
-<li><p>.</p></li>
+<li><p>Wilson and Agresti-Coull are the best practical choices — they maintain near-nominal coverage even for small <span class="math inline">\(p\)</span>, without the excessive width of Clopper-Pearson</p></li>
+<li><p>Clopper-Pearson guarantees <span class="math inline">\(\geq 95\%\)</span> coverage but is conservative — its intervals are wider than necessary, which increases required sample size</p></li>
+<li><p>Wald interval fails badly at boundaries — undercoverage is severe for <span class="math inline">\(p &lt; 0.1\)</span>, making it unsuitable for clinical settings where event rates (e.g.&nbsp;TVR) are small</p></li>
+<li><p>Jeffreys interval performs comparably to Wilson, with slightly better behaviour at the boundaries — a good Bayesian-inspired alternative when approximate methods are acceptable</p></li>
 </ul>
+</section></section>
+<section>
+<section id="sample-size-calculation" class="title-slide slide level1 center">
+<h1>Sample size calculation</h1>
+
 </section>
-<section id="sample-size" class="slide level2">
-<h2>Sample size</h2>
-<p><img data-src="images/ncss_pass_logo.jpg" width="206"></p>
-<p><img data-src="images/nqueryimage.PNG" width="203"></p>
-<p>n=</p>
-<p>n=</p>
-<p>n=</p>
+<section id="section-9" class="slide level2">
+<h2></h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Endpoint</td>
+<td>30-Day TVR</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha\)</span> (one-sided)</td>
+<td>0.025</td>
+</tr>
+<tr class="odd">
+<td>Power</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>Performance Goal (PG)</td>
+<td>0.11</td>
+</tr>
+<tr class="odd">
+<td>Expected Rate (P1)</td>
+<td>0.05</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="why-the-differences" class="slide level2">
-<h2>Why the differences?</h2>
-<p>Saw diagram</p>
-<p>explain</p>
-<p>best n is arguably the smallest because of money</p>
+<section id="section-10" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:20%;">
+<p><img data-src="images/ncss_pass_logo.jpg"></p>
+</div><div class="column" style="width:80%;">
+<p><strong>NCSS PASS</strong> n = 220</p>
+</div></div>
+<div class="columns">
+<div class="column" style="width:20%;">
+<p><img data-src="images/nqueryimage.PNG"></p>
+</div><div class="column" style="width:80%;">
+<p><strong>nQuery</strong> n = 232</p>
+</div></div>
+<div class="columns">
+<div class="column" style="width:20%;">
+<p><img data-src="images/rimage.png"></p>
+</div><div class="column" style="width:80%;">
+<p><strong>R EnvStats</strong> n = 220</p>
+<p><strong>R binom</strong> n = 256</p>
+</div></div>
 </section>
-<section id="pg-power" class="slide level2">
-<h2>PG-Power</h2>
-<p>posit link, explore the settings</p>
-<p>show the plot</p>
-<p>show report generation</p>
+<section id="section-11" class="slide level2">
+<h2></h2>
+
+<img data-src="Thesis_Presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"></section></section>
+<section>
+<section id="shiny-app" class="title-slide slide level1 center">
+<h1>Shiny App</h1>
+
+</section>
+<section id="section-12" class="slide level2">
+<h2></h2>
+<p>POSIT LINK:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Endpoint</td>
+<td>30-Day TVR</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\alpha\)</span> (one-sided)</td>
+<td>0.025</td>
+</tr>
+<tr class="odd">
+<td>Power</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>Performance Goal (PG)</td>
+<td>0.11</td>
+</tr>
+<tr class="odd">
+<td>Expected Rate (P1)</td>
+<td>0.05</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="final-steps" class="slide level2">
 <h2>Final steps</h2>
 <ul>
-<li><p>Bayesian</p></li>
+<li><p>Bayesian joint modelling</p></li>
+<li><p>bayes for gate keeping</p></li>
 <li><p>Internim analysis</p></li>
 <li><p>Synthetic Data</p></li>
 </ul>
@@ -255,7 +461,7 @@
 <h2>Thank you for your attention!</h2>
 <p>Questions?</p>
 
-</section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
