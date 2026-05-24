@@ -485,129 +485,431 @@ $$
     -   Wi
 :::
 
-## Coverage Probability
+## Coverage Probability n = 50
 
 ```{r coverage-function, echo=FALSE}
 coverage_plot_binom <- function(n = 50,
                                 p_grid = seq(0.001, 0.2, by = 0.001),
-                                methods = c("exact", "asymptotic", "agresti-coull",
-                                            "wilson", "prop.test", "jeffreys"),
-                                conf.level = 0.95, plot = TRUE) {
-  if (!requireNamespace("binom", quietly = TRUE)) stop("Package 'binom' is required.")
+                                methods = c("asymptotic",
+                                            "wilson",
+                                            "prop.test",
+                                            "agresti-coull",
+                                            "exact",
+                                            "jeffreys"),
+                                conf.level = 0.95,
+                                plot = TRUE) {
+  
   get_ci <- function(x, n, method, conf.level) {
+    
     alpha <- 1 - conf.level
+    
     if (method == "jeffreys") {
-      lower <- ifelse(x == 0, 0, qbeta(alpha / 2,     x + 0.5, n - x + 0.5))
-      upper <- ifelse(x == n, 1, qbeta(1 - alpha / 2, x + 0.5, n - x + 0.5))
+      
+      lower <- ifelse(
+        x == 0,
+        0,
+        qbeta(alpha / 2, x + 0.5, n - x + 0.5)
+      )
+      
+      upper <- ifelse(
+        x == n,
+        1,
+        qbeta(1 - alpha / 2, x + 0.5, n - x + 0.5)
+      )
+      
       data.frame(lower = lower, upper = upper)
+      
     } else {
-      ci <- binom::binom.confint(x, n, conf.level = conf.level, methods = method)
+      
+      ci <- binom::binom.confint(
+        x,
+        n,
+        conf.level = conf.level,
+        methods = method
+      )
+      
       data.frame(lower = ci$lower, upper = ci$upper)
     }
   }
+  
   compute_coverage <- function(method) {
+    
     coverage <- numeric(length(p_grid))
+    
     for (i in seq_along(p_grid)) {
-      p <- p_grid[i]; x_vals <- 0:n; probs <- dbinom(x_vals, size = n, prob = p)
+      
+      p <- p_grid[i]
+      x_vals <- 0:n
+      probs <- dbinom(x_vals, size = n, prob = p)
+      
       ci <- get_ci(x_vals, n, method, conf.level)
-      coverage[i] <- sum(probs * ((ci$lower <= p) & (ci$upper >= p)))
+      
+      coverage[i] <- sum(
+        probs * ((ci$lower <= p) & (ci$upper >= p))
+      )
     }
-    data.frame(p = p_grid, coverage = coverage, method = method)
+    
+    data.frame(
+      p = p_grid,
+      coverage = coverage,
+      method = method
+    )
   }
+  
   results <- do.call(rbind, lapply(methods, compute_coverage))
-  method_labels <- c("exact" = "Clopper–Pearson", "asymptotic" = "Wald",
-                     "agresti-coull" = "Agresti–Coull", "wilson" = "Wilson",
-                     "prop.test" = "Prop.test", "jeffreys" = "Jeffreys")
-  results$method <- factor(results$method, levels = names(method_labels),
-                           labels = method_labels[names(method_labels) %in% methods])
+  
+  method_labels <- c(
+    "asymptotic" = "Wald's",
+    "wilson" = "Wilson Score",
+    "prop.test" = "Wilson Score\n(Continuity Correction)",
+    "agresti-coull" = "Agresti–Coull",
+    "exact" = "Clopper–Pearson",
+    "jeffreys" = "Jeffrey's"
+  )
+  
+  results$method <- factor(
+    results$method,
+    levels = methods,
+    labels = method_labels[methods]
+  )
+  
   if (plot) {
-    layout <- if (length(unique(results$method)) <= 4) c(2,2) else c(2,3)
-    par(mfrow = layout, mar = c(3,3,2.5,1), oma = c(2,2,2,1))
+    
+    layout <- if (length(unique(results$method)) <= 4) c(2, 2) else c(2, 3)
+    
+    par(
+      mfrow = layout,
+      mar = c(3, 3, 2.5, 1),
+      oma = c(2, 2, 2, 1)
+    )
+    
     for (m in levels(results$method)) {
+      
       dat <- results[results$method == m, ]
-      plot(dat$p, dat$coverage, type = "l", lwd = 1.8, col = "#2c7bb6",
-           main = m, xlab = "", ylab = "", ylim = range(c(dat$coverage, conf.level)))
-      abline(h = conf.level, lty = "dashed", col = "firebrick")
+      
+      plot(
+        dat$p,
+        dat$coverage,
+        type = "l",
+        lwd = 1.8,
+        col = "#2c7bb6",
+        main = m,
+        xlab = "",
+        ylab = "",
+        ylim = range(c(dat$coverage, conf.level))
+      )
+      
+      abline(
+        h = conf.level,
+        lty = "dashed",
+        col = "firebrick"
+      )
     }
-    mtext("True proportion (p)", side = 1, outer = TRUE, line = 0.5)
-    mtext("Coverage probability", side = 2, outer = TRUE, line = 0.5)
-    mtext(paste0("Coverage probability by method  |  n = ", n, ",  α = ", 1 - conf.level),
-          side = 3, outer = TRUE, line = 0.5, font = 2)
+    
+    mtext(
+      "True proportion (p)",
+      side = 1,
+      outer = TRUE,
+      line = 0.5
+    )
+    
+    mtext(
+      "Coverage probability",
+      side = 2,
+      outer = TRUE,
+      line = 0.5
+    )
   }
+  
   invisible(results)
 }
 ```
 
-## 
-
-```{r cp-n50, echo=FALSE, fig.cap="Coverage probability for each method (n = 50). Dashed red = nominal 95%."}
+```{r cp-n50, echo=FALSE, fig.cap="Dashed red = nominal 95%."}
 coverage_plot_binom(n = 50)
 ```
 
-## 
+## Coverage Probability n = 100
 
-```{r cp-n200, echo=FALSE, fig.cap="Coverage probability for each method (n = 200). Dashed red = nominal 95%."}
-coverage_plot_binom(n = 200)
+```{r cp-n200, echo=FALSE, fig.cap="Dashed red = nominal 95%."}
+coverage_plot_binom(n = 100)
 ```
 
-## Expected CI Width
+## Expected 95% CI Width n = 20
 
-```{r width-function, echo=FALSE}
-expected_width_vs_p_binom <- function(n = 20,
-                                      p_grid = seq(0.001, 0.2, by = 0.001),
-                                      methods = c("asymptotic", "wilson",
-                                                  "agresti-coull", "exact", "jeffreys"),
-                                      conf.level = 0.95, plot = TRUE) {
-  if (!requireNamespace("binom", quietly = TRUE)) stop("Package 'binom' is required.")
+```{r width-plot, echo=FALSE}
+coverage_width_plot <- function(n = 20,
+                                p_grid = seq(0.001, 0.2, by = 0.001),
+                                methods = c("asymptotic",
+                                            "wilson",
+                                            "prop.test",
+                                            "agresti-coull",
+                                            "exact",
+                                            "jeffreys"),
+                                conf.level = 0.95,
+                                xlim = NULL,
+                                ylim = NULL,
+                                plot = TRUE) {
+  
   get_ci <- function(x, n, method, conf.level) {
+    
     alpha <- 1 - conf.level
+    
     if (method == "jeffreys") {
-      lower <- ifelse(x == 0, 0, qbeta(alpha / 2,     x + 0.5, n - x + 0.5))
-      upper <- ifelse(x == n, 1, qbeta(1 - alpha / 2, x + 0.5, n - x + 0.5))
+      
+      lower <- ifelse(
+        x == 0,
+        0,
+        qbeta(alpha / 2, x + 0.5, n - x + 0.5)
+      )
+      
+      upper <- ifelse(
+        x == n,
+        1,
+        qbeta(1 - alpha / 2, x + 0.5, n - x + 0.5)
+      )
+      
       data.frame(lower = lower, upper = upper)
+      
     } else {
-      ci <- binom::binom.confint(x, n, conf.level = conf.level, methods = method)
+      
+      ci <- binom::binom.confint(
+        x,
+        n,
+        conf.level = conf.level,
+        methods = method
+      )
+      
       data.frame(lower = ci$lower, upper = ci$upper)
     }
   }
-  compute_width <- function(method) {
-    exp_width <- numeric(length(p_grid))
+  
+  compute_method_summary <- function(method) {
+    
+    coverage <- numeric(length(p_grid))
+    expected_width <- numeric(length(p_grid))
+    
     for (i in seq_along(p_grid)) {
-      p <- p_grid[i]; x_vals <- 0:n; probs <- dbinom(x_vals, size = n, prob = p)
+      
+      p <- p_grid[i]
+      x_vals <- 0:n
+      probs <- dbinom(x_vals, size = n, prob = p)
+      
       ci <- get_ci(x_vals, n, method, conf.level)
-      exp_width[i] <- sum(probs * (ci$upper - ci$lower))
+      
+      coverage[i] <- sum(
+        probs * ((ci$lower <= p) & (ci$upper >= p))
+      )
+      
+      expected_width[i] <- sum(
+        probs * (ci$upper - ci$lower)
+      )
     }
-    data.frame(p = p_grid, expected_width = exp_width, method = method)
+    
+    data.frame(
+      method = method,
+      mean_coverage = mean(coverage),
+      mean_width = mean(expected_width)
+    )
   }
-  results <- do.call(rbind, lapply(methods, compute_width))
-  method_labels <- c("asymptotic" = "Wald", "wilson" = "Wilson",
-                     "agresti-coull" = "Agresti–Coull", "exact" = "Clopper–Pearson",
-                     "jeffreys" = "Jeffreys")
-  results$method <- factor(results$method, levels = methods, labels = method_labels[methods])
+  
+  results <- do.call(
+    rbind,
+    lapply(methods, compute_method_summary)
+  )
+  
+  method_labels <- c(
+    "asymptotic" = "Wald's",
+    "wilson" = "Wilson Score",
+    "prop.test" = "Wilson Score CC",
+    "agresti-coull" = "Agresti–Coull",
+    "exact" = "Clopper–Pearson",
+    "jeffreys" = "Jeffrey's"
+  )
+  
+  method_cols <- c(
+    "asymptotic" = "#1F77B4",
+    "wilson" = "#D95F02",
+    "prop.test" = "#1B9E77",
+    "agresti-coull" = "#7570B3",
+    "exact" = "#E7298A",
+    "jeffreys" = "#333333"
+  )
+  
+  if (is.null(xlim)) {
+    xlim <- range(results$mean_width) * c(0.95, 1.05)
+  }
+  
+  if (is.null(ylim)) {
+    ylim <- range(c(results$mean_coverage, conf.level)) * c(0.995, 1.005)
+  }
+  
   if (plot) {
-    method_cols <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00")
-    par(mar = c(5, 5, 4, 12), xpd = TRUE)
-    plot(NA, NA, xlim = range(p_grid), ylim = range(results$expected_width),
-         xlab = "True proportion (p)", ylab = "Expected interval width",
-         main = paste0("Expected Width of ", round(conf.level*100), "% CIs  |  n = ", n))
-    for (i in seq_along(levels(results$method))) {
-      m <- levels(results$method)[i]; dat <- results[results$method == m, ]
-      lines(dat$p, dat$expected_width, lwd = 2, lty = i, col = method_cols[i])
-    }
-    legend("topright", inset = c(-0.42, 0), legend = levels(results$method),
-           lwd = 2, lty = seq_along(levels(results$method)), col = method_cols, bty = "n")
+    
+    par(mar = c(5, 5, 2, 2), xpd = FALSE)
+    
+    plot(
+      results$mean_width,
+      results$mean_coverage,
+      pch = 19,
+      cex = 2.2,
+      col = method_cols[results$method],
+      xlab = "Average expected interval width",
+      ylab = "Average coverage probability",
+      xlim = xlim,
+      ylim = ylim
+    )
+    
+    segments(
+      x0 = xlim[1],
+      x1 = xlim[2],
+      y0 = conf.level,
+      y1 = conf.level,
+      lty = "dashed",
+      lwd = 2,
+      col = "firebrick"
+    )
+    
+    legend(
+      "bottomright",
+      title = "CI methods",
+      legend = method_labels[methods],
+      pch = 19,
+      pt.cex = 1.4,
+      col = method_cols[methods],
+      bty = "n",
+      cex = 0.78
+    )
+    
+    legend(
+      "topleft",
+      legend = paste0(round(conf.level * 100), "% target coverage"),
+      lty = "dashed",
+      lwd = 2,
+      col = "firebrick",
+      bty = "n",
+      cex = 0.8
+    )
   }
+  
   invisible(results)
 }
+
+res_20 <- coverage_width_plot(n = 20, plot = FALSE)
+res_50 <- coverage_width_plot(n = 50, plot = FALSE)
+res_100 <- coverage_width_plot(n = 100, plot = FALSE)
+
+all_widths <- c(
+  res_20$mean_width,
+  res_50$mean_width,
+  res_100$mean_width
+)
+
+all_coverage <- c(
+  res_20$mean_coverage,
+  res_50$mean_coverage,
+  res_100$mean_coverage,
+  0.95
+)
+
+x_padding <- diff(range(all_widths)) * 0.12
+y_padding <- diff(range(all_coverage)) * 0.12
+
+common_xlim <- c(
+  min(all_widths) - x_padding,
+  max(all_widths) + x_padding
+)
+
+common_ylim <- c(
+  min(all_coverage) - y_padding,
+  max(all_coverage) + y_padding
+)
 ```
 
-```{r width-plot, echo=FALSE}
-expected_width_vs_p_binom()
+```{r}
+coverage_width_plot(
+  n = 20,
+xlim = c(0.05, 0.35),
+ylim = c(0.70, 1.00)
+)
 ```
 
-## Cov
+## Expected 95% CI Width n = 20
 
-Which interval on average has the highest coverage (normal coverage) vs on average the narrowest CI?
+```{r echo=FALSE}
+
+res_50 <- coverage_width_plot(n = 50, plot = FALSE)
+res_100 <- coverage_width_plot(n = 100, plot = FALSE)
+
+box_xlim <- range(c(
+  res_50$mean_width,
+  res_100$mean_width
+))
+
+box_ylim <- range(c(
+  res_50$mean_coverage,
+  res_100$mean_coverage,
+  0.95
+))
+
+box_x_padding <- diff(box_xlim) * 0.08
+box_y_padding <- diff(box_ylim) * 0.08
+
+box_xlim <- c(
+  box_xlim[1] - box_x_padding,
+  box_xlim[2] + box_x_padding
+)
+
+box_ylim <- c(
+  box_ylim[1] - box_y_padding,
+  box_ylim[2] + box_y_padding
+)
+
+coverage_width_plot(
+  n = 20,
+  xlim = c(0.05, 0.35),
+  ylim = c(0.70, 1.00)
+)
+
+rect(
+  xleft = box_xlim[1],
+  ybottom = box_ylim[1],
+  xright = box_xlim[2],
+  ytop = box_ylim[2],
+  border = "red",
+  lwd = 2.5
+)
+
+text(
+  x = mean(box_xlim),
+  y = box_ylim[2],
+  labels = "Bounds used for n = 50 and n = 100",
+  col = "red",
+  pos = 3,
+  cex = 0.8
+)
+```
+
+
+## Expected 95% CI Width n = 50
+
+```{r}
+coverage_width_plot(
+  n = 50,
+  xlim = common_xlim,
+  ylim = common_ylim
+)
+```
+
+## Expected 95% CI Width n = 100
+
+```{r}
+coverage_width_plot(
+  n = 100,
+  xlim = common_xlim,
+  ylim = common_ylim
+)
+```
 
 ## Insight Summary
 

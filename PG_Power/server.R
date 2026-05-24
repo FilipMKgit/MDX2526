@@ -23,11 +23,11 @@ server <- function(input, output, session) {
     is_safety <- isTRUE(input$endpoint == "safety")
     alpha  <- as.numeric(input$sig.level)
     pwr    <- input$power
-    pg     <- input$p0.expected
-    pd     <- input$p1.expected
+    pg     <- if (isTRUE(input$prop_precision == "3dp")) round(input$p0.manual %||% input$p0.expected, 3) else input$p0.expected
+    pd     <- if (isTRUE(input$prop_precision == "3dp")) round(input$p1.manual %||% input$p1.expected, 3) else input$p1.expected
     ci_lbl_map <- c(asymptotic="asymptotic", wilson="wilson", ac="ac",
                     exact="exact", prop.test="prop.test", bayes="bayes")
-    cm <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+    cm <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
     conf_lev <- round(1 - 2 * alpha, 3)
     
     mirror_note <- if (is_safety) c(
@@ -44,7 +44,7 @@ server <- function(input, output, session) {
       "",
       "library(binom)",
       paste0("PG    <- ", pg,    "   # performance goal"),
-      paste0("p_dev <- ", pd,    "   # expected device rate"),
+      paste0("p_dev <- ", pd,    "   # expected performance"),
       paste0("alpha <- ", alpha, "   # one-sided alpha"),
       paste0("power <- ", pwr,   "   # desired power"),
       paste0("conf_level <- ", conf_lev, "   # = 1 - 2*alpha"),
@@ -65,13 +65,27 @@ server <- function(input, output, session) {
   # ── Endpoint presets ─────────────────────────────────────────────────────────
   endpoint_defaults <- list(
     efficacy = list(pg = 0.88, pd = 0.93),
-    safety   = list(pg = 0.14, pd = 0.06)
+    safety   = list(pg = 0.11, pd = 0.05)
   )
   observeEvent(input$endpoint, {
     d <- endpoint_defaults[[input$endpoint]]
     if (is.null(d)) return()
-    updateSliderInput(session, "p0.expected", value = d$pg)
-    updateSliderInput(session, "p1.expected", value = d$pd)
+    updateSliderInput(session,  "p0.expected", value = d$pg)
+    updateNumericInput(session, "p0.manual",   value = d$pg)
+    updateSliderInput(session,  "p1.expected", value = d$pd)
+    updateNumericInput(session, "p1.manual",   value = d$pd)
+  }, ignoreInit = TRUE)
+  
+  # ── Keep manual boxes in sync with sliders (for when user switches to 3dp) ──
+  # When slider moves in 2dp mode, update the hidden manual box so values
+  # carry over cleanly when the user switches to 3dp mode.
+  observeEvent(input$p0.expected, {
+    if (!isTRUE(is_3dp()))
+      updateNumericInput(session, "p0.manual", value = round(input$p0.expected, 3))
+  }, ignoreInit = TRUE)
+  observeEvent(input$p1.expected, {
+    if (!isTRUE(is_3dp()))
+      updateNumericInput(session, "p1.manual", value = round(input$p1.expected, 3))
   }, ignoreInit = TRUE)
   
   # ── Alpha badge ──────────────────────────────────────────────────────────────
@@ -159,10 +173,22 @@ server <- function(input, output, session) {
   }
   
   # ── Debounced inputs ─────────────────────────────────────────────────────────
-  pg_d    <- debounce(reactive(input$p0.expected), 400)   # performance goal
-  pd_d    <- debounce(reactive(input$p1.expected), 400)   # expected device rate
-  alpha_d <- debounce(reactive(input$sig.level),   400)
-  power_d <- debounce(reactive(input$power),       400)
+  # In 3dp mode read from numeric boxes; in 2dp mode read from sliders
+  is_3dp  <- reactive({ isTRUE(input$prop_precision == "3dp") })
+  pg_d    <- debounce(reactive({
+    if (is_3dp()) {
+      v <- input$p0.manual
+      if (is.null(v) || is.na(v)) input$p0.expected else round(v, 3)
+    } else input$p0.expected
+  }), 800)
+  pd_d    <- debounce(reactive({
+    if (is_3dp()) {
+      v <- input$p1.manual
+      if (is.null(v) || is.na(v)) input$p1.expected else round(v, 3)
+    } else input$p1.expected
+  }), 800)
+  alpha_d <- debounce(reactive(input$sig.level),   600)
+  power_d <- debounce(reactive(input$power),       600)
   
   # ── Core reactives ────────────────────────────────────────────────────────────
   prop_n <- reactive({
@@ -170,7 +196,7 @@ server <- function(input, output, session) {
     prop_total_n(pg_d(), pd_d())
   })
   
-  # Sensitivity sweep: required n as device rate varies around its current value
+  # Sensitivity sweep: required n as device proportion varies around its current value
   prop_df_sens <- reactive({
     req(pg_d(), pd_d(), power_d(), alpha_d())
     is_safety <- isTRUE(input$endpoint == "safety")
@@ -254,13 +280,13 @@ server <- function(input, output, session) {
     ci_lbl_map <- c(asymptotic="Wald (Z-score)", wilson="Wilson Score",
                     ac="Agresti-Coull", exact="Clopper-Pearson",
                     prop.test="Prop.test", bayes="Jeffreys")
-    cm_cur <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+    cm_cur <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
     method_label <- paste0("CI simulation (", 
                            unname(ci_lbl_map[cm_cur] %||% cm_cur), ")")
     
     if (is.infinite(n_out)) return(box_ui(
       "Required sample size",
-      paste0("Not achievable (N = \u221e) — check performance goal and device rate.  [", method_label, "]")
+      paste0("Not achievable (N = \u221e) — check performance goal and device proportion.  [", method_label, "]")
     ))
     
     n_enrol  <- ceiling(n_out / (1 - dropout_r / 100))
@@ -272,11 +298,11 @@ server <- function(input, output, session) {
       ceiling(n_out * pg_val + z_a * sqrt(n_out * pg_val * (1 - pg_val)))
     
     if (!is_safety) {
-      h0_txt <- paste0("H\u2080: device rate \u2264 ", pg_val, " (performance goal)")
-      h1_txt <- paste0("H\u2081: device rate > ", pg_val, " (device meets performance goal)")
+      h0_txt <- paste0("H\u2080: device proportion \u2264 ", pg_val, " (performance goal)")
+      h1_txt <- paste0("H\u2081: device proportion > ", pg_val, " (device meets performance goal)")
     } else {
-      h0_txt <- paste0("H\u2080: device rate \u2265 ", pg_val, " (at or above max acceptable rate)")
-      h1_txt <- paste0("H\u2081: device rate < ", pg_val, " (device meets performance goal)")
+      h0_txt <- paste0("H\u2080: device proportion \u2265 ", pg_val, " (at or above max acceptable proportion)")
+      h1_txt <- paste0("H\u2081: device proportion < ", pg_val, " (device meets performance goal)")
     }
     reject_rule <- if (!is_safety)
       tagList("Reject H₀ if ", tags$b(paste0("≥ ", n_events)),
@@ -366,7 +392,7 @@ server <- function(input, output, session) {
     is_sfty <- isTRUE(input$endpoint == "safety")
     
     validate(need(nrow(df) > 0 && !all(is.na(df$y)),
-                  "Device rate must be more favourable than the performance goal to compute a power curve."))
+                  "Device proportion must be more favourable than the performance goal to compute a power curve."))
     
     df_c   <- df[!is.na(df$y), ]
     target <- as.numeric(power_d())
@@ -467,16 +493,16 @@ server <- function(input, output, session) {
     df <- prop_df_sens()
     pc <- get_plot_colour()
     validate(need(nrow(df) > 0 && !all(is.infinite(df$y)),
-                  "No achievable sample size in this range — check performance goal and device rate."))
+                  "No achievable sample size in this range — check performance goal and device proportion."))
     pd_val  <- pd_d()
     idx     <- which.min(abs(df$x - pd_val))
     chosen_n <- if (length(idx) > 0) df$y[idx] else Inf
     x_lab <- if (isTRUE(input$endpoint == "safety"))
-      "Expected device event rate" else "Expected device success rate"
+      "Expected performance (event proportion)" else "Expected performance (success proportion)"
     p <- ggplot(df, aes(x=x, y=y)) +
       geom_line(colour=pc, linewidth=1.1) +
       geom_point(colour=pc, size=2) +
-      labs(title="Expected device rate vs required sample size",
+      labs(title="Expected performance vs required sample size",
            x=x_lab, y="Required sample size (n)") +
       plot_theme_large
     if (isTRUE(input$showVline))
@@ -537,7 +563,7 @@ server <- function(input, output, session) {
       tags$p(style="font-size:11px;font-weight:700;color:#64748b;margin:0 0 6px;",
              "CI method comparison"),
       tags$p(style="font-size:11px;color:#94a3b8;margin:0 0 8px;",
-             paste0("PG = ", input$p0.expected, "  ·  device rate = ", input$p1.expected,
+             paste0("PG = ", pg_d(), "  ·  expected performance = ", pd_d(),
                     "  ·  α = ", input$sig.level, "  ·  power = ", input$power)),
       tags$div(style="overflow-x:auto;",
                tags$table(style="border-collapse:collapse;width:100%;",
@@ -568,7 +594,7 @@ server <- function(input, output, session) {
   })
   
   # ── CI diagram ───────────────────────────────────────────────────────────────
-  # Shows the confidence interval for the current observed device rate (p1)
+  # Shows the confidence interval for the current observed device proportion (p1)
   # at the required n, using all selected or all CI methods.
   # Also shows where the performance goal boundary falls.
   
@@ -582,7 +608,7 @@ server <- function(input, output, session) {
     pg       <- as.numeric(pg_d())
     pd       <- as.numeric(pd_d())
     
-    # x_obs: number of events that exactly represent the expected device rate
+    # x_obs: number of events that exactly represent the expected device proportion
     # For safety (lower is better): events are adverse; round up to be conservative
     # For efficacy (higher is better): successes; round to nearest
     x_obs <- as.integer(round(pd * n_val))
@@ -591,7 +617,7 @@ server <- function(input, output, session) {
     methods <- if (isTRUE(input$showAllCI))
       all_compare_methods
     else {
-      cm <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+      cm <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
       nm <- names(all_compare_methods)[all_compare_methods == cm]
       if (length(nm)==0) nm <- cm
       setNames(cm, nm)
@@ -764,7 +790,7 @@ server <- function(input, output, session) {
                       letter-spacing:0.06em;color:#64748b;margin:0 0 6px;",
              "Power vs n table"),
       tags$p(style = "font-size:11px;color:#94a3b8;margin:0 0 8px;",
-             paste0("PG = ", pg_d(), "  ·  device rate = ", pd_d(),
+             paste0("PG = ", pg_d(), "  ·  expected performance = ", pd_d(),
                     "  ·  target power = ", round(target*100), "%",
                     "  ·  α = ", alpha_d())),
       tags$div(style = "overflow-x:auto; max-height:400px; overflow-y:auto;",
@@ -806,45 +832,82 @@ server <- function(input, output, session) {
     n_out     <- tryCatch(prop_n(), error = function(e) NA)
     dropout_r <- get_dropout_rate()
     alpha_val <- as.numeric(input$sig.level)
-    ci_m      <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
+    ci_m      <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
+    is_safety <- isTRUE(input$endpoint == "safety")
+    pg_val    <- as.numeric(pg_d())
+    pd_val    <- as.numeric(pd_d())
+    pwr_val   <- as.numeric(power_d())
     n_fmt     <- if (is.na(n_out) || is.infinite(n_out)) "Not achievable"
     else format(n_out, big.mark=",")
     n_enrol   <- if (is.na(n_out) || is.infinite(n_out)) NA_integer_
     else ceiling(n_out / (1 - dropout_r/100))
-    nd_fmt    <- if (is.na(n_enrol)) "—" else format(n_enrol, big.mark=",")
-    is_safety <- isTRUE(input$endpoint == "safety")
-    pg_val    <- as.numeric(pg_d())
+    nd_fmt    <- if (is.na(n_enrol)) "\u2014" else format(n_enrol, big.mark=",")
     z_a       <- qnorm(1 - alpha_val)
-    n_succ    <- if (is.na(n_out) || is.infinite(n_out)) "—"
-    else if (is_safety)
-      format(floor(n_out*pg_val - z_a*sqrt(n_out*pg_val*(1-pg_val))), big.mark=",")
-    else
-      format(ceiling(n_out*pg_val + z_a*sqrt(n_out*pg_val*(1-pg_val))), big.mark=",")
-    ci_lbl <- c(z_power="TrialSize (Z)", wilson="Wilson", exact="Clopper-Pearson",
-                ac="Agresti-Coull", asymptotic="Wald", prop.test="prop.test",
-                bayes="Bayes", logit="Logit", cloglog="Cloglog", probit="Probit")
-    ci_lbl <- unname(ci_lbl[ci_m]); if (is.na(ci_lbl)) ci_lbl <- ci_m
-    row <- function(lbl, val) tags$tr(
-      tags$td(style="padding:4px 10px;font-size:12px;font-weight:600;color:#64748b;
-               border:1px solid #e2e8f0;white-space:nowrap;", lbl),
-      tags$td(style="padding:4px 10px;font-size:12px;color:#1a2e35;
-               border:1px solid #e2e8f0;font-family:'DM Mono',monospace;", val)
-    )
+    n_succ    <- if (is.na(n_out) || is.infinite(n_out)) NA_integer_
+    else if (is_safety) floor(n_out*pg_val   - z_a*sqrt(n_out*pg_val*(1-pg_val)))
+    else                ceiling(n_out*pg_val + z_a*sqrt(n_out*pg_val*(1-pg_val)))
+    n_fail    <- if (is.na(n_succ) || is.na(n_out) || is.infinite(n_out)) NA_integer_
+    else as.integer(n_out) - n_succ
+    ns_fmt    <- if (is.na(n_succ)) "\u2014" else format(n_succ, big.mark=",")
+    nf_fmt    <- if (is.na(n_fail)) "\u2014" else format(n_fail, big.mark=",")
+    dr_rule   <- if (is.na(n_succ) || is.na(n_out) || is.infinite(n_out)) "\u2014"
+    else if (is_safety) paste0("\u2264 ", n_succ, " events out of ", n_out)
+    else paste0("\u2265 ", n_succ, " successes out of ", n_out)
+    ci_labels <- c(asymptotic="Wald (Z-score)", wilson="Wilson Score",
+                   ac="Agresti-Coull", exact="Clopper-Pearson", prop.test="Prop.test", bayes="Jeffreys")
+    ci_lbl    <- unname(ci_labels[ci_m]); if (is.na(ci_lbl)) ci_lbl <- ci_m
+    pg_pct    <- round(pg_val * 100, 1)
+    pd_pct    <- round(pd_val * 100, 1)
+    pwr_pct   <- round(pwr_val * 100)
+    
+    # Helper: one row with label, value, tag chip, and insert button
+    ins_btn <- function(tag_str, display_val) {
+      js <- paste0(
+        "var ta=document.getElementById('rpt_interp_text');",
+        "if(!ta)return;",
+        "var s=ta.selectionStart,e=ta.selectionEnd;",
+        "var ins='", tag_str, "';",
+        "ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);",
+        "ta.selectionStart=ta.selectionEnd=s+ins.length;",
+        "ta.focus();",
+        "Shiny.setInputValue('rpt_interp_text',ta.value,{priority:'event'});"
+      )
+      tags$button(
+        class   = "pgp-ins-btn",
+        title   = paste0("Insert ", tag_str, " into text"),
+        onclick = js,
+        tags$span(class="pgp-ins-tag", tag_str),
+        tags$span(class="pgp-ins-arrow", "\u2191")
+      )
+    }
+    
+    row <- function(label, value, tag_str = NULL) {
+      tags$div(
+        class = "pgp-cv-row",
+        tags$span(class = "pgp-cv-label", label),
+        tags$span(class = "pgp-cv-value", value),
+        if (!is.null(tag_str)) ins_btn(tag_str, value) else tags$span()
+      )
+    }
+    
+    sec <- function(title) tags$div(class="pgp-cv-section", title)
+    
     tags$div(
-      style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;
-             padding:12px;background:#fafcff;",
-      tags$table(style="border-collapse:collapse;width:100%;", tags$tbody(
-        row("Endpoint direction",  if (is_safety) "Lower is better" else "Higher is better"),
-        row("Performance goal (PG)", as.character(pg_d())),
-        row("Expected device rate",  as.character(pd_d())),
-        row("\u03b1 (one-sided)",    paste0(alpha_val, "  \u2192  ",
-                                            round((1-2*alpha_val)*100,1), "% CI")),
-        row("Power",               paste0(round(power_d()*100), "%")),
-        row("Method",              ci_lbl),
-        row("Required n",          n_fmt),
-        row("Min successes",       n_succ),
-        row(paste0("Enrolment (", dropout_r, "% dropout)"), nd_fmt)
-      ))
+      class = "pgp-calc-values",
+      sec("Sample size"),
+      row("Required n",            n_fmt,                     "{n}"),
+      row("Enrolment w/ dropout",  nd_fmt,                    "{n_dropout}"),
+      sec("Decision"),
+      row("Decision rule",         dr_rule,                   "{decision_rule}"),
+      row(tags$b("n successes"),   ns_fmt,                    "{n_successes}"),
+      row(tags$b("n failures"),    nf_fmt,                    "{n_failures}"),
+      sec("Design parameters"),
+      row("Performance goal (PG)", paste0(pg_pct, "%"),        "{pg_pct}"),
+      row("Expected performance",  paste0(pd_pct, "%"),        "{pd_pct}"),
+      row("Power",                 paste0(pwr_pct, "%"),        "{power_pct}"),
+      row("\u03b1 (one-sided)",    as.character(alpha_val),    "{alpha}"),
+      row("CI method",             ci_lbl,                    "{ci_method}"),
+      row("Dropout",               paste0(dropout_r, "%"),    "{dropout_pct}")
     )
   })
   
@@ -875,8 +938,8 @@ server <- function(input, output, session) {
     sens_items <- list(
       list(label="CI diagram",                    on=isTRUE(input$rpt_ci_diagram)),
       list(label="Power vs n plot",               on=isTRUE(input$rpt_plot_power)),
-      list(label="Device rate sensitivity plot",  on=isTRUE(input$rpt_plot_p1)),
-      list(label="Device rate sensitivity table", on=isTRUE(input$rpt_table_p1))
+      list(label="Expected performance sensitivity plot",  on=isTRUE(input$rpt_plot_p1)),
+      list(label="Expected performance sensitivity table", on=isTRUE(input$rpt_table_p1))
     )
     tags$ul(class="report-contents",
             lapply(general_items, function(i) make_li(i$label, i$on)),
@@ -886,19 +949,19 @@ server <- function(input, output, session) {
   
   output$report_download_ui <- renderUI({
     if (isTRUE(input$report_format == "pdf"))
-      downloadButton("downloadPDF", "\u2193 Download (.pdf)",
-                     class="btn-sm btn-outline-secondary pgp-btn report-dl-btn")
+      downloadButton("downloadPDF", "\u2193 Download report (.pdf)",
+                     class="btn btn-outline-secondary pgp-btn report-dl-btn")
     else
-      downloadButton("downloadWord", "\u2193 Download (.docx)",
-                     class="btn-sm btn-outline-secondary pgp-btn report-dl-btn")
+      downloadButton("downloadWord", "\u2193 Download report (.docx)",
+                     class="btn btn-outline-secondary pgp-btn report-dl-btn")
   })
   
   # ── Report data ───────────────────────────────────────────────────────────────
   build_report_data <- function() {
-    ci_m  <- if (is.null(input$ci_method_prop)) "wilson" else input$ci_method_prop
+    ci_m  <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
     dr    <- if (is.null(input$dropout_rate)) 10 else as.numeric(input$dropout_rate)
     if (is.na(dr) || dr < 0 || dr >= 100) dr <- 10
-    n_val <- prop_total_n(input$p0.expected, input$p1.expected,
+    n_val <- prop_total_n(pg_d(), pd_d(),
                           ci_method=ci_m,
                           sim_n=if (is.null(input$sim_quality)) 1000 else as.numeric(input$sim_quality),
                           seed =if (is.null(input$sim_seed))    1    else as.numeric(input$sim_seed))
@@ -907,17 +970,23 @@ server <- function(input, output, session) {
                    prop.test="Prop.test", bayes="Jeffreys")
     ci_lbl  <- unname(ci_labels[ci_m]); if (is.na(ci_lbl)) ci_lbl <- ci_m
     is_sfty <- isTRUE(input$endpoint == "safety")
-    pg_val  <- as.numeric(input$p0.expected)
+    pg_val  <- as.numeric(pg_d())
     z_a     <- qnorm(1 - as.numeric(input$sig.level))
     n_succ  <- if (is.infinite(n_val)) NA_integer_
     else if (is_sfty) floor(n_val*pg_val   - z_a*sqrt(n_val*pg_val*(1-pg_val)))
     else              ceiling(n_val*pg_val + z_a*sqrt(n_val*pg_val*(1-pg_val)))
     n_drop  <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val/(1-dr/100))
+    n_fail  <- if (is.na(n_succ) || is.infinite(n_val)) NA_integer_ else as.integer(n_val) - n_succ
+    dr_rule <- if (is.na(n_succ) || is.infinite(n_val)) "\u2014"
+    else if (is_sfty) paste0("\u2264 ", n_succ, " events out of ", n_val)
+    else paste0("\u2265 ", n_succ, " successes out of ", n_val)
     list(
       n_val=n_val, ci_label=ci_lbl,
-      n_fmt  = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark=","),
-      ns_fmt = if (is.na(n_succ)) "\u2014" else format(n_succ, big.mark=","),
-      nd_fmt = if (is.na(n_drop)) "\u2014" else format(n_drop, big.mark=","),
+      n_fmt     = if (is.infinite(n_val)) "Not achievable" else format(n_val, big.mark=","),
+      ns_fmt    = if (is.na(n_succ)) "\u2014" else format(n_succ, big.mark=","),
+      nf_fmt    = if (is.na(n_fail)) "\u2014" else format(n_fail, big.mark=","),
+      nd_fmt    = if (is.na(n_drop)) "\u2014" else format(n_drop, big.mark=","),
+      dr_rule   = dr_rule,
       n_successes=n_succ, pg_val=pg_val, dropout_r=dr
     )
   }
@@ -956,11 +1025,11 @@ server <- function(input, output, session) {
     
     sens_file <- if (include_sens) tryCatch({
       df  <- prop_df_sens()
-      lbl <- if (isTRUE(input$endpoint=="safety")) "Expected device event rate"
-      else "Expected device success rate"
+      lbl <- if (isTRUE(input$endpoint=="safety")) "Expected performance (event proportion)"
+      else "Expected performance (success proportion)"
       p <- ggplot(df, aes(x=x, y=y)) +
         geom_line(colour=pc, linewidth=1.1) + geom_point(colour=pc, size=2) +
-        labs(title="Device rate vs required sample size", x=lbl, y="Required n") +
+        labs(title="Expected performance vs required sample size", x=lbl, y="Required n") +
         plot_theme_large
       tmp <- tempfile(fileext=".png")
       ggsave(tmp, p, width=6, height=3.5, dpi=150, bg="white")
@@ -1004,13 +1073,13 @@ server <- function(input, output, session) {
       input$rpt_interp_text
     else paste0(
       "A total of {n} evaluable patients are required to demonstrate, with ",
-      "{power_pct}% power, that the device rate meets the performance goal of {pg_pct}%, ",
-      "assuming a true device rate of {pd_pct}%. ",
+      "{power_pct}% power, that the device proportion meets the performance goal of {pg_pct}%, ",
+      "assuming a true expected performance proportion of {pd_pct}%. ",
       "Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. ",
       "The study will be deemed successful if at least {n_successes} out of {n} ",
       "evaluable patients achieve the primary endpoint.")
-    pg_pct  <- round(as.numeric(input$p0.expected)*100)
-    pd_pct  <- round(as.numeric(input$p1.expected)*100)
+    pg_pct  <- round(as.numeric(pg_d())*100, 1)
+    pd_pct  <- round(as.numeric(pd_d())*100, 1)
     pwr_pct <- round(input$power*100)
     txt <- tpl
     txt <- gsub("{n}",           rd$n_fmt,             txt, fixed=TRUE)
@@ -1024,6 +1093,8 @@ server <- function(input, output, session) {
     txt <- gsub("{alpha}",       as.character(input$sig.level), txt, fixed=TRUE)
     txt <- gsub("{ci_method}",   rd$ci_label,          txt, fixed=TRUE)
     txt <- gsub("{dropout_pct}", as.character(rd$dropout_r), txt, fixed=TRUE)
+    txt <- gsub("{n_failures}",  rd$nf_fmt,                  txt, fixed=TRUE)
+    txt <- gsub("{decision_rule}", rd$dr_rule,                txt, fixed=TRUE)
     txt
   }
   
@@ -1116,11 +1187,11 @@ server <- function(input, output, session) {
         results_html <- if (show_results) paste0(
           "<h2 style='",h2s,"'>Results</h2>",
           "<p style='font-size:9px;color:",grey,";margin:0 0 8px;'>",
-          if (is_sfty) "H\u2080: device rate \u2265 PG &nbsp;\u2014&nbsp; H\u2081: device rate &lt; PG"
-          else         "H\u2080: device rate \u2264 PG &nbsp;\u2014&nbsp; H\u2081: device rate &gt; PG",
+          if (is_sfty) "H\u2080: device proportion \u2265 PG &nbsp;\u2014&nbsp; H\u2081: device proportion &lt; PG"
+          else         "H\u2080: device proportion \u2264 PG &nbsp;\u2014&nbsp; H\u2081: device proportion &gt; PG",
           "</p>",
           tbl(paste0(
-            "<tr>",th("PG"),th("Device rate"),th("\u03b1"),th("Target power"),
+            "<tr>",th("PG"),th("Expected performance"),th("\u03b1"),th("Target power"),
             th("Required n"),th("Actual power"),th("Events threshold"),
             th(paste0(dr_r,"% dropout enrolment")),th("Method"),"</tr>",
             "<tr>",tdc(pg_val),tdc(pd_val),tdc(av),
@@ -1140,7 +1211,7 @@ server <- function(input, output, session) {
           rows_nb <- list(
             c("Endpoint direction",        ep_txt),
             c("Performance goal (PG)",     as.character(pg_val)),
-            c("Expected device rate",      as.character(pd_val)),
+            c("Expected performance",      as.character(pd_val)),
             c("\u03b1 (one-sided)",         paste0(av, " \u2192 ", round((1-2*av)*100,1), "% CI")),
             c("Target power",              paste0(round(pwr_val*100), "%")),
             c("Actual achieved power",     actual_pw_txt),
@@ -1175,7 +1246,7 @@ server <- function(input, output, session) {
             if (xc > n_v) return(NA_real_)
             1 - pbinom(xc-1L, n_v, pd_b)
           }
-          cur_m <- if (is.null(input$ci_method_prop)) "asymptotic" else input$ci_method_prop
+          cur_m <- if (is.null(input$ci_method_prop)) "exact" else input$ci_method_prop
           rows_ci <- lapply(names(ci_methods), function(nm) {
             m     <- ci_methods[[nm]]
             n_m   <- tryCatch(
@@ -1203,7 +1274,7 @@ server <- function(input, output, session) {
           paste0(
             "<h2 style='",h2s,"'>CI method comparison</h2>",
             "<p style='font-size:9px;color:",grey,";margin:0 0 8px;'>",
-            "PG = ",pg_val,"  |  device rate = ",pd_val,
+            "PG = ",pg_val,"  |  expected performance = ",pd_val,
             "  |  \u03b1 = ",av,"  |  target power = ",round(pwr_val*100),"%</p>",
             tbl(paste0(
               "<tr>",th("Method"),th("Required n"),th("Achieved power (%)"),"</tr>",
@@ -1220,7 +1291,7 @@ server <- function(input, output, session) {
           c("Events threshold",      "Min successes (or max events) needed to meet the decision rule."),
           c("Actual power",          "Exact binomial power at the required n."),
           c("PG",                    "Performance goal \u2014 pre-specified benchmark rate."),
-          c("Device rate",           "Anticipated true event/success rate of the device."),
+          c("Expected performance",  "Anticipated true event/success proportion of the device."),
           c("\u03b1",                "Probability of a false-positive result (one-sided)."),
           c("CI method",             "Method used to construct the confidence interval for the decision rule.")
         )
@@ -1257,16 +1328,16 @@ server <- function(input, output, session) {
           img_tag(plot_files$power,"Sample size (n) vs achieved power (%)"),hr
         ) else ""
         plot_p1_html <- if (show_plot_p1) paste0(
-          "<h2 style='",h2s,"'>Device rate sensitivity</h2>",
-          img_tag(plot_files$p1,"Expected device rate vs required sample size"),hr
+          "<h2 style='",h2s,"'>Expected performance sensitivity</h2>",
+          img_tag(plot_files$p1,"Expected performance vs required sample size"),hr
         ) else ""
         
         # ── Sensitivity table ─────────────────────────────────────────────────
         df_p1_pdf    <- if (show_table_p1) tryCatch(prop_df_sens(), error=function(e) NULL) else NULL
         table_p1_html <- if (show_table_p1 && !is.null(df_p1_pdf)) paste0(
-          "<h2 style='",h2s,"'>Device rate sensitivity table</h2>",
+          "<h2 style='",h2s,"'>Expected performance sensitivity table</h2>",
           make_sens_table_html(df_p1_pdf,
-                               col_names=c("Device rate","Required n"),
+                               col_names=c("Expected performance","Required n"),
                                caption=paste0("PG = ",pg_val,"  |  \u03b1 = ",av,"  |  power = ",round(pwr_val*100),"%"),
                                blue=blue, th_fn=th, td_fn=td),hr
         ) else ""
@@ -1277,7 +1348,7 @@ server <- function(input, output, session) {
                               "<h2 style='",h2s,"'>Confidence interval diagram</h2>",
                               img_tag(plot_files$ci_diag,
                                       paste0("CI at n = ", tryCatch(as.integer(prop_n()),error=function(e)"?"),
-                                             "  (observed rate = ", pd_val, ")")),hr
+                                             "  (observed proportion = ", pd_val, ")")),hr
                             ) else ""
         
         section_map <- list(
@@ -1410,11 +1481,11 @@ server <- function(input, output, session) {
         
         if (!isTRUE(input$rpt_results==FALSE)) {
           summary_df <- data.frame(
-            Power=format(input$power,nsmall=2), n=n_fmt,
+            Power=format(input$power,nsmall=3), n=n_fmt,
             `Events threshold`=ns_fmt,
             Enrolment=nd_fmt,
-            PG=format(input$p0.expected,nsmall=2),
-            `Device rate`=format(input$p1.expected,nsmall=2),
+            PG=format(pg_d(),nsmall=3),
+            `Expected performance`=format(pd_d(),nsmall=3),
             Alpha=format(as.numeric(input$sig.level)),
             Method=ci_label, check.names=FALSE, stringsAsFactors=FALSE)
           colnames(summary_df)[4] <- paste0(rd$dropout_r,"% dropout")
@@ -1422,8 +1493,8 @@ server <- function(input, output, session) {
                                         officer::fpar(officer::ftext("Results", h2_fmt), fp_p=tight_p))
           doc <- officer::body_add_fpar(doc,
                                         officer::fpar(officer::ftext(
-                                          if(is_sfty) "H\u2080: device rate \u2265 PG  vs.  H\u2081: device rate < PG"
-                                          else        "H\u2080: device rate \u2264 PG  vs.  H\u2081: device rate > PG",
+                                          if(is_sfty) "H\u2080: device proportion \u2265 PG  vs.  H\u2081: device proportion < PG"
+                                          else        "H\u2080: device proportion \u2264 PG  vs.  H\u2081: device proportion > PG",
                                           hyp_fmt), fp_p=tight_p))
           doc <- officer::body_add_table(doc, summary_df, align_table="left")
           doc <- officer::body_add_fpar(doc, officer::fpar(officer::ftext(" "), fp_p=border_p))
@@ -1438,7 +1509,7 @@ server <- function(input, output, session) {
           else              ceiling(n_val*pg_w + z_w*sqrt(n_val*pg_w*(1-pg_w)))
           nd_w   <- if (is.infinite(n_val)) NA_integer_ else ceiling(n_val/(1-dr_w/100))
           nb_df  <- data.frame(
-            Parameter=c("Endpoint direction","Performance goal (PG)","Expected device rate",
+            Parameter=c("Endpoint direction","Performance goal (PG)","Expected performance",
                         "\u03b1 / CI equivalent","Power","Method","Required n",
                         "Events threshold",paste0("Enrolment (",dr_w,"% dropout)")),
             Value=c(ep_txt,as.character(pg_d()),as.character(pd_d()),
@@ -1469,7 +1540,7 @@ server <- function(input, output, session) {
                      "AC"="ac","Wald"="asymptotic","prop.test"="prop.test",
                      "Bayes"="bayes","Logit"="logit","Cloglog"="cloglog","Probit"="probit")
           m_ns  <- sapply(all_m, function(m) {
-            n <- prop_total_n(input$p0.expected,input$p1.expected,ci_method=m,sim_n=400,seed=1)
+            n <- prop_total_n(pg_d(),pd_d(),ci_method=m,sim_n=400,seed=1)
             if (is.infinite(n)) "\u2014" else format(n,big.mark=",")
           })
           ci_df <- as.data.frame(matrix(unname(m_ns),nrow=1), stringsAsFactors=FALSE)
@@ -1487,9 +1558,9 @@ server <- function(input, output, session) {
           defs <- list(
             list("Power: ",           "Probability of correctly rejecting H\u2080."),
             list("n: ",               "Minimum evaluable patients required."),
-            list("Events threshold: ","Min/max events required to meet the decision rule."),
+            list("Events threshold: ","Min/max events required to meet the decision rule (proportion-based CI test)."),
             list("PG: ",              "Performance goal \u2014 pre-specified benchmark rate."),
-            list("Device rate: ",     "Anticipated true event/success rate of the device."),
+            list("Expected performance: ", "Anticipated true event/success proportion of the device."),
             list("\u03b1: ",          "Probability of a false-positive result (one-sided)."),
             list("CI Method: ",       "Method used to construct the confidence interval.")
           )
@@ -1565,12 +1636,23 @@ server <- function(input, output, session) {
   )
   
   # ── Calculation code display ─────────────────────────────────────────────────
+  # Show code block in Calculator tab
   output$calc_code_ui <- renderUI({
     if (!isTRUE(input$show_calc_code)) return(NULL)
-    # Send GitHub popup message when code is shown
-    session$sendCustomMessage("showGithubPopup", "https://github.com/FilipMKgit/MDX2526")
     code_block_ui(build_calc_code_txt())
   })
+  
+  # GitHub popup fires once when "Show calculation code" is first ticked
+  observeEvent(input$show_calc_code, {
+    if (isTRUE(input$show_calc_code))
+      session$sendCustomMessage("showGithubPopup", "https://github.com/FilipMKgit/MDX2526")
+  }, ignoreInit = TRUE)
+  
+  # Also fire popup when report code is included (rpt_calc_code ticked)
+  observeEvent(input$rpt_calc_code, {
+    if (isTRUE(input$rpt_calc_code))
+      session$sendCustomMessage("showGithubPopup", "https://github.com/FilipMKgit/MDX2526")
+  }, ignoreInit = TRUE)
   
   # ── CI diagram wrapper — dynamic height based on number of methods ───────────
   output$ci_diagram_wrapper <- renderUI({
@@ -1596,11 +1678,11 @@ server <- function(input, output, session) {
     content = function(file) {
       pc  <- get_plot_colour()
       df  <- prop_df_sens()
-      lbl <- if (isTRUE(input$endpoint=="safety")) "Expected device event rate"
-      else "Expected device success rate"
+      lbl <- if (isTRUE(input$endpoint=="safety")) "Expected performance (event proportion)"
+      else "Expected performance (success proportion)"
       p <- ggplot(df, aes(x=x,y=y)) +
         geom_line(colour=pc, linewidth=1.1) + geom_point(colour=pc, size=2) +
-        labs(title="Device rate vs required sample size", x=lbl, y="Required n") +
+        labs(title="Expected performance vs required sample size", x=lbl, y="Required n") +
         plot_theme_large
       ggsave(file, p, width=7, height=4, dpi=150, bg="white")
     }
