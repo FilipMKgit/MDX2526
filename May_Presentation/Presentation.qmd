@@ -110,7 +110,7 @@ Step 2. Conduct an aggregate-level meta-analysis using a 2007 FDA guidance docum
 *'Performance Goals and Endpoint Assessments for Clinical Trials of Femoropopliteal Bare Nitinol Stents in Patients with Symptomatic Peripheral Arterial Disease'*
 :::
 
-This guidance document comprises three studies of similar stents assessing the primary endpoints for safety & efficacy.
+Includes three studies of similar stents assessing the primary endpoints for safety & efficacy.
 
 ## Proposed Endpoints:
 
@@ -131,7 +131,7 @@ A logit-transformation was applied (*extreme proportions*), variance was pooled 
 
 - The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
-- Note: With only 3 studies available, confidence intervals are wide — (conservative)
+- Note: With only 3 studies available, confidence intervals are wide (conservative)
 
 ![](images/clipboard-1855418152.png)
 
@@ -659,9 +659,9 @@ e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 ::: purple-box
 **Different Software:**
 
-- n=220: First N on a local peak hitting 90% (but immediately drops)
+- n=220: First N hitting 90% (but immediately drops)
 - n=232: Power reliably above 90%
-- n=256: Power never drops back below 90% for any N
+- n=256: Power never drops below 90% for any N
 :::
 ::::
 ::::::
@@ -672,12 +672,11 @@ e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 :::
 ::::
 
-# Next Steps {background-color="#5A3A6E"}
+#  {background-color="#5A3A6E"}
 
 - **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 - Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
 - Incorporate historical data using a **Bayesian weighting framework**.
-- Finalise the **Statistical Analysis Plan (SAP)** specifying endpoints, estimators, CI methods, and NI decision rules prior to data unblinding.
 
 # Thank You {background-color="#5A3A6E"}
 
