@@ -549,12 +549,12 @@ expected_width_vs_p_binom <- function(n          = 20,
 expected_width_vs_p_binom()
 ```
 
-## Insight Summary
+## Summary Table
 
--   Agresti–Coull interval appears to be a strong choice
--   Often less preferred than the Wilson interval in practice
--   Similar coverage with narrower intervals
--   \[go deeper\]
+xxxx
+xxxx
+xxxx
+xxxx
 
 # Sample size calculation
 

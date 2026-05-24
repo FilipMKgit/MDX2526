@@ -44,7 +44,16 @@ ui <- fluidPage(
       .report-group h5 { font-size: 13px; font-weight: 700; text-transform: uppercase;
                           letter-spacing: 0.07em; color: #64748b; margin: 0 0 14px; }
       .report-group .form-group { margin-bottom: 10px; }
-      .report-dl-btn { margin-top: 8px; }
+      .report-dl-btn {
+        margin-top: 6px;
+        font-size: 13px !important;
+        padding: 8px 20px !important;
+        font-weight: 600 !important;
+        border-radius: 7px !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 6px;
+      }
       .report-note { font-size: 11.5px; color: #94a3b8; margin-top: 6px; }
       .report-contents { list-style: none; padding: 0; margin: 0; }
       .report-contents li { display: flex; align-items: baseline; gap: 8px;
@@ -118,6 +127,74 @@ ui <- fluidPage(
       }
       .n-box-toggle:hover { border-color: #5b35d5; color: #5b35d5; }
 
+      /* ── Calc values card ─────────────────────────────────────────────────── */
+      .pgp-calc-values {
+        margin-top: 10px;
+        border: 1px solid #e2e8f0; border-radius: 8px;
+        overflow: hidden; background: #fafcff;
+      }
+      .pgp-cv-section {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.07em; color: #94a3b8;
+        padding: 6px 12px 4px; background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        border-top: 1px solid #e2e8f0;
+      }
+      .pgp-cv-section:first-child { border-top: none; }
+      .pgp-cv-row {
+        display: flex; align-items: center;
+        padding: 5px 12px; gap: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        min-height: 30px;
+      }
+      .pgp-cv-row:last-child { border-bottom: none; }
+      .pgp-cv-label {
+        flex: 0 0 160px; font-size: 11.5px; font-weight: 600;
+        color: #64748b; white-space: nowrap;
+      }
+      .pgp-cv-value {
+        flex: 1 1 auto; font-size: 11.5px; color: #1a2e35;
+        font-family: 'DM Mono', monospace;
+      }
+      .pgp-ins-btn {
+        flex: 0 0 auto;
+        display: inline-flex; align-items: center; gap: 3px;
+        background: none; border: 1px solid #e2e8f0;
+        border-radius: 5px; padding: 2px 7px;
+        cursor: pointer; transition: border-color 0.15s, background 0.15s;
+        white-space: nowrap;
+      }
+      .pgp-ins-btn:hover { border-color: #5b35d5; background: #f0eeff; }
+      .pgp-ins-tag {
+        font-size: 10px; color: #5b35d5; font-family: 'DM Mono', monospace;
+        font-weight: 600;
+      }
+      .pgp-ins-arrow { font-size: 10px; color: #94a3b8; }
+
+      /* ── Precision toggle ─────────────────────────────────────────────────── */
+      .pgp-precision-toggle {
+        display: inline-flex; border: 1px solid #e2e8f0; border-radius: 6px;
+        overflow: hidden;
+      }
+      .pgp-prec-btn {
+        background: #fff; border: none; padding: 3px 10px;
+        font-size: 11px; font-weight: 600; color: #94a3b8;
+        cursor: pointer; transition: background 0.15s, color 0.15s;
+        font-family: 'DM Sans', sans-serif; letter-spacing: 0.02em;
+      }
+      .pgp-prec-btn:not(:last-child) { border-right: 1px solid #e2e8f0; }
+      .pgp-prec-btn.active { background: #5b35d5; color: #fff; }
+      .pgp-prec-btn:hover:not(.active) { background: #f0eeff; color: #5b35d5; }
+
+      /* ── 3dp numeric inputs ────────────────────────────────────────────────── */
+      .form-group input[type=number] {
+        font-size:13px; padding:5px 8px; height:34px;
+        border:1px solid #e2e8f0; border-radius:6px; color:#1a2e35;
+        font-family:'DM Mono',monospace; width:100%;
+      }
+      .form-group input[type=number]:focus { border-color:#5b35d5; outline:none;
+        box-shadow:0 0 0 2px rgba(91,53,213,0.15); }
+
       /* ── Alpha slider tick labels ──────────────────────────────────────── */
       .alpha-slider-wrap { position: relative; }
       .alpha-tick-labels {
@@ -178,7 +255,7 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p("PG-Power calculates the sample size needed to demonstrate that a medical device meets a pre-specified performance goal (PG) for a binary endpoint, using binom CI simulation methods."),
             tags$ol(
-              tags$li(tags$b("Set up:"), " Enter the performance goal, expected device rate, significance level, power, and CI method in the ", tags$b("Calculator"), " tab."),
+              tags$li(tags$b("Set up:"), " Enter the performance goal, expected device proportion, significance level, power, and CI method in the ", tags$b("Calculator"), " tab."),
               tags$li(tags$b("Explore:"), " The power vs n plot shows the sawtooth exact binomial power curve. The CI diagram shows the interval at the required n."),
               tags$li(tags$b("Export:"), " Download a PDF or Word report from the ", tags$b("Generate Report"), " tab with any combination of tables, plots, and interpretation.")
             )
@@ -193,7 +270,7 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p(tags$b("Trial Design Settings")),
             tags$ul(
-              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower rate is the favourable outcome. ", tags$em("Lower is better"), " (e.g. complication rate) mirrors proportions internally so the same calculation applies."),
+              tags$li(tags$b("Endpoint direction:"), " Whether a higher or lower proportion is the favourable outcome. ", tags$em("Lower is better"), " (e.g. complication proportion) mirrors proportions internally so the same calculation applies."),
               tags$li(tags$b("\u03b1 (significance level):"), " One-sided \u03b1. 0.025 is standard for pivotal medical device studies."),
               tags$li(tags$b("Power:"), " Probability of correctly demonstrating the device meets the performance goal. 0.90 is the default."),
               tags$li(tags$b("CI method:"), " Six methods available, all using binom CI simulation (binary search). Wald is the default; Clopper-Pearson is the most conservative and is preferred for regulatory submissions.")
@@ -201,7 +278,7 @@ ui <- fluidPage(
             tags$p(tags$b("Proportions")),
             tags$ul(
               tags$li(tags$b("Performance goal (PG):"), " The pre-specified benchmark rate the device must meet or beat."),
-              tags$li(tags$b("Expected device rate:"), " The true rate you expect the device to achieve. Must be more favourable than the PG.")
+              tags$li(tags$b("Expected performance:"), " The true proportion you expect the device to achieve. Must be more favourable than the PG.")
             ),
             tags$p(tags$b("Main plot: n vs achieved power")),
             tags$p("Shows the exact binomial power at every sample size in a range around the required n. The green dot marks required n; the dashed line marks the target power. The annotation shows the minimum events needed to pass and the actual achieved power at that n."),
@@ -213,7 +290,7 @@ ui <- fluidPage(
             tags$ul(
               tags$li(tags$b("Power plot range:"), " Sets how many n values either side of required n are shown in the power plot (default \u00b150)."),
               tags$li(tags$b("Show power vs n table:"), " A full table of the plot data with a pass/fail column and which CI method(s) land at each n."),
-              tags$li(tags$b("Show device rate sensitivity plot and table:"), " How required n changes as the assumed device rate varies."),
+              tags$li(tags$b("Show sensitivity plot and table:"), " How required n changes as the assumed device proportion varies."),
               tags$li(tags$b("Dropout rate:"), " Inflates n to account for expected dropout."),
               tags$li(tags$b("Simulation quality / seed:"), " Number of simulations and random seed for the binary search."),
               tags$li(tags$b("Defaults"), " resets all Calculator inputs.")
@@ -242,7 +319,7 @@ ui <- fluidPage(
             tags$p(tags$em("Higher is better:"), " declare success if CI lower bound > PG"),
             tags$p(tags$em("Lower is better:"), "  declare success if CI upper bound < PG"),
             tags$p(tags$b("CI diagram")),
-            tags$p("Enable ", tags$b("Show CI diagram"), " in Other Settings to visualise the confidence interval for the expected device rate at the required n, alongside the PG boundary. Green = passes, red = fails. Enable ",
+            tags$p("Enable ", tags$b("Show CI diagram"), " in Other Settings to visualise the confidence interval for the expected proportion at the required n, alongside the PG boundary. Green = passes, red = fails. Enable ",
                    tags$b("Show all CI methods"), " to plot intervals for every method at once (note: this requires a short simulation run for each method)."),
             tags$div(
               style = "margin-top:14px; background:#f0eeff; border:1px solid #5b35d5;
@@ -284,8 +361,8 @@ ui <- fluidPage(
             tags$p("Toggle any combination of sections:"),
             tags$ul(
               tags$li(tags$b("General:"), " Results table, full n summary, interpretation, CI method comparison, definitions, calculation code."),
-              tags$li(tags$b("Plots:"), " Power vs n plot (PNG) and/or device rate sensitivity plot (PNG)."),
-              tags$li(tags$b("Tables:"), " Device rate sensitivity table.")
+              tags$li(tags$b("Plots:"), " Power vs n plot (PNG) and/or sensitivity plot (PNG)."),
+              tags$li(tags$b("Tables:"), " Sensitivity table.")
             ),
             tags$p("The live ", tags$b("Report contents"), " checklist in the top-right reflects your current selections.")
           )
@@ -300,7 +377,7 @@ ui <- fluidPage(
             tags$p(tags$b("What is a Performance Goal (PG)?")),
             tags$p("A performance goal is a pre-specified, objective benchmark derived from
                     historical data, literature, or prior device performance. It represents
-                    the minimum or maximum acceptable event rate that a device must
+                    the minimum or maximum acceptable event proportion that a device must
                     achieve, depending on whether a higher or lower rate is the desired outcome."),
             tags$p(tags$b("Regulatory context")),
             tags$ul(
@@ -508,14 +585,14 @@ ui <- fluidPage(
                      conditionalPanel(
                        condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
                        tags$p(
-                         HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device rate must exceed the performance goal.<br>Use when a <em>higher</em> observed rate means the device performed well."),
+                         HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device proportion must exceed the performance goal.<br>Use when a <em>higher</em> observed proportion means the device performed well."),
                          style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
                        )
                      ),
                      conditionalPanel(
                        condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
                        tags$p(
-                         HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device rate must stay below the performance goal.<br>Use when a <em>lower</em> observed rate means the device performed well."),
+                         HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device proportion must stay below the performance goal.<br>Use when a <em>lower</em> observed proportion means the device performed well."),
                          style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
                        )
                      ),
@@ -574,7 +651,7 @@ ui <- fluidPage(
                          "Prop.test"         = "prop.test",
                          "Jeffreys"          = "bayes"
                        ),
-                       selected = "asymptotic"
+                       selected = "exact"
                      ),
                      conditionalPanel(
                        condition = "input.show_calc_hints == true",
@@ -583,7 +660,7 @@ ui <- fluidPage(
                          style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
                        )
                      )
-                   ),  # end acc_panel acc_design
+                   )  # end acc_panel acc_design
           ),  # end z-index wrapper
           
           acc_panel(
@@ -591,22 +668,79 @@ ui <- fluidPage(
             heading = "Proportions",
             open    = TRUE,
             
-            sliderInput("p0.expected",
-                        "Performance goal (PG):",
-                        min = 0.00, max = 1.00, step = 0.01, value = 0.88),
-            conditionalPanel(
-              condition = "input.show_calc_hints == true",
-              tags$p("The pre-specified benchmark rate the device must meet or exceed. Typically sourced from published literature, prior device data, or a regulatory guidance document.",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+            # ── Precision toggle ─────────────────────────────────────────
+            tags$div(
+              style = "display:flex; justify-content:flex-end; margin-bottom:10px;",
+              tags$div(
+                class = "pgp-precision-toggle",
+                tags$button(
+                  id      = "prec_2dp",
+                  class   = "pgp-prec-btn active",
+                  onclick = "pgpSetPrecision(2, this);",
+                  "2 d.p."
+                ),
+                tags$button(
+                  id      = "prec_3dp",
+                  class   = "pgp-prec-btn",
+                  onclick = "pgpSetPrecision(3, this);",
+                  "3 d.p."
+                )
+              )
             ),
             
-            sliderInput("p1.expected",
-                        "Expected device rate:",
-                        min = 0.00, max = 1.00, step = 0.01, value = 0.93),
+            # ── Performance goal ─────────────────────────────────────────
+            tags$label(
+              style = "font-size:13px; font-weight:400; color:#212529;
+                       display:block; margin-bottom:4px;",
+              "Performance goal (PG):"
+            ),
+            # 2dp: slider only
+            conditionalPanel(
+              condition = "input.prop_precision != '3dp'",
+              sliderInput("p0.expected", label = NULL,
+                          min = 0.00, max = 1.00, step = 0.01, value = 0.88,
+                          ticks = FALSE)
+            ),
+            # 3dp: numeric box only
+            conditionalPanel(
+              condition = "input.prop_precision == '3dp'",
+              numericInput("p0.manual", label = NULL,
+                           value = 0.880, min = 0.000, max = 1.000, step = 0.001)
+            ),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p("The true rate you expect the device to achieve. Must be more favourable than the performance goal for the study to be achievable.",
-                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
+              tags$p(
+                "The pre-specified benchmark rate the device must meet or exceed.",
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
+            ),
+            
+            # ── Expected performance ──────────────────────────────────────
+            tags$label(
+              style = "font-size:13px; font-weight:400; color:#212529;
+                       display:block; margin-bottom:4px; margin-top:8px;",
+              "Expected performance:"
+            ),
+            # 2dp: slider only
+            conditionalPanel(
+              condition = "input.prop_precision != '3dp'",
+              sliderInput("p1.expected", label = NULL,
+                          min = 0.00, max = 1.00, step = 0.01, value = 0.93,
+                          ticks = FALSE)
+            ),
+            # 3dp: numeric box only
+            conditionalPanel(
+              condition = "input.prop_precision == '3dp'",
+              numericInput("p1.manual", label = NULL,
+                           value = 0.930, min = 0.000, max = 1.000, step = 0.001)
+            ),
+            conditionalPanel(
+              condition = "input.show_calc_hints == true",
+              tags$p(
+                "The true proportion you expect the device to achieve. Must be more
+                 favourable than the performance goal.",
+                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+              )
             )
           ),
           
@@ -637,7 +771,7 @@ ui <- fluidPage(
             checkboxInput("showCIDiagram",   "Show CI diagram",                            value = FALSE),
             checkboxInput("showAllCI",       "Show all CI methods in diagram",             value = FALSE),
             checkboxInput("showPowerTable",  "Show power vs n table",                      value = FALSE),
-            checkboxInput("showTable2",      "Show device rate sensitivity plot and table", value = FALSE),
+            checkboxInput("showTable2",      "Show sensitivity plot and table", value = FALSE),
             
             tags$hr(class = "pgp-hr"),
             
@@ -681,9 +815,9 @@ ui <- fluidPage(
               style = "margin-top: 10px;",
               downloadButton("downloadPowerTable", "↓ Download power table (.csv)",
                              class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadData_plot2", "↓ Download sensitivity table",
+              downloadButton("downloadData_plot2", "↓ Download sensitivity table (.csv)",
                              class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlot2",      "↓ Download sensitivity plot",
+              downloadButton("downloadPlot2",      "↓ Download sensitivity plot (.png)",
                              class = "btn-sm btn-outline-primary pgp-btn")
             ),
             
@@ -705,7 +839,7 @@ ui <- fluidPage(
           
           conditionalPanel(
             condition = "input.show_calc_hints == true",
-            tags$p("Power vs sample size for the current performance goal and device rate. The orange dot marks the required n and the dashed line is the target power.",
+            tags$p("Power vs sample size for the current performance goal and expected proportion. The orange dot marks the required n and the dashed line is the target power.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
           plotlyOutput("plot_power", height = "380px"),
@@ -754,18 +888,15 @@ ui <- fluidPage(
           
           tags$div(
             class = "report-export-left",
-            tags$div(
-              style = "display:flex; align-items:center; gap:14px; flex-wrap:wrap;",
-              radioButtons(
-                "report_format", label = NULL,
-                choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
-                selected = "pdf", inline = TRUE
-              ),
-              uiOutput("report_download_ui")
+            radioButtons(
+              "report_format", label = NULL,
+              choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
+              selected = "pdf", inline = TRUE
             ),
+            uiOutput("report_download_ui"),
             tags$p(
               class = "report-note",
-              style = "margin-top:6px;",
+              style = "margin-top:8px;",
               "Report is built from your current Calculator tab inputs."
             )
           ),
@@ -872,8 +1003,8 @@ ui <- fluidPage(
             style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
             checkboxInput("rpt_ci_diagram", "CI diagram",                   value = FALSE),
             checkboxInput("rpt_plot_power", "Power vs n plot",              value = FALSE),
-            checkboxInput("rpt_plot_p1",    "Device rate sensitivity plot", value = FALSE),
-            checkboxInput("rpt_table_p1",   "Device rate sensitivity table",value = FALSE)
+            checkboxInput("rpt_plot_p1",    "Sensitivity plot",             value = FALSE),
+            checkboxInput("rpt_table_p1",   "Sensitivity table",            value = FALSE)
           ),
           
           
@@ -909,30 +1040,6 @@ ui <- fluidPage(
           tags$div(
             style = "margin-top:4px;",
             
-            # Collapsible current calculator values panel
-            tags$div(
-              style = "margin-bottom:14px;",
-              tags$div(
-                style = "display:flex; align-items:center; justify-content:space-between;
-                         background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;
-                         padding:8px 14px; cursor:pointer;",
-                onclick = "pgpToggleCalcSummary(this);",
-                tags$span(
-                  style = "font-size:12px; font-weight:600; color:#374151;",
-                  "Current calculator values"
-                ),
-                tags$span(
-                  id    = "calc_summary_chevron",
-                  style = "font-size:11px; color:#64748b; transition:transform 0.2s;",
-                  "\u25be"
-                )
-              ),
-              tags$div(
-                id    = "calc_summary_body",
-                style = "display:none;",
-                uiOutput("rpt_calc_summary_ui")
-              )
-            ),
             
             tags$div(
               style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
@@ -948,11 +1055,15 @@ ui <- fluidPage(
                   class = "form-control",
                   style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
                            border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
-                  tags$option(value = "default",    "Default \u2014 single-arm, device success rate"),
-                  tags$option(value = "concise",    "Concise \u2014 brief statistical statement"),
-                  tags$option(value = "regulatory", "Regulatory \u2014 formal ISO / FDA language"),
-                  tags$option(value = "safety",     "Safety endpoint \u2014 complication rate"),
-                  tags$option(value = "blank",      "Blank \u2014 start from scratch")
+                  tags$option(value = "default",       "Default — success, full statement"),
+                  tags$option(value = "concise",       "Concise — brief statistical"),
+                  tags$option(value = "regulatory",    "Regulatory — ISO / FDA formal"),
+                  tags$option(value = "success_ci",    "Success — CI-focused"),
+                  tags$option(value = "success_power", "Success — power justification"),
+                  tags$option(value = "safety",        "Safety — complication rate"),
+                  tags$option(value = "safety_ci",     "Safety — CI upper bound"),
+                  tags$option(value = "safety_reg",    "Safety — regulatory formal"),
+                  tags$option(value = "blank",         "Blank — start from scratch")
                 )
               ),
               tags$div(
@@ -979,40 +1090,6 @@ ui <- fluidPage(
               )
             ),
             
-            tags$p(
-              style = "font-size:11.5px; color:#64748b; margin-bottom:6px;",
-              "Insert live values into your text using these tags:"
-            ),
-            tags$div(
-              style = "display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;",
-              tagList(lapply(
-                list(
-                  list(tag = "{n}",           label = "n"),
-                  list(tag = "{n_dropout}",   label = "n (dropout)"),
-                  list(tag = "{n_successes}", label = "n-successes"),
-                  list(tag = "{power_pct}",   label = "Power %"),
-                  list(tag = "{pg_pct}",      label = "PG %"),
-                  list(tag = "{pd_pct}",      label = "device rate %"),
-                  list(tag = "{alpha}",       label = "\u03b1"),
-                  list(tag = "{ci_method}",   label = "CI method"),
-                  list(tag = "{dropout_pct}", label = "Dropout %")
-                ),
-                function(v) {
-                  ins <- v$tag
-                  js  <- paste0(
-                    "var ta=document.getElementById(\"rpt_interp_text\");",
-                    "var s=ta.selectionStart,e=ta.selectionEnd;",
-                    "var ins=\"", ins, "\";",
-                    "ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);",
-                    "ta.selectionStart=ta.selectionEnd=s+ins.length;",
-                    "ta.focus();",
-                    "Shiny.setInputValue(\"rpt_interp_text\",ta.value,{priority:\"event\"});"
-                  )
-                  tags$button(v$label, class = "var-chip", onclick = js)
-                }
-              ))
-            ),
-            
             tags$textarea(
               id          = "rpt_interp_text",
               class       = "form-control interp-textarea",
@@ -1020,13 +1097,16 @@ ui <- fluidPage(
               placeholder = "Interpretation text...",
               paste0(
                 "A total of {n} evaluable patients are required to demonstrate, with ",
-                "{power_pct}% power, that the device success rate exceeds the performance ",
-                "goal of {p0_pct}%, assuming a true success rate of {p1_pct}%. ",
+                "{power_pct}% power, that the device success proportion exceeds the performance ",
+                "goal of {p0_pct}%, assuming a true success proportion of {p1_pct}%. ",
                 "Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. ",
                 "The study will be deemed successful if at least {n_successes} out of {n} ",
                 "evaluable patients are free from a major adverse event at 12 months."
               )
-            )
+            ),
+            
+            # ── Current calculator values (with insert buttons) ──────────
+            uiOutput("rpt_calc_summary_ui")
           )
         )
       )
@@ -1034,274 +1114,5 @@ ui <- fluidPage(
   ),
   
   # ── JavaScript ──────────────────────────────────────────────────────────────
-  tags$script(HTML("$(document).ready(function() {
-
-// -- Hints state (global, default ON) ------------------------------------
-    window.pgpHintsOn = true;
-
-    window.pgpToggleHints = function(btn) {
-      window.pgpHintsOn = !window.pgpHintsOn;
-      var lbl = document.getElementById('hints_toggle_label');
-      if (lbl) lbl.textContent = window.pgpHintsOn ? 'Hide hints' : 'Show hints';
-      btn.style.background   = window.pgpHintsOn ? '#f0eeff' : '';
-      btn.style.borderColor  = window.pgpHintsOn ? '#5b35d5' : '#e2e8f0';
-      if (window.Shiny) {
-        Shiny.setInputValue('show_calc_hints',    window.pgpHintsOn, {priority: 'event'});
-      }
-    };
-
-    // -- Code block toggle (overview) ----------------------------------------
-    window.pgpToggleCode = function(id, hdr) {
-      var body = document.getElementById(id);
-      if (!body) return;
-      var chev = hdr.querySelector('span:last-child');
-      var isHidden = body.style.display === 'none' || body.style.display === '';
-      body.style.display = isHidden ? 'block' : 'none';
-      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : '';
-    };
-
-    // -- n-box expand/collapse -----------------------------------------------
-    window.pgpToggleNBox = function(btn) {
-      var exp = document.getElementById('n_box_expanded');
-      if (!exp) return;
-      var isHidden = exp.style.display === 'none' || exp.style.display === '';
-      exp.style.display = isHidden ? 'block' : 'none';
-      btn.textContent   = isHidden ? 'collapse ▴' : 'expand ▾';
-    };
-
-    // -- Calculator summary toggle (in report interpretation panel) ----------
-    window.pgpToggleCalcSummary = function(hdr) {
-      var body = document.getElementById('calc_summary_body');
-      var chev = document.getElementById('calc_summary_chevron');
-      if (!body) return;
-      var isHidden = body.style.display === 'none' || body.style.display === '';
-      body.style.display = isHidden ? 'block' : 'none';
-      if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : '';
-    };
-
-    // -- Plot colour picker -------------------------------------------------
-    window.pgpSetPlotColour = function(hex, btn) {
-      // Update active swatch
-      document.querySelectorAll('.pgp-swatch').forEach(function(s) {
-        s.classList.remove('active');
-      });
-      btn.classList.add('active');
-      // Send to Shiny
-      if (window.Shiny)
-        Shiny.setInputValue('plot_colour', hex, {priority: 'event'});
-    };
-
-    // Initialise plot_colour on app load
-    $(document).ready(function() {
-      if (window.Shiny)
-        Shiny.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
-    });
-
-    // -- Title templates -----------------------------------------------------
-    window.titleTemplates = {
-      'default':  'PG-Power — Sample Size Report',
-      'study':    'Sample Size Calculation — Study Protocol',
-      'clinical': 'Clinical Investigation: Sample Size Justification',
-      'stats':    'Statistical Analysis Plan — Sample Size Section',
-      'blank':    ''
-    };
-
-    window.pgpSetTitle = function(txt) {
-      var el = document.getElementById('rpt_title');
-      if (!el) return;
-      el.value = txt;
-      if (window.Shiny) Shiny.setInputValue('rpt_title', txt, {priority: 'event'});
-      el.dispatchEvent(new Event('input', {bubbles: true}));
-    };
-
-    window.pgpLoadTitleTemplate = function() {
-      var sel = document.getElementById('title_template_select');
-      var key = sel ? sel.value : 'default';
-      var txt = window.titleTemplates[key];
-      if (txt === undefined) txt = window.titleTemplates['default'];
-      window.pgpSetTitle(txt);
-    };
-
-    window.pgpRestoreTitleDefault = function() {
-      window.pgpSetTitle(window.titleTemplates['default']);
-      var sel = document.getElementById('title_template_select');
-      if (sel) sel.value = 'default';
-    };
-
-    // -- Include checkboxes --------------------------------------------------
-    var pgpIncludeIds = [
-        'rpt_results','rpt_interp_inc','rpt_ci_compare','rpt_definitions',
-        'rpt_calc_code','rpt_n_box','rpt_ci_diagram','rpt_plot_power','rpt_plot_p1','rpt_table_p1'
-      ];
-
-    window.pgpTickAllIncludes = function() {
-      pgpIncludeIds.forEach(function(id) {
-        var cb = document.getElementById(id);
-        if (!cb) return;
-        cb.checked = true;
-        if (window.Shiny) Shiny.setInputValue(id, true, {priority: 'event'});
-      });
-    };
-
-    window.pgpUntickAllIncludes = function() {
-      pgpIncludeIds.forEach(function(id) {
-        var cb = document.getElementById(id);
-        if (!cb) return;
-        cb.checked = false;
-        if (window.Shiny) Shiny.setInputValue(id, false, {priority: 'event'});
-      });
-    };
-
-    window.pgpRestoreIncludes = function() {
-      var defaults = {
-        'rpt_results': true, 'rpt_interp_inc': true, 'rpt_ci_compare': false,
-        'rpt_definitions': true, 'rpt_calc_code': true, 'rpt_n_box': false,
-        'rpt_ci_diagram': false, 'rpt_plot_power': false, 'rpt_plot_p1': false, 'rpt_table_p1': false
-      };
-      Object.keys(defaults).forEach(function(id) {
-        var cb = document.getElementById(id);
-        if (!cb) return;
-        cb.checked = defaults[id];
-        if (window.Shiny) Shiny.setInputValue(id, defaults[id], {priority: 'event'});
-      });
-    };
-
-    // -- Interpretation templates --------------------------------------------
-    window.interpTemplates = {
-      'blank':      '',
-      'default':    'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power, that the device rate meets the performance goal of {pg_pct}%, assuming a true device rate of {pd_pct}%. Allowing for {dropout_pct}% dropout, the study should enrol {n_dropout} patients. The study will be deemed successful if at least {n_successes} out of {n} evaluable patients achieve the primary endpoint.',
-      'concise':    'A sample size of {n} patients provides {power_pct}% power (one-sided α = {alpha}) to demonstrate non-inferiority of the device against the performance goal of {p0_pct}%, assuming a true device success rate of {p1_pct}%.',
-      
-      'regulatory': 'The study is designed as a single-arm performance goal study comparing the device rate to an objective performance criterion (OPC) of {pg_pct}%, consistent with published literature and historical data. A minimum of {n} evaluable subjects is required to demonstrate, with {power_pct}% power at a one-sided significance level of {alpha}, that the {ci_method} confidence interval bound for the device rate meets the performance goal. Accounting for a {dropout_pct}% dropout rate, the study will enrol {n_dropout} subjects. The primary endpoint will be met if at least {n_successes} of {n} evaluable subjects achieve the primary endpoint.',
-      'safety':     'A total of {n} evaluable patients are required to demonstrate, with {power_pct}% power (one-sided α = {alpha}), that the device complication rate is non-inferior to the performance goal of {p0_pct}%, assuming a true complication rate of {p1_pct}% . With an anticipated dropout rate of {dropout_pct}%, {n_dropout} patients will be enrolled. The safety endpoint will be satisfied if no more than the pre-specified number of adverse events are observed among the {n} evaluable patients.'
-    };
-
-    window.pgpSetInterp = function(txt) {
-      var ta = document.getElementById('rpt_interp_text');
-      if (!ta) return;
-      ta.value = txt;
-      if (window.Shiny) Shiny.setInputValue('rpt_interp_text', txt, {priority: 'event'});
-    };
-
-    window.pgpLoadTemplate = function() {
-      var sel = document.getElementById('interp_template_select');
-      var key = sel ? sel.value : 'default';
-      var txt = (window.interpTemplates[key] !== undefined)
-                  ? window.interpTemplates[key]
-                  : window.interpTemplates['default'];
-      window.pgpSetInterp(txt);
-    };
-
-    window.pgpRestoreDefault = function() {
-      window.pgpSetInterp(window.interpTemplates['default']);
-      var sel = document.getElementById('interp_template_select');
-      if (sel) sel.value = 'default';
-    };
-
-    // -- Full app reset ------------------------------------------------------
-    window.pgpResetAll = function() {
-      window.pgpResetCalculator();
-      window.pgpRestoreTitleDefault();
-      window.pgpRestoreDefault();
-      window.pgpRestoreIncludes();
-
-      var S = window.Shiny;
-      if (!S) return;
-      S.setInputValue('rpt_include_date',   true,  {priority: 'event'});
-      S.setInputValue('rpt_include_method', true,  {priority: 'event'});
-      S.setInputValue('rpt_include_author', false, {priority: 'event'});
-      S.setInputValue('report_format',      'pdf', {priority: 'event'});
-
-
-
-      window.pgpHintsOn = true;
-      var lbl = document.getElementById('hints_toggle_label');
-      if (lbl) lbl.textContent = 'Hide hints';
-      var btn = document.getElementById('hints_toggle_btn');
-      if (btn) { btn.style.background = '#f0eeff'; btn.style.borderColor = '#5b35d5'; }
-      S.setInputValue('show_calc_hints',    true, {priority: 'event'});
-      // Reset plot colour to purple
-      document.querySelectorAll('.pgp-swatch').forEach(function(s) { s.classList.remove('active'); });
-      var ps = document.getElementById('swatch_purple');
-      if (ps) ps.classList.add('active');
-      S.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
-    };
-
-
-
-    window.pgpResetCalculator = function() {
-      var S = window.Shiny;
-      if (!S) return;
-      S.setInputValue('endpoint',       'efficacy', {priority: 'event'});
-      S.setInputValue('sig.level',      '0.025',    {priority: 'event'});
-      S.setInputValue('power',          0.90,       {priority: 'event'});
-      S.setInputValue('ci_method_prop', 'asymptotic', {priority: 'event'});
-      S.setInputValue('p0.expected',    0.88,       {priority: 'event'});
-      S.setInputValue('p1.expected',    0.93,       {priority: 'event'});
-      S.setInputValue('sim_quality',    '1000',     {priority: 'event'});
-      S.setInputValue('sim_seed',       1,          {priority: 'event'});
-      S.setInputValue('show_calc_code', false,      {priority: 'event'});
-      S.setInputValue('showNBox_prop',  true,       {priority: 'event'});
-      S.setInputValue('showVline',      false,      {priority: 'event'});
-      S.setInputValue('showTable2',      false, {priority: 'event'});
-      S.setInputValue('showCIDiagram',   false, {priority: 'event'});
-      S.setInputValue('showAllCI',       false, {priority: 'event'});
-      S.setInputValue('showPowerTable',   false, {priority: 'event'});
-      S.setInputValue('dropout_rate',   10,         {priority: 'event'});
-      S.setInputValue('power_plot_range', 50,         {priority: 'event'});
-    };
-
-    // -- Show code -> GitHub popup ------------------------------------------
-    window.pgpClosePopup = function() {
-      var p = document.getElementById('pgp-gh-popup');
-      if (p) p.remove();
-    };
-    Shiny.addCustomMessageHandler('showGithubPopup', function(url) {
-      window.pgpClosePopup();
-      var d = document.createElement('div');
-      d.id = 'pgp-gh-popup';
-      d.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
-        'background:#fff;border:1px solid #e2e8f0;border-radius:12px;' +
-        'padding:24px 28px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.18);' +
-        'max-width:380px;width:90%;font-family:DM Sans,sans-serif;';
-      d.innerHTML =
-        '<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;\">' +
-        '  <span style=\"font-weight:700;font-size:14px;color:#1a2e35;\">Source code</span>' +
-        '  <button onclick=\"window.pgpClosePopup();\" ' +
-        '    style=\"background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;\">&#x2715;</button>' +
-        '</div>' +
-        '<p style=\"font-size:12px;color:#374151;margin:0 0 14px;line-height:1.6;\">' +
-        'The full source code for PG-Power is available on GitHub.</p>' +
-        '<a href=\"' + url + '\" target=\"_blank\" style=\"display:inline-flex;align-items:center;' +
-        'gap:6px;background:#5b35d5;color:#fff;text-decoration:none;padding:8px 16px;' +
-        'border-radius:7px;font-size:12px;font-weight:600;\">&#x2197; Open on GitHub</a>' +
-        '<button onclick=\"window.pgpClosePopup();\" ' +
-        'style=\"display:inline-block;margin-left:10px;background:none;border:1px solid #e2e8f0;' +
-        'border-radius:7px;padding:8px 14px;font-size:12px;color:#374151;cursor:pointer;\">Close</button>';
-      document.body.appendChild(d);
-      setTimeout(function() {
-        document.addEventListener('click', function pgpClose(e) {
-          if (!d.contains(e.target)) { d.remove(); document.removeEventListener('click', pgpClose); }
-        });
-      }, 100);
-    });
-
-    // -- Accordion toggle ----------------------------------------------------
-    $(document).on('click', '.pgp-accordion-header', function() {
-      var $hdr  = $(this);
-      var $body = $hdr.next('.pgp-accordion-body');
-      $hdr.toggleClass('open');
-      $body.toggleClass('open');
-    });
-
-    // -- Sync interp textarea to Shiny ---------------------------------------
-    var ta = document.getElementById('rpt_interp_text');
-    if (ta) {
-      Shiny.setInputValue('rpt_interp_text', ta.value);
-      ta.addEventListener('input', function() {
-        Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
-      });
-    }
-
-});"))
+  tags$script(src = "app.js")
 )
