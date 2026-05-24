@@ -125,13 +125,13 @@ This guidance document comprises three studies of similar stents assessing the p
 
 - **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
 
-## Metaanalysis:
+## Meta Analysis:
 
 A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*).
 
-- The upper/lower confidence interval bounds — rather than the point estimate — were proposed to the regulators as the performance goal thresholds.
+- The upper/lower confidence interval bounds — not the point estimate — were proposed to the regulators as the performance goal thresholds.
 
-- With only 3 studies available, confidence intervals are wide; this conservatism works in our favour, as wider intervals produce more favourable upper/lower bounds
+- With only 3 studies available, confidence intervals are wide — conservative.
 
 ![](images/clipboard-1855418152.png)
 
@@ -571,17 +571,17 @@ expected_width_vs_p_binom()
 - Similar coverage to Wilson with narrower intervals
 - Well suited to small proportions in single-arm device trials
 
-# Sample Size Calculation
+## Safety Endpoint
 
-## Parameters
+- Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
+- Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
 
-| Parameter             | Value      |
-|-----------------------|------------|
-| Endpoint              | 30-Day TVR |
-| $\alpha$ (one-sided)  | 0.025      |
-| Power                 | 90%        |
-| Performance Goal (PG) | 0.11       |
-| Expected Rate ($p_1$) | 0.05       |
+| Parameter                            | Value             |
+|--------------------------------------|-------------------|
+| Significance ($\alpha$)              | 0.025 (one-sided) |
+| Power                                | 90%               |
+| Approved Safety Endpoint Rate (PG)   | 0.11              |
+| Assumed Safety Endpoint Rate ($p_1$) | 0.05              |
 
 ## Software Comparison
 
@@ -641,21 +641,7 @@ legend("bottomright",
        lty = c(1, 2, NA, NA, NA), pch = c(1, NA, 19, 19, 19), bty = "n", cex = 0.72)
 ```
 
-# Shiny App {background-color="#5A3A6E"}
-
-## Safety Endpoint
-
-- Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
-- Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
-
-| Parameter                     | Value             |
-|-------------------------------|-------------------|
-| Significance                  | 0.025 (one-sided) |
-| Power                         | 90%               |
-| Approved Safety Endpoint Rate | 0.11              |
-| Assumed Safety Endpoint Rate  | 0.05              |
-
-## Next Steps
+# Next Steps {background-color="#5A3A6E"}
 
 - **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 - Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
