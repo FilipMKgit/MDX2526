@@ -672,15 +672,11 @@ e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 :::
 ::::
 
-#  {background-color="#5A3A6E"}
+# Thank You {background-color="#5A3A6E"}
 
 - **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 - Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
 - Incorporate historical data using a **Bayesian weighting framework**.
-
-# Thank You {background-color="#5A3A6E"}
-
-**Áine Glynn & Filip Kłosowski** \| School of Mathematical and Statistical Sciences, University of Galway
 
 ## References {.smaller}
 
