@@ -242,15 +242,6 @@ p_safety / p_efficacy +
 
 # Section Two {background-color="#5A3A6E"}
 
-- Simulation Study: Small Proportions
-- Confidence Interval Methods
-- Sample Size Calculation
-- Shiny App
-
-# Simulation Study: Small Proportions
-
-# Section Two {background-color="#5A3A6E"}
-
 -   Confidence Intervals for Proportions
 -   Simulation Study
 -   Sample Size Calculation
