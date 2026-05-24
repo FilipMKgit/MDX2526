@@ -125,13 +125,13 @@ This guidance document comprises three studies of similar stents assessing the p
 
 - **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
 
-## Metaanalysis:
+## Meta Analysis:
 
 A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*).
 
-- The upper/lower confidence interval bounds — rather than the point estimate — were proposed to the regulators as the performance goal thresholds.
+- The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
-- With only 3 studies available, confidence intervals are wide; this conservatism works in our favour, as wider intervals produce more favourable upper/lower bounds
+- Note: With only 3 studies available, confidence intervals are wide — (conservative)
 
 ![](images/clipboard-1855418152.png)
 
@@ -641,6 +641,36 @@ legend("bottomright",
        col = c("black", "black", "red", "darkgreen", "orange"),
        lty = c(1, 2, NA, NA, NA), pch = c(1, NA, 19, 19, 19), bty = "n", cex = 0.72)
 ```
+
+## Why the saw-tooth shape?
+
+:::::: columns
+::: {.column width="57%"}
+It is a discrete fraction: $\dfrac{\text{critical value}}{n}$
+
+e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
+
+- Sample size increases but the **critical value** remains constant → power declines
+
+- Then the **critical value** jumps → fraction rises → easier again → power peaks.
+:::
+
+:::: {.column width="43%"}
+::: purple-box
+**Different Software:**
+
+- n=220: First N on a local peak hitting 90% (but immediately drops)
+- n=232: Power reliably above 90%
+- n=256: Power never drops back below 90% for any N
+:::
+::::
+::::::
+
+:::: columns
+::: {.column width="52%"}
+![](images/clipboard-2085374562.png){width="100%"}
+:::
+::::
 
 # Next Steps {background-color="#5A3A6E"}
 
