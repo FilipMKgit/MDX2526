@@ -617,19 +617,6 @@ Which interval on average has the highest coverage (normal coverage) vs on avera
 
 ## Safety Endpoint
 
-<<<<<<< HEAD
-- Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
-- Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
-
-| Parameter                            | Value             |
-|--------------------------------------|-------------------|
-| Significance ($\alpha$)              | 0.025 (one-sided) |
-| Power                                | 90%               |
-| Approved Safety Endpoint Rate (PG)   | 0.11              |
-| Assumed Safety Endpoint Rate ($p_1$) | 0.05              |
-=======
-## Safety Endpoint
-
 -   Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
 -   Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
 
@@ -639,7 +626,6 @@ Which interval on average has the highest coverage (normal coverage) vs on avera
 | Power                         | 90%               |
 | Approved Safety Endpoint Rate | 0.11              |
 | Assumed Safety Endpoint Rate  | 0.05              |
->>>>>>> 7782661a5eb82c5550423fca1119c1c8068e3cfb
 
 ## Software Comparison
 
@@ -699,9 +685,6 @@ legend("bottomright",
        lty = c(1, 2, NA, NA, NA), pch = c(1, NA, 19, 19, 19), bty = "n", cex = 0.72)
 ```
 
-<<<<<<< HEAD
-# Next Steps {background-color="#5A3A6E"}
-=======
 # Shiny App {background-color="#5A3A6E"}
 
 ## PG-Power
@@ -713,7 +696,6 @@ legend("bottomright",
 -   \[INSERT LOGO\]
 
 ## Next Steps
->>>>>>> 7782661a5eb82c5550423fca1119c1c8068e3cfb
 
 -   **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 -   Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
