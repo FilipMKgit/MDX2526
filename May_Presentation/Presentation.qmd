@@ -29,7 +29,7 @@ library(cowplot)
 library(binom)
 ```
 
-# Section One {background-color="#5A3A6E"}
+# Section 1 {background-color="#5A3A6E"}
 
 -   Discuss Non-Inferiority & Performance Goal Studies
 -   Describe our Case Study
@@ -240,15 +240,29 @@ p_safety / p_efficacy +
 :::
 :::::
 
-# Section Two {background-color="#5A3A6E"}
+# Section 2 {background-color="#5A3A6E"}
 
--   Confidence Intervals for Proportions
--   Simulation Study
--   Sample Size Calculation
--   Shiny App
--   Final Steps
+-   Explore CIs for Proportions in PG scenarios
+-   Discuss Simulation Study assessing CIs
+-   Examine Sample Size Calculation
+-   Present our Shiny App: PG-Power
+-   Discuss Final Steps
 
 # Confidence Intervals for proportions
+
+## Why it matters
+
+-   CI method must be pre-specified in SAP submitted to authorities
+
+-   CANNOT be changed after seeing the data
+
+-   Drives sample size calculation
+
+-   For companies: n = \$
+
+-   For patients if device is effective: higher n = greater burden (time for approval)
+
+![](images/confidenceiskey.jpg)
 
 ## 
 
@@ -256,7 +270,7 @@ p_safety / p_efficacy +
 ::: {.column width="30%"}
 ![](images/complications_image.png){width="100%"}
 
-**Complications** = lower boundary
+**Complication Proportions** = near 0
 :::
 
 :::: {.column width="10%"}
@@ -267,7 +281,7 @@ p_safety / p_efficacy +
 ::: {.column width="45%"}
 ![](images/success_image.jpg){width="100%"}
 
-**High Success Rate** = upper boundary
+**Success Proportions** = near 1
 :::
 :::::::
 
@@ -382,16 +396,13 @@ $$
 \frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}
 $$
 
--   **Prop.test comes in `stats` package which is loaded with base R**
+-   **Prop.test() comes in `stats` package which is loaded with base R**
 
-    -   Essentially Wilson Score Interval with *continuity correction enabled by default*
+    -   Essentially Wilson Score Interval with ***continuity correction enabled by default***
 
--   *Real name: Wilson score interval with continuity correction*
+-   Wilson
 
--   Also a test inversion
-
-    -   Keep values of $p$ that would **not be rejected** by the observed data
-    -   **Continuity correction**
+    -   **with Continuity correction**
         -   Adjusts the cutoff by .5
 
 ## Agresti-Coull Interval
