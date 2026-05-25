@@ -1,5 +1,5 @@
 ---
-title: "A Statistical Perspective of Non-Inferiority" 
+title: "A Statistical Perspective of Non-Inferiorty" 
 author: "Áine Glynn & Filip Kłosowski | MSc "
 date: today
 format:
@@ -127,7 +127,7 @@ Includes three studies of similar stents assessing the primary endpoints for saf
 
 ## Meta Analysis:
 
-A logit-transformation was applied (extreme proportions), variance was pooled using a generalised linear mixed model (robust with sample sample sizes), with study-level variances drawn from each study's observed proportion (not assuming homogeneity across studies).
+A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*).
 
 -   The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
@@ -260,7 +260,7 @@ p_safety / p_efficacy +
 
 -   For companies: n = \$
 
--   For patients if device is effective: higher n = greater burden
+-   For patients if device is effective: higher n = greater burden (time for approval)
 
 ![](images/confidenceiskey.jpg)
 
@@ -975,12 +975,12 @@ coverage_width_plot(
 -   Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
 -   Chosen Proportion Method: Exact Test
 
-|                                            | Value             |
-|--------------------------------------------|-------------------|
-| Significance ($\alpha$)                    | 0.025 (one-sided) |
-| Power                                      | 90%               |
-| Approved Safety Endpoint Proportion (PG)   | 0.11              |
-| Assumed Safety Endpoint Proportion ($p_1$) | 0.05              |
+|                                      | Value             |
+|--------------------------------------|-------------------|
+| Significance ($\alpha$)              | 0.025 (one-sided) |
+| Power                                | 90%               |
+| Approved Safety Endpoint Rate (PG)   | 0.11              |
+| Assumed Safety Endpoint Rate ($p_1$) | 0.05              |
 
 ## Software Comparison
 
@@ -1072,7 +1072,9 @@ e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 
 ## Shiny App
 
-Github: https://github.com/FilipMKgit/MDX2526
+Posit link:
+
+Github:
 
 # Thank You {background-color="#5A3A6E"}
 
