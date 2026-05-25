@@ -29,11 +29,11 @@ library(cowplot)
 library(binom)
 ```
 
-# Section One {background-color="#5A3A6E"}
+# Section 1 {background-color="#5A3A6E"}
 
-- Discuss Non-Inferiority & Performance Goal Studies
-- Describe our Case Study
-- Determine Performance Endpoints
+-   Discuss Non-Inferiority & Performance Goal Studies
+-   Describe our Case Study
+-   Determine Performance Endpoints
 
 ## Non-Inferiority vs Performance Goal Studies {.text-sm}
 
@@ -116,22 +116,22 @@ Includes three studies of similar stents assessing the primary endpoints for saf
 
 **Safety (30-day):** Maximum acceptable level of harm
 
-- Amputation
-- Death
-- Target Vessel Revascularisation (TVR)
-- **Primary composite (Combined amputation, death, TVR)**
+-   Amputation
+-   Death
+-   Target Vessel Revascularisation (TVR)
+-   **Primary composite (Combined amputation, death, TVR)**
 
 **Efficacy (12-month):** Minimum clinical benefit that must be preserved
 
-- **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
+-   **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
 
 ## Meta Analysis:
 
-A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*).
+<!-- A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*). -->
 
-- The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
+-   The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
-- Note: With only 3 studies available, confidence intervals are wide (conservative)
+-   Note: With only 3 studies available, confidence intervals are wide (conservative)
 
 ![](images/clipboard-1855418152.png)
 
@@ -240,22 +240,37 @@ p_safety / p_efficacy +
 :::
 :::::
 
-# Section Two {background-color="#5A3A6E"}
+# Section 2 {background-color="#5A3A6E"}
 
-- Simulation Study: Small Proportions
-- Confidence Interval Methods
-- Sample Size Calculation
-- Shiny App
+-   Explore CIs for Proportions in PG scenarios
+-   Discuss Simulation Study assessing CIs
+-   Examine Sample Size Calculation
+-   Present our Shiny App: PG-Power
+-   Discuss Final Steps
 
-# Simulation Study: Small Proportions
+# Confidence Intervals for proportions
 
-## Problem
+## Why it matters
+
+-   CI method must be pre-specified in SAP submitted to authorities
+
+-   CANNOT be changed after seeing the data
+
+-   Drives sample size calculation
+
+-   For companies: n = \$
+
+-   For patients if device is effective: higher n = greater burden (time for approval)
+
+![](images/confidenceiskey.jpg)
+
+## 
 
 ::::::: columns
 ::: {.column width="30%"}
 ![](images/complications_image.png){width="100%"}
 
-**Complications** = lower boundary
+**Complication Proportions** = near 0
 :::
 
 :::: {.column width="10%"}
@@ -266,7 +281,7 @@ p_safety / p_efficacy +
 ::: {.column width="45%"}
 ![](images/success_image.jpg){width="100%"}
 
-**High Success Rate** = upper boundary
+**Success Proportions** = near 1
 :::
 :::::::
 
@@ -280,10 +295,10 @@ $$\hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
 :::
 
 ::: {.column width="75%"}
-- **Violated symmetry assumption** underlying the normal approximation
-- Narrow CI
-- Extend beyond the $[0,1]$ range
-- Substantial **undercoverage**
+-   Assumes $\hat{p}$ is normally distriubuted
+    -   Impossible CI bounds, not within \[0,1\]
+    -   Underestimates uncertainty at bounderies
+    -   Poor coverage, below nominal 95% power
 :::
 :::::
 
@@ -325,60 +340,159 @@ legend("bottomright",
 
 ## Alternatives
 
-- Wilson Score Interval
-- Agresti–Coull Interval
-- Clopper–Pearson Interval
-- Prop.test Interval
-- Jeffreys Interval
+-   Wilson Score Interval
+-   Wilson Score Interval *(with continuity correction)*
+-   Agresti–Coull Interval
+-   Clopper–Pearson Interval
+-   Jeffreys Interval
 
 ## Wilson Score Interval
 
-$$\frac{\hat{p} + \dfrac{z^2}{2n} \;\pm\; z \sqrt{\dfrac{\hat{p}(1 - \hat{p})}{n} + \dfrac{z^2}{4n^2}}}{1 + \dfrac{z^2}{n}}$$
+$$
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+\;\pm\;
+z \sqrt{
+\dfrac{\hat{p}(1 - \hat{p})}{n} + \dfrac{z^2}{4n^2}
+}
+}{
+1 + \dfrac{z^2}{n}
+}
+$$
 
-Adjusts the **centre** of the interval away from 0 or 1:
+-   Inverts score test for a binomial proportion
 
-$$\tilde{p} = \frac{\hat{p} + \dfrac{z^2}{2n}}{1 + \dfrac{z^2}{n}}$$
+-   Keep values of $p$ that would **not be rejected** by the observed data
 
-## Agresti–Coull Interval
+## 
 
-$$\tilde{p} = \frac{x + 2}{n + 4} \qquad \text{then} \qquad
-\tilde{p} \;\pm\; 1.96\sqrt{\frac{\tilde{p}(1-\tilde{p})}{n+4}}$$
+-   Wald deems estimate to be center of interval
 
-Essentially an improved Wald — adds 2 pseudo-successes and 2 pseudo-failures.
+-   Wilson fixes that with:
 
-## Clopper–Pearson Interval
+$$
+\tilde{p}
+=
+\frac{
+\hat{p} + \dfrac{z^2}{2n}
+}{
+1 + \dfrac{z^2}{n}
+}
+$$
 
-$$\left[\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n-x+1\right),\;\;
-\mathrm{Beta}^{-1}\!\left(1-\tfrac{\alpha}{2};\; x+1,\; n-x\right)\right]$$
+Adjusting center of interval
 
-- AKA **exact** binomial CI
-- Based directly on the binomial probability model
-- Finds range of true $p$ that makes the observed result plausible
+$$
+\dfrac{z^2}{2n}
+$$
 
-## Prop.test Interval
+Pulls centre away from 0 or 1
 
-Derived from a score test:
+## Wilson Score Interval *(with continuity correction)*
 
-$$\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}$$
+$$
+\text{derived from a score test:}
+\quad
+\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}
+$$
 
-Finds values of $p$ that are statistically consistent with the observed data — i.e. values of $p$ that pass the performance goal test.
+-   **Prop.test() comes in `stats` package which is loaded with base R**
 
-## Jeffreys Interval
+    -   Essentially Wilson Score Interval with ***continuity correction enabled by default***
 
-$$\left[\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x+\tfrac{1}{2},\; n-x+\tfrac{1}{2}\right),\;\;
-\mathrm{Beta}^{-1}\!\left(1-\tfrac{\alpha}{2};\; x+\tfrac{1}{2},\; n-x+\tfrac{1}{2}\right)\right]$$
+-   Wilson
 
-Bayesian in origin but widely used for frequentist problems. Similar to Agresti–Coull but adds 0.5 successes and 0.5 failures.
+    -   **with Continuity correction**
+        -   Adjusts the cutoff by .5
 
-## Simulation Framework
+## Agresti-Coull Interval
 
-Similar to **Pires & Amado (2008)**: *Interval estimators for a binomial proportion: Comparison of twenty methods*
+$$
+\hat{p} = \frac{x}{n}
+\qquad \longrightarrow \qquad
+\tilde{p} = \frac{x + 2}{n + 4}
+$$
 
-Behaviour evaluated under:
+Then calculates CI:
 
-- Coverage probability
-- Minimum coverage probability vs sample size
-- Expected width of 95% CI
+$$
+\tilde{p}
+\;\pm\;
+1.96
+\sqrt{
+\frac{
+\tilde{p}(1-\tilde{p})
+}{
+n+4
+}
+}
+$$
+
+*Essentially improved **Wald with pseudo-observations***
+
+## Clopper-Pearson Interval
+
+$$
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
+\right]
+$$
+
+-   Based on **exact** binomial distribution
+
+    $$
+    X \sim \text{Binomial}(n, p)
+    $$
+
+-   Inverts the exact binomial test
+
+    -   Keep values of $p$ that would **not be rejected** by the observed data
+
+## Jeffrey Interval
+
+$$
+\left[
+\mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right),
+\;\;
+\mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right)
+\right]
+$$
+
+Also assumes binomial distribution
+
+$$
+X \sim \text{Binomial}(n, p)
+$$
+
+-   Based on Bayesian idea
+
+    -   Works well for frequentist problems
+
+-   Start with weak prior beliefs on $p$
+
+$$
+p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)
+$$
+
+# Simulation Study
+
+## Framework
+
+::: {.column width="35%"}
+![](images/20proppaper.PNG){width="100%"}
+:::
+
+::: {.column width="65%"}
+**Pires & Amado (2008):** *Interval estimators for a binomial proportion: Comparison of twenty methods*
+
+-   Behaviour evaluated under:
+
+    -   Coverage probability
+    -   Average expected 95% CI Width
+    -   Under different n
+:::
 
 ## Coverage Probability n = 50
 
@@ -970,9 +1084,9 @@ Github:
 
 ## References {.smaller}
 
-- Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
-- Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
-- FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
-- Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
-- Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
-- Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
+-   Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
+-   Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
+-   FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
+-   Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
+-   Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
+-   Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
