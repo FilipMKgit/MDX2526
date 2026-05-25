@@ -127,7 +127,7 @@ Includes three studies of similar stents assessing the primary endpoints for saf
 
 ## Meta Analysis:
 
-A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*).
+<!-- A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity accross studies*). -->
 
 -   The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
