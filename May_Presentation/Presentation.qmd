@@ -861,12 +861,12 @@ coverage_width_plot(
 -   Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
 -   Chosen Proportion Method: Exact Test
 
-|                                      | Value             |
-|--------------------------------------|-------------------|
-| Significance ($\alpha$)              | 0.025 (one-sided) |
-| Power                                | 90%               |
-| Approved Safety Endpoint Rate (PG)   | 0.11              |
-| Assumed Safety Endpoint Rate ($p_1$) | 0.05              |
+|                                            | Value             |
+|--------------------------------------------|-------------------|
+| Significance ($\alpha$)                    | 0.025 (one-sided) |
+| Power                                      | 90%               |
+| Approved Safety Endpoint Proportion (PG)   | 0.11              |
+| Assumed Safety Endpoint Proportion ($p_1$) | 0.05              |
 
 ## Software Comparison
 

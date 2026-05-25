@@ -2,3 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+.positai
+
+# Quarto generated files — never track these
+May_Presentation/Presentation.html
+May_Presentation/Presentation.html.bak
+May_Presentation/Presentation_files/
+May_Presentation/Presentation.knit.md
+May_Presentation/Presentation.rmarkdown
+May_Presentation/*.html.bak
