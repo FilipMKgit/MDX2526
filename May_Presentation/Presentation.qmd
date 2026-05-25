@@ -1072,19 +1072,36 @@ e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 
 ## Shiny App
 
-Github: https://github.com/FilipMKgit/MDX2526
+Github:
+
+*https://github.com/FilipMKgit/MDX2526*
+
+Posit Cloud:
+
+*https://xj73kq-filip0mikolaj-klosowski.shinyapps.io/shiny_app/*
 
 # Thank You {background-color="#5A3A6E"}
 
 -   **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
+
 -   Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
+
 -   Incorporate historical data using a **Bayesian weighting framework**.
+
+## QR Code to Shiny App
+
+![](images/PG-Power-QR.png){width="418"}
 
 ## References {.smaller}
 
 -   Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
+
 -   Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
+
 -   FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
+
 -   Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
+
 -   Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
+
 -   Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
