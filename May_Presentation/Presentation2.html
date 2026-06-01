@@ -443,7 +443,7 @@
 
   <meta name="author" content="Áine Glynn &amp; Filip Kłosowski | MSc">
   <meta name="dcterms.date" content="2026-05-25">
-  <title>A Statistical Perspective of Non-Inferiorty</title>
+  <title>A Statistical Perspective of Non-Inferiority</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -1322,7 +1322,7 @@ border: 0;
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">A Statistical Perspective of Non-Inferiorty</h1>
+  <h1 class="title">A Statistical Perspective of Non-Inferiority</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -1550,8 +1550,7 @@ Table 1
 </section>
 <section id="wilson-score-interval" class="slide level2">
 <h2>Wilson Score Interval</h2>
-<p><span class="math display">\[
-\frac{
+<p><span class="math display">\[\frac{
 \hat{p} + \dfrac{z^2}{2n}
 \;\pm\;
 z \sqrt{
@@ -1559,8 +1558,7 @@ z \sqrt{
 }
 }{
 1 + \dfrac{z^2}{n}
-}
-\]</span></p>
+}\]</span></p>
 <ul>
 <li><p>Inverts score test for a binomial proportion</p></li>
 <li><p>Keep values of <span class="math inline">\(p\)</span> that would <strong>not be rejected</strong> by the observed data</p></li>
@@ -1572,28 +1570,22 @@ z \sqrt{
 <li><p>Wald deems estimate to be center of interval</p></li>
 <li><p>Wilson fixes that with:</p></li>
 </ul>
-<p><span class="math display">\[
-\tilde{p}
+<p><span class="math display">\[\tilde{p}
 =
 \frac{
 \hat{p} + \dfrac{z^2}{2n}
 }{
 1 + \dfrac{z^2}{n}
-}
-\]</span></p>
+}\]</span></p>
 <p>Adjusting center of interval</p>
-<p><span class="math display">\[
-\dfrac{z^2}{2n}
-\]</span></p>
+<p><span class="math display">\[\dfrac{z^2}{2n}\]</span></p>
 <p>Pulls centre away from 0 or 1</p>
 </section>
 <section id="wilson-score-interval-with-continuity-correction" class="slide level2">
 <h2>Wilson Score Interval <em>(with continuity correction)</em></h2>
-<p><span class="math display">\[
-\text{derived from a score test:}
+<p><span class="math display">\[\text{derived from a score test:}
 \quad
-\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}
-\]</span></p>
+\frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}\]</span></p>
 <ul>
 <li><p><strong>Prop.test comes in <code>stats</code> package which is loaded with base R</strong></p>
 <ul>
@@ -1612,14 +1604,11 @@ z \sqrt{
 </section>
 <section id="agresti-coull-interval" class="slide level2">
 <h2>Agresti-Coull Interval</h2>
-<p><span class="math display">\[
-\hat{p} = \frac{x}{n}
+<p><span class="math display">\[\hat{p} = \frac{x}{n}
 \qquad \longrightarrow \qquad
-\tilde{p} = \frac{x + 2}{n + 4}
-\]</span></p>
+\tilde{p} = \frac{x + 2}{n + 4}\]</span></p>
 <p>Then calculates CI:</p>
-<p><span class="math display">\[
-\tilde{p}
+<p><span class="math display">\[\tilde{p}
 \;\pm\;
 1.96
 \sqrt{
@@ -1628,24 +1617,19 @@ z \sqrt{
 }{
 n+4
 }
-}
-\]</span></p>
+}\]</span></p>
 <p><em>Essentially improved <strong>Wald with pseudo-observations</strong></em></p>
 </section>
 <section id="clopper-pearson-interval" class="slide level2">
 <h2>Clopper-Pearson Interval</h2>
-<p><span class="math display">\[
-\left[
+<p><span class="math display">\[\left[
 \mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
 \;\;
 \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
-\right]
-\]</span></p>
+\right]\]</span></p>
 <ul>
 <li><p>Based on <strong>exact</strong> binomial distribution</p>
-<p><span class="math display">\[
-X \sim \text{Binomial}(n, p)
-\]</span></p></li>
+<p><span class="math display">\[X \sim \text{Binomial}(n, p)\]</span></p></li>
 <li><p>Inverts the exact binomial test</p>
 <ul>
 <li>Keep values of <span class="math inline">\(p\)</span> that would <strong>not be rejected</strong> by the observed data</li>
@@ -1654,17 +1638,13 @@ X \sim \text{Binomial}(n, p)
 </section>
 <section id="jeffrey-interval" class="slide level2">
 <h2>Jeffrey Interval</h2>
-<p><span class="math display">\[
-\left[
+<p><span class="math display">\[\left[
 \mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right),
 \;\;
 \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right)
-\right]
-\]</span></p>
+\right]\]</span></p>
 <p>Also assumes binomial distribution</p>
-<p><span class="math display">\[
-X \sim \text{Binomial}(n, p)
-\]</span></p>
+<p><span class="math display">\[X \sim \text{Binomial}(n, p)\]</span></p>
 <ul>
 <li><p>Based on Bayesian idea</p>
 <ul>
@@ -1672,9 +1652,7 @@ X \sim \text{Binomial}(n, p)
 </ul></li>
 <li><p>Start with weak prior beliefs on <span class="math inline">\(p\)</span></p></li>
 </ul>
-<p><span class="math display">\[
-p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)
-\]</span></p>
+<p><span class="math display">\[p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)\]</span></p>
 </section></section>
 <section>
 <section id="simulation-study" class="title-slide slide level1 center">
@@ -1785,11 +1763,11 @@ p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)
 <td>90%</td>
 </tr>
 <tr class="odd">
-<td>Approved Safety Endpoint Rate (PG)</td>
+<td>Approved Safety Endpoint (PG)</td>
 <td>0.11</td>
 </tr>
 <tr class="even">
-<td>Assumed Safety Endpoint Rate (<span class="math inline">\(p_1\)</span>)</td>
+<td>Assumed Safety Endpoint (<span class="math inline">\(p_1\)</span>)</td>
 <td>0.05</td>
 </tr>
 </tbody>
