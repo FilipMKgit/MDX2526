@@ -1,41 +1,49 @@
 /* ═══════════════════════════════════════════════════════════
    PG-Power  ·  custom.css
-   All component-level styles. Inline styles in ui.R are kept
-   to a minimum and only used where CSS cannot reach.
-   Aesthetic: precise scientific instrument — clean, trustworthy,
-   quietly authoritative. Not clinical-white; warm near-whites
-   with teal accents and a single orange highlight.
+   Palette: deep indigo-purple primary, warm off-white surfaces,
+   slate neutrals. Not clinical, not AI-default. Feels like a
+   well-made piece of statistical software.
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Variables ──────────────────────────────────────────────── */
 :root {
-  --teal:        #18bdb9;
-  --teal-light:  #e6f8f8;
-  --teal-mid:    #b2e8e7;
-  --orange:      #e07b39;
-  --ink:         #1a2e35;
-  --ink-mid:     #4a5568;
-  --ink-light:   #718096;
-  --surface:     #f7f8fa;
-  --card-bg:     #ffffff;
-  --border:      #e2e7ed;
-  --radius:      10px;
-  --radius-sm:   6px;
-  --shadow-sm:   0 1px 4px rgba(0,0,0,0.06);
-  --shadow-md:   0 3px 12px rgba(0,0,0,0.08);
-  --font-body:   'DM Sans', system-ui, sans-serif;
-  --font-mono:   'DM Mono', 'Courier New', monospace;
+  --purple:        #5b35d5;
+  --purple-dark:   #3d21a0;
+  --purple-mid:    #c4b5f4;
+  --purple-light:  #f0eeff;
+  --purple-faint:  #f8f6ff;
+
+  --orange:        #e07b39;
+
+  --ink:           #1a2035;
+  --ink-mid:       #3d4a5c;
+  --ink-light:     #6b7a8d;
+  --ink-faint:     #9aa3ae;
+
+  --surface:       #f4f5f7;
+  --surface-warm:  #fafaf8;
+  --card-bg:       #ffffff;
+  --border:        #e1e4ea;
+  --border-light:  #eceef2;
+
+  --radius:        9px;
+  --radius-sm:     5px;
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.05), 0 1px 8px rgba(0,0,0,0.04);
+  --shadow-md:     0 2px 8px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.05);
+
+  --font-body:     'DM Sans', system-ui, sans-serif;
+  --font-mono:     'DM Mono', 'Courier New', monospace;
 }
 
 /* ── Base ───────────────────────────────────────────────────── */
-/* !important here survives bootswatch theme switches (incl. darkly) */
 body,
 body * {
   font-family: var(--font-body) !important;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Mono elements opt back out of the wildcard above */
+/* Mono elements */
 pre, code, kbd, samp,
 .n-result-msg,
 .pgp-pre,
@@ -48,6 +56,15 @@ pre, code, kbd, samp,
 
 body {
   background-color: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+}
+
+/* Tighten headings */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 
@@ -63,63 +80,74 @@ body {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 16px 22px 14px;
-  margin-bottom: 12px;
+  padding: 14px 24px 12px;
+  margin-bottom: 14px;
   background: var(--card-bg);
-  border-bottom: 3px solid var(--teal);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-bottom: 2px solid var(--border-light);
   box-shadow: var(--shadow-sm);
 }
 
+/* Thin purple rule under header image area */
+.pgp-header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0;
+  height: 2px;
+}
+
 .pgp-title {
-  color: var(--teal);
-  font-size: 32px;
+  color: var(--purple);
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.5px;
   margin: 0;
   line-height: 1;
 }
 
 .pgp-subtitle {
   color: var(--ink-light);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 300;
   margin: 0;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   line-height: 1;
   align-self: center;
+  font-style: italic;
 }
 
 /* ── Tabs ───────────────────────────────────────────────────── */
 .nav-tabs {
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .nav-tabs > li > a {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  color: var(--ink-mid);
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-light);
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -1px;
   padding: 10px 18px;
   transition: color 0.15s, border-color 0.15s;
+  border-radius: 0;
 }
 
 .nav-tabs > li > a:hover {
-  color: var(--teal);
+  color: var(--purple);
   background: transparent;
   border-color: transparent;
+  border-bottom-color: var(--purple-mid);
 }
 
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:focus,
 .nav-tabs > li.active > a:hover {
-  color: var(--teal);
+  color: var(--purple);
+  font-weight: 600;
   border: none;
-  border-bottom: 2px solid var(--teal);
+  border-bottom: 2px solid var(--purple);
   background: transparent;
 }
 
@@ -133,11 +161,11 @@ body {
 }
 
 .sidebar-section-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-light);
+  color: var(--ink-faint);
   margin-bottom: 12px;
 }
 
@@ -146,7 +174,7 @@ body {
   padding-left: 24px;
 }
 
-/* ── Info cards (Set up tab) ────────────────────────────────── */
+/* ── Info cards ─────────────────────────────────────────────── */
 .info-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -157,95 +185,129 @@ body {
 }
 
 .info-card h5 {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--purple);
   margin-top: 0;
   margin-bottom: 12px;
 }
 
 .info-card p, .info-card li {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--ink-mid);
   line-height: 1.65;
 }
-
-
-
-
-
 
 /* ── Download button column ─────────────────────────────────── */
 .dl-btn-col {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
   margin-top: 10px;
 }
 
 /* ── Buttons ────────────────────────────────────────────────── */
 .pgp-btn.btn-outline-primary,
 .btn-outline-primary.pgp-btn {
-  font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   border-radius: var(--radius-sm);
-  border-color: var(--teal);
-  color: var(--teal);
+  border-color: var(--purple-mid);
+  color: var(--purple);
+  background: var(--purple-faint);
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
 .pgp-btn.btn-outline-primary:hover {
-  background-color: var(--teal);
-  border-color: var(--teal);
+  background-color: var(--purple);
+  border-color: var(--purple);
   color: #fff;
+}
+
+/* General secondary buttons */
+.btn-outline-secondary {
+  border-color: var(--border) !important;
+  color: var(--ink-mid) !important;
+  background: var(--card-bg) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius-sm) !important;
+  transition: border-color 0.15s, color 0.15s, background 0.15s !important;
+}
+
+.btn-outline-secondary:hover {
+  border-color: var(--purple-mid) !important;
+  color: var(--purple) !important;
+  background: var(--purple-faint) !important;
 }
 
 /* ── Sliders ────────────────────────────────────────────────── */
 .irs--shiny .irs-bar {
-  background: var(--teal);
-  border-top-color: var(--teal);
-  border-bottom-color: var(--teal);
+  background: var(--purple);
+  border-top-color: var(--purple);
+  border-bottom-color: var(--purple);
 }
 
 .irs--shiny .irs-handle {
-  border-color: var(--teal);
+  border-color: var(--purple);
   background: #fff;
-  box-shadow: 0 1px 4px rgba(24,189,185,0.3);
+  box-shadow: 0 1px 5px rgba(91,53,213,0.25);
 }
 
 .irs--shiny .irs-single,
 .irs--shiny .irs-from,
 .irs--shiny .irs-to {
-  background: var(--teal);
-  font-family: var(--font-mono);
+  background: var(--purple);
   font-size: 11px;
+  font-weight: 500;
 }
 
 /* ── Select inputs ──────────────────────────────────────────── */
 .selectize-input {
   border-color: var(--border) !important;
   border-radius: var(--radius-sm) !important;
-  font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13.5px !important;
   box-shadow: none !important;
+  background: var(--card-bg) !important;
+  color: var(--ink) !important;
 }
 
 .selectize-input.focus {
-  border-color: var(--teal) !important;
-  box-shadow: 0 0 0 3px rgba(24,189,185,0.15) !important;
+  border-color: var(--purple) !important;
+  box-shadow: 0 0 0 3px rgba(91,53,213,0.1) !important;
+}
+
+.selectize-dropdown {
+  border-color: var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+  font-size: 13.5px !important;
+}
+
+.selectize-dropdown .option.selected,
+.selectize-dropdown .option:hover {
+  background: var(--purple-light) !important;
+  color: var(--purple-dark) !important;
+}
+
+/* ── Form labels ────────────────────────────────────────────── */
+.control-label,
+label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ink-mid) !important;
+  letter-spacing: 0.01em;
 }
 
 /* ── N-result box ───────────────────────────────────────────── */
 .n-result-box {
-  background: linear-gradient(135deg, #f0fbfb 0%, #e6f8f8 100%);
-  border-left: 4px solid var(--teal);
-  border: 1px solid var(--teal-mid);
-  border-left-width: 4px;
+  background: var(--purple-faint);
+  border: 1px solid var(--purple-mid);
+  border-left: 3px solid var(--purple);
   border-radius: var(--radius);
   padding: 14px 18px;
   margin-top: 12px;
@@ -253,11 +315,11 @@ body {
 }
 
 .n-result-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--purple);
   margin-bottom: 6px;
 }
 
@@ -265,52 +327,53 @@ body {
   font-family: var(--font-mono);
   font-size: 15px;
   color: var(--ink);
+  font-weight: 500;
 }
 
 /* ── Pre / code blocks ──────────────────────────────────────── */
 .pgp-pre,
 pre {
   font-family: var(--font-mono);
-  font-size: 13px;
-  background: #f4f7f9;
+  font-size: 12.5px;
+  background: #f8f9fb;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   color: var(--ink);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 /* ── HR dividers ────────────────────────────────────────────── */
 .pgp-hr {
-  border-color: var(--border);
+  border: none;
+  border-top: 1px solid var(--border-light);
   margin: 14px 0;
 }
 
 /* ── Help text ──────────────────────────────────────────────── */
 .pgp-help-text {
   font-size: 12px;
-  color: var(--ink-light);
+  color: var(--ink-faint);
   margin-top: 6px;
 }
 
 /* ── DT tables ──────────────────────────────────────────────── */
 table.dataTable {
-  font-family: var(--font-body);
   font-size: 13px;
 }
 
 table.dataTable thead th {
-  background-color: var(--teal-light);
-  color: var(--ink);
+  background-color: var(--purple-faint);
+  color: var(--ink-mid);
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.05em;
+  font-size: 11px;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--teal) !important;
+  border-bottom: 2px solid var(--purple-mid) !important;
 }
 
 table.dataTable tbody tr:hover {
-  background-color: var(--teal-light) !important;
+  background-color: var(--purple-faint) !important;
 }
 
 /* ── CI comparison header ───────────────────────────────────── */
@@ -319,7 +382,7 @@ table.dataTable tbody tr:hover {
 }
 
 .compare-header h5 {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -336,10 +399,26 @@ table.dataTable tbody tr:hover {
 
 /* ── Checkbox inputs ────────────────────────────────────────── */
 input[type="checkbox"] {
-  accent-color: var(--teal);
+  accent-color: var(--purple);
+}
+
+/* ── Radio buttons ──────────────────────────────────────────── */
+input[type="radio"] {
+  accent-color: var(--purple);
+}
+
+/* ── Shiny notification ─────────────────────────────────────── */
+.shiny-notification {
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+/* ── Plotly chart container ─────────────────────────────────── */
+.js-plotly-plot .plotly {
+  border-radius: var(--radius-sm);
 }
 
 /* ── Dark mode overrides ────────────────────────────────────── */
-.dark .pgp-header { background: #1e2b2f; border-color: var(--teal); }
-.dark .info-card  { background: #243035; border-color: #334; }
-.dark .n-result-box { background: #1e3535; }
+.dark .pgp-header    { background: #1a1c2e; border-color: var(--purple); }
+.dark .info-card     { background: #1e2038; border-color: #2d2f50; }
+.dark .n-result-box  { background: #1e1a35; }

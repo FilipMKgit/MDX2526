@@ -43,10 +43,9 @@ $(document).ready(function() {
       Shiny.setInputValue('plot_colour', hex, {priority: 'event'});
   };
 
-  // Initialise plot_colour on app load
-  $(document).ready(function() {
-    if (window.Shiny)
-      Shiny.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
+  // Initialise plot_colour — deferred until Shiny session is ready
+  $(document).one('shiny:sessioninitialized', function() {
+    Shiny.setInputValue('plot_colour', '#5b35d5', {priority: 'event'});
   });
 
   // -- Precision toggle ----------------------------------------------------
@@ -85,9 +84,9 @@ $(document).ready(function() {
     }
   };
 
-  // Initialise precision
-  $(document).ready(function() {
-    if (window.Shiny) Shiny.setInputValue('prop_precision', '2dp', {priority: 'event'});
+  // Initialise precision — deferred until Shiny session is ready
+  $(document).one('shiny:sessioninitialized', function() {
+    Shiny.setInputValue('prop_precision', '2dp', {priority: 'event'});
   });
 
   // -- Title templates -----------------------------------------------------
@@ -300,7 +299,8 @@ $(document).ready(function() {
     S.setInputValue('p1.manual',         0.930,     {priority: 'event'});
     S.setInputValue('sim_quality',      '1000',     {priority: 'event'});
     S.setInputValue('sim_seed',          1,         {priority: 'event'});
-    S.setInputValue('show_calc_code',    false,     {priority: 'event'});
+    // NOTE: show_calc_code is intentionally NOT reset here to avoid
+    // triggering the GitHub popup observer on every reset.
     S.setInputValue('showNBox_prop',     true,      {priority: 'event'});
     S.setInputValue('showVline',         false,     {priority: 'event'});
     S.setInputValue('showTable2',        false,     {priority: 'event'});
@@ -317,7 +317,8 @@ $(document).ready(function() {
     if (p) p.remove();
   };
 
-  Shiny.addCustomMessageHandler('showGithubPopup', function(url) {
+  $(document).one('shiny:sessioninitialized', function() {
+    Shiny.addCustomMessageHandler('showGithubPopup', function(url) {
     window.pgpClosePopup();
     var d = document.createElement('div');
     d.id = 'pgp-gh-popup';
@@ -349,6 +350,7 @@ $(document).ready(function() {
         }
       });
     }, 100);
+    });
   });
 
   // -- Accordion toggle ----------------------------------------------------
@@ -360,12 +362,14 @@ $(document).ready(function() {
   });
 
   // -- Sync interp textarea to Shiny ---------------------------------------
-  var ta = document.getElementById('rpt_interp_text');
-  if (ta) {
-    Shiny.setInputValue('rpt_interp_text', ta.value);
-    ta.addEventListener('input', function() {
-      Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
-    });
-  }
+  $(document).one('shiny:sessioninitialized', function() {
+    var ta = document.getElementById('rpt_interp_text');
+    if (ta) {
+      Shiny.setInputValue('rpt_interp_text', ta.value);
+      ta.addEventListener('input', function() {
+        Shiny.setInputValue('rpt_interp_text', ta.value, {priority: 'event'});
+      });
+    }
+  });
 
 });

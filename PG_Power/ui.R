@@ -30,13 +30,18 @@ ui <- fluidPage(
       .pgp-accordion-header.open  { background: #eef3f8; border-bottom-color: #e2e8f0; }
       .pgp-accordion-chevron { font-size: 11px; transition: transform 0.2s; color: #64748b; }
       .pgp-accordion-header.open .pgp-accordion-chevron { transform: rotate(180deg); }
-      .pgp-accordion-body { padding: 14px 16px; background: #fff;
-                             display: none; font-size: 13px; color: #374151;
-                             overflow: visible; border-radius: 0 0 8px 8px;
-                             position: relative; z-index: 10; }
-      .pgp-accordion-body .selectize-dropdown { z-index: 9999 !important; position: absolute !important; }
+
+      .pgp-accordion-body {
+        padding: 0 16px; background: #fff;
+        max-height: 0; overflow: hidden;
+        font-size: 13px; color: #374151;
+        border-radius: 0 0 8px 8px;
+        position: relative; z-index: 10;
+        transition: max-height 0.2s ease, padding 0.2s ease;
+      }
+      .pgp-accordion-body.open { max-height: 2000px; padding: 14px 16px; overflow: visible; }
+      .pgp-accordion-body .selectize-dropdown { z-index: 9999 !important; position: fixed !important; }
       .pgp-accordion { overflow: visible !important; }
-      .pgp-accordion-body.open { display: block; }
 
       .report-panel { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
       .report-group { background: #f8fafc; border: 1px solid #e2e8f0;
@@ -102,7 +107,7 @@ ui <- fluidPage(
                                 text-transform:uppercase; letter-spacing:0.06em;
                                 color:#64748b; margin:0 0 8px; }
 
-      /* ── n-box expand/collapse ─────────────────────────────────────────── */
+      /* n-box expand/collapse */
       .n-box-expanded {
         margin-top: 8px; padding: 10px 14px;
         background: #f8fafc; border: 1px solid #e2e8f0;
@@ -127,7 +132,7 @@ ui <- fluidPage(
       }
       .n-box-toggle:hover { border-color: #5b35d5; color: #5b35d5; }
 
-      /* ── Calc values card ─────────────────────────────────────────────────── */
+      /* Calc values card */
       .pgp-calc-values {
         margin-top: 10px;
         border: 1px solid #e2e8f0; border-radius: 8px;
@@ -171,7 +176,7 @@ ui <- fluidPage(
       }
       .pgp-ins-arrow { font-size: 10px; color: #94a3b8; }
 
-      /* ── Precision toggle ─────────────────────────────────────────────────── */
+      /* Precision toggle */
       .pgp-precision-toggle {
         display: inline-flex; border: 1px solid #e2e8f0; border-radius: 6px;
         overflow: hidden;
@@ -186,7 +191,7 @@ ui <- fluidPage(
       .pgp-prec-btn.active { background: #5b35d5; color: #fff; }
       .pgp-prec-btn:hover:not(.active) { background: #f0eeff; color: #5b35d5; }
 
-      /* ── 3dp numeric inputs ────────────────────────────────────────────────── */
+      /* 3dp numeric inputs */
       .form-group input[type=number] {
         font-size:13px; padding:5px 8px; height:34px;
         border:1px solid #e2e8f0; border-radius:6px; color:#1a2e35;
@@ -195,7 +200,7 @@ ui <- fluidPage(
       .form-group input[type=number]:focus { border-color:#5b35d5; outline:none;
         box-shadow:0 0 0 2px rgba(91,53,213,0.15); }
 
-      /* ── Alpha slider tick labels ──────────────────────────────────────── */
+      /* Alpha slider tick labels */
       .alpha-slider-wrap { position: relative; }
       .alpha-tick-labels {
         display: flex; justify-content: space-between;
@@ -209,7 +214,7 @@ ui <- fluidPage(
         margin-left: 2px; vertical-align: middle;
       }
 
-      /* -- Plot colour swatches ---------------------------------------------- */
+      /* Plot colour swatches */
       .pgp-colour-bar {
         display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
       }
@@ -385,32 +390,24 @@ ui <- fluidPage(
                 tags$b("FDA (US):"), " The FDA guidance on non-inferiority trials (2016) and
                 the Bayesian guidance (2010) describe performance goal studies as appropriate
                 when a concurrent control is not feasible. ",
-                tags$a(
-                  href = "https://www.fda.gov/media/78504/download",
-                  target = "_blank", style = "color:#5b35d5;",
-                  "Non-Inferiority Clinical Trials to Establish Effectiveness (2016) ↗"
-                ), " · ",
-                tags$a(
-                  href = "https://www.fda.gov/media/71512/download",
-                  target = "_blank", style = "color:#5b35d5;",
-                  "Guidance for the Use of Bayesian Statistics (2010) ↗"
-                )
+                tags$a(href = "https://www.fda.gov/media/78504/download", target = "_blank",
+                       style = "color:#5b35d5;", "Non-Inferiority Clinical Trials to Establish Effectiveness (2016) \u2197"),
+                " \u00b7 ",
+                tags$a(href = "https://www.fda.gov/media/71512/download", target = "_blank",
+                       style = "color:#5b35d5;", "Guidance for the Use of Bayesian Statistics (2010) \u2197")
               ),
               tags$li(
                 tags$b("ISO 14155:2020:"), " Governs clinical investigation of medical devices
                 for human subjects. Requires a pre-specified primary endpoint, sample size
                 justification, and a defined success criterion. ",
-                tags$a(
-                  href = "https://www.iso.org/standard/83968.html",
-                  target = "_blank", style = "color:#5b35d5;",
-                  "ISO 14155:2020/Amd 1:2024 ↗"
-                )
+                tags$a(href = "https://www.iso.org/standard/83968.html", target = "_blank",
+                       style = "color:#5b35d5;", "ISO 14155:2020/Amd 1:2024 \u2197")
               ),
               tags$li(
                 tags$b("ISO 5840 / ISO 11135 / device-specific standards:"),
                 " Many device families have published OPC values in their specific ISO
                 standards or FDA guidance documents. Check the relevant device standard
-                or the FDA’s device-specific guidance for published OPC values."
+                or the FDA's device-specific guidance for published OPC values."
               )
             ),
             tags$p(tags$b("One-sided vs two-sided testing")),
@@ -447,7 +444,6 @@ ui <- fluidPage(
               tags$a(href = "https://github.com/FilipMKgit/MDX2526",
                      target = "_blank", style = "color:#5b35d5;", "GitHub"), "."
             ),
-            
             tags$hr(style = "border-color:#f1f5f9; margin:8px 0;"),
             tags$p(
               style = "font-size:11.5px; color:#64748b; line-height:1.8;",
@@ -488,39 +484,29 @@ ui <- fluidPage(
           )
         ),
         
-        # -- Bottom action bar: colour picker + hints + defaults + reload ------
+        # -- Bottom action bar ------------------------------------------------
         tags$div(
           style = "display:flex; justify-content:space-between; align-items:center;
                    gap:8px; flex-wrap:wrap;
                    margin-top:18px; padding-top:14px; border-top:1px solid #f1f5f9;",
           
-          # Left: plot colour swatches
           tags$div(
             style = "display:flex; align-items:center; gap:8px;",
             tags$span("Plot colour:", style = "font-size:12px; color:#64748b;"),
-            tags$button(
-              class = "pgp-swatch active", id = "swatch_purple",
-              style = "background:#5b35d5;", title = "Purple",
-              onclick = "pgpSetPlotColour('#5b35d5', this);"
-            ),
-            tags$button(
-              class = "pgp-swatch", id = "swatch_teal",
-              style = "background:#18bdb9;", title = "Teal",
-              onclick = "pgpSetPlotColour('#18bdb9', this);"
-            ),
-            tags$button(
-              class = "pgp-swatch", id = "swatch_red",
-              style = "background:#c0392b;", title = "Red",
-              onclick = "pgpSetPlotColour('#c0392b', this);"
-            ),
-            tags$button(
-              class = "pgp-swatch", id = "swatch_black",
-              style = "background:#1a2e35;", title = "Black",
-              onclick = "pgpSetPlotColour('#1a2e35', this);"
-            )
+            tags$button(class="pgp-swatch active", id="swatch_purple",
+                        style="background:#5b35d5;", title="Purple",
+                        onclick="pgpSetPlotColour('#5b35d5', this);"),
+            tags$button(class="pgp-swatch", id="swatch_teal",
+                        style="background:#18bdb9;", title="Teal",
+                        onclick="pgpSetPlotColour('#18bdb9', this);"),
+            tags$button(class="pgp-swatch", id="swatch_red",
+                        style="background:#c0392b;", title="Red",
+                        onclick="pgpSetPlotColour('#c0392b', this);"),
+            tags$button(class="pgp-swatch", id="swatch_black",
+                        style="background:#1a2e35;", title="Black",
+                        onclick="pgpSetPlotColour('#1a2e35', this);")
           ),
           
-          # Right: hints + defaults + reload
           tags$div(
             style = "display:flex; align-items:center; gap:8px; flex-wrap:wrap;",
             tags$div(
@@ -529,16 +515,15 @@ ui <- fluidPage(
                          border:1px solid #5b35d5; border-radius:6px;
                          background:#f0eeff; font-size:12px; color:#374151; cursor:pointer;",
               onclick = "pgpToggleHints(this);",
-              tags$span(style = "font-size:13px; font-weight:700; color:#5b35d5;", "Hints"),
-              tags$span("Hide hints", id = "hints_toggle_label")
+              tags$span(style="font-size:13px; font-weight:700; color:#5b35d5;", "Hints"),
+              tags$span("Hide hints", id="hints_toggle_label")
             ),
             tags$button(
               class   = "btn btn-sm btn-outline-secondary",
               style   = "font-size:12px; padding:5px 16px; border-color:#e2e8f0;
                          color:#374151; display:flex; align-items:center; gap:6px;",
               onclick = "pgpResetAll();",
-              tags$span("\u21ba"),
-              tags$span("Restore All Defaults")
+              tags$span("\u21ba"), tags$span("Restore All Defaults")
             ),
             actionButton(
               "btn_reload_app",
@@ -565,182 +550,142 @@ ui <- fluidPage(
           width = 4,
           class = "main-left",
           
-          tags$div(style = "position:relative; z-index:100;",
-                   acc_panel(
-                     id      = "acc_design",
-                     heading = "Trial Design Settings",
-                     open    = TRUE,
-                     
-                     
-                     
-                     # Endpoint — shows H1 framing in hint
-                     selectInput(
-                       "endpoint", "Endpoint direction",
-                       choices  = c(
-                         "Higher rate is better (e.g. success, patency)" = "efficacy",
-                         "Lower rate is better (e.g. complications, MACE)" = "safety"
-                       ),
-                       selected = "efficacy"
-                     ),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
-                       tags$p(
-                         HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device proportion must exceed the performance goal.<br>Use when a <em>higher</em> observed proportion means the device performed well."),
-                         style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
-                       )
-                     ),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
-                       tags$p(
-                         HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device proportion must stay below the performance goal.<br>Use when a <em>lower</em> observed proportion means the device performed well."),
-                         style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
-                       )
-                     ),
-                     
-                     # Alpha dropdown
-                     selectInput(
-                       "sig.level",
-                       HTML("Significance level (one-sided \u03b1)"),
-                       choices = c(
-                         "0.005  (stringent)"           = 0.005,
-                         "0.010"                        = 0.010,
-                         "0.025  (pivotal device)"      = 0.025,
-                         "0.040"                        = 0.040,
-                         "0.050  (exploratory)"         = 0.050,
-                         "0.100"                        = 0.100,
-                         "0.150  (permissive / pilot)"  = 0.150
-                       ),
-                       selected = 0.025
-                     ),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true",
-                       uiOutput("alpha_display")
-                     ),
-                     
-                     # Power slider with common-power highlights
-                     tags$div(
-                       style = "margin-bottom: 4px;",
-                       tags$label(
-                         style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:6px;",
-                         "Power"
-                       ),
-                       sliderInput(
-                         "power",
-                         label  = NULL,
-                         min    = 0.70, max = 0.99,
-                         step   = 0.01, value = 0.90,
-                         ticks  = FALSE
-                       ),
-                       conditionalPanel(
-                         condition = "input.show_calc_hints == true",
-                         uiOutput("power_display")
-                       )
-                     ),
-                     
-                     
-                     
-                     tags$hr(class = "pgp-hr"),
-                     
-                     selectInput(
-                       "ci_method_prop", "CI method",
-                       choices = c(
-                         "Wald (Z-score)"    = "asymptotic",
-                         "Wilson Score"      = "wilson",
-                         "Agresti-Coull"     = "ac",
-                         "Clopper-Pearson (Exact)" = "exact",
-                         "Prop.test"         = "prop.test",
-                         "Jeffreys"          = "bayes"
-                       ),
-                       selected = "exact"
-                     ),
-                     conditionalPanel(
-                       condition = "input.show_calc_hints == true",
-                       tags$p(
-                         "All methods run a binom CI simulation search. Wilson is the recommended default; Clopper-Pearson is the most conservative.",
-                         style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
-                       )
-                     )
-                   )  # end acc_panel acc_design
-          ),  # end z-index wrapper
+          tags$div(
+            style = "position:relative; z-index:100;",
+            acc_panel(
+              id      = "acc_design",
+              heading = "Trial Design Settings",
+              open    = TRUE,
+              
+              selectInput(
+                "endpoint", "Endpoint direction",
+                choices  = c(
+                  "Higher rate is better (e.g. success, patency)" = "efficacy",
+                  "Lower rate is better (e.g. complications, MACE)" = "safety"
+                ),
+                selected = "efficacy"
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
+                tags$p(
+                  HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device proportion must exceed the performance goal.<br>Use when a <em>higher</em> observed proportion means the device performed well."),
+                  style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
+                )
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
+                tags$p(
+                  HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device proportion must stay below the performance goal.<br>Use when a <em>lower</em> observed proportion means the device performed well."),
+                  style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
+                )
+              ),
+              
+              selectInput(
+                "sig.level",
+                HTML("Significance level (one-sided \u03b1)"),
+                choices = c(
+                  "0.005  (stringent)"           = 0.005,
+                  "0.010"                        = 0.010,
+                  "0.025  (pivotal device)"      = 0.025,
+                  "0.040"                        = 0.040,
+                  "0.050  (exploratory)"         = 0.050,
+                  "0.100"                        = 0.100,
+                  "0.150  (permissive / pilot)"  = 0.150
+                ),
+                selected = 0.025
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true",
+                uiOutput("alpha_display")
+              ),
+              
+              tags$div(
+                style = "margin-bottom: 4px;",
+                tags$label(
+                  style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:6px;",
+                  "Power"
+                ),
+                sliderInput("power", label=NULL, min=0.70, max=0.99, step=0.01, value=0.90, ticks=FALSE),
+                conditionalPanel(
+                  condition = "input.show_calc_hints == true",
+                  uiOutput("power_display")
+                )
+              ),
+              
+              tags$hr(class = "pgp-hr"),
+              
+              selectInput(
+                "ci_method_prop", "CI method",
+                choices = c(
+                  "Wald (Z-score)"          = "asymptotic",
+                  "Wilson Score"            = "wilson",
+                  "Agresti-Coull"           = "ac",
+                  "Clopper-Pearson (Exact)" = "exact",
+                  "Prop.test"               = "prop.test",
+                  "Jeffreys"                = "bayes"
+                ),
+                selected = "exact"
+              ),
+              conditionalPanel(
+                condition = "input.show_calc_hints == true",
+                tags$p(
+                  "All methods run a binom CI simulation search. Wilson is the recommended default; Clopper-Pearson is the most conservative.",
+                  style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
+                )
+              )
+            )
+          ),
           
           acc_panel(
             id      = "acc_props",
             heading = "Proportions",
             open    = TRUE,
             
-            # ── Precision toggle ─────────────────────────────────────────
             tags$div(
               style = "display:flex; justify-content:flex-end; margin-bottom:10px;",
               tags$div(
                 class = "pgp-precision-toggle",
-                tags$button(
-                  id      = "prec_2dp",
-                  class   = "pgp-prec-btn active",
-                  onclick = "pgpSetPrecision(2, this);",
-                  "2 d.p."
-                ),
-                tags$button(
-                  id      = "prec_3dp",
-                  class   = "pgp-prec-btn",
-                  onclick = "pgpSetPrecision(3, this);",
-                  "3 d.p."
-                )
+                tags$button(id="prec_2dp", class="pgp-prec-btn active",
+                            onclick="pgpSetPrecision(2, this);", "2 d.p."),
+                tags$button(id="prec_3dp", class="pgp-prec-btn",
+                            onclick="pgpSetPrecision(3, this);", "3 d.p.")
               )
             ),
             
-            # ── Performance goal ─────────────────────────────────────────
             tags$label(
-              style = "font-size:13px; font-weight:400; color:#212529;
-                       display:block; margin-bottom:4px;",
+              style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
               "Performance goal (PG):"
             ),
-            # 2dp: slider only
             conditionalPanel(
               condition = "input.prop_precision != '3dp'",
-              sliderInput("p0.expected", label = NULL,
-                          min = 0.00, max = 1.00, step = 0.01, value = 0.88,
-                          ticks = FALSE)
+              sliderInput("p0.expected", label=NULL, min=0.00, max=1.00, step=0.01, value=0.88, ticks=FALSE)
             ),
-            # 3dp: numeric box only
             conditionalPanel(
               condition = "input.prop_precision == '3dp'",
-              numericInput("p0.manual", label = NULL,
-                           value = 0.880, min = 0.000, max = 1.000, step = 0.001)
+              numericInput("p0.manual", label=NULL, value=0.880, min=0.000, max=1.000, step=0.001)
             ),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p(
-                "The pre-specified benchmark rate the device must meet or exceed.",
-                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
-              )
+              tags$p("The pre-specified benchmark rate the device must meet or exceed.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             ),
             
-            # ── Expected performance ──────────────────────────────────────
             tags$label(
-              style = "font-size:13px; font-weight:400; color:#212529;
-                       display:block; margin-bottom:4px; margin-top:8px;",
+              style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px; margin-top:8px;",
               "Expected performance:"
             ),
-            # 2dp: slider only
             conditionalPanel(
               condition = "input.prop_precision != '3dp'",
-              sliderInput("p1.expected", label = NULL,
-                          min = 0.00, max = 1.00, step = 0.01, value = 0.93,
-                          ticks = FALSE)
+              sliderInput("p1.expected", label=NULL, min=0.00, max=1.00, step=0.01, value=0.93, ticks=FALSE)
             ),
-            # 3dp: numeric box only
             conditionalPanel(
               condition = "input.prop_precision == '3dp'",
-              numericInput("p1.manual", label = NULL,
-                           value = 0.930, min = 0.000, max = 1.000, step = 0.001)
+              numericInput("p1.manual", label=NULL, value=0.930, min=0.000, max=1.000, step=0.001)
             ),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
-              tags$p(
-                "The true proportion you expect the device to achieve. Must be more
-                 favourable than the performance goal.",
-                style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;"
-              )
+              tags$p("The true proportion you expect the device to achieve. Must be more favourable than the performance goal.",
+                     style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.5;")
             )
           ),
           
@@ -757,7 +702,7 @@ ui <- fluidPage(
               ),
               selected = 1000
             ),
-            numericInput("sim_seed", "Simulation seed", value = 1, min = 1, step = 1)
+            numericInput("sim_seed", "Simulation seed", value=1, min=1, step=1)
           ),
           
           acc_panel(
@@ -765,42 +710,29 @@ ui <- fluidPage(
             heading = "Other Settings",
             open    = FALSE,
             
-            checkboxInput("show_calc_code",   "Show calculation code",                      value = FALSE),
-            checkboxInput("showNBox_prop",   "Show n result box",                          value = TRUE),
-            checkboxInput("showVline",       "Show crosshair at required n",               value = TRUE),
-            checkboxInput("showCIDiagram",   "Show CI diagram",                            value = FALSE),
-            checkboxInput("showAllCI",       "Show all CI methods in diagram",             value = FALSE),
-            checkboxInput("showPowerTable",  "Show power vs n table",                      value = FALSE),
-            checkboxInput("showTable2",      "Show sensitivity plot and table", value = FALSE),
+            checkboxInput("show_calc_code",  "Show calculation code",          value=FALSE),
+            checkboxInput("showNBox_prop",   "Show n result box",              value=TRUE),
+            checkboxInput("showVline",       "Show crosshair at required n",   value=TRUE),
+            checkboxInput("showCIDiagram",   "Show CI diagram",                value=FALSE),
+            checkboxInput("showAllCI",       "Show all CI methods in diagram", value=FALSE),
+            checkboxInput("showPowerTable",  "Show power vs n table",          value=FALSE),
+            checkboxInput("showTable2",      "Show sensitivity plot and table", value=FALSE),
             
             tags$hr(class = "pgp-hr"),
             
             tags$label(
               style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
-              "Power plot range (± n around required n)"
+              "Power plot range (\u00b1 n around required n)"
             ),
-            sliderInput(
-              "power_plot_range",
-              label  = NULL,
-              min    = 10, max    = 300,
-              step   = 10, value = 50,
-              ticks  = FALSE
-            ),
+            sliderInput("power_plot_range", label=NULL, min=10, max=300, step=10, value=50, ticks=FALSE),
             
             tags$hr(class = "pgp-hr"),
             
-            # Dropout rate slider
             tags$label(
               style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
               "Dropout rate for enrolment estimate (%)"
             ),
-            sliderInput(
-              "dropout_rate",
-              label  = NULL,
-              min    = 1, max = 20,
-              step   = 1, value = 10,
-              ticks  = FALSE
-            ),
+            sliderInput("dropout_rate", label=NULL, min=1, max=20, step=1, value=10, ticks=FALSE),
             conditionalPanel(
               condition = "input.show_calc_hints == true",
               tags$p(
@@ -809,16 +741,21 @@ ui <- fluidPage(
               )
             ),
             
-            
             tags$div(
               class = "dl-btn-col",
               style = "margin-top: 10px;",
-              downloadButton("downloadPowerTable", "↓ Download power table (.csv)",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadData_plot2", "↓ Download sensitivity table (.csv)",
-                             class = "btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlot2",      "↓ Download sensitivity plot (.png)",
-                             class = "btn-sm btn-outline-primary pgp-btn")
+              downloadButton("downloadPowerTable", "\u2193 Download power table (.csv)",
+                             class="btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadData_plot2", "\u2193 Download sensitivity table (.csv)",
+                             class="btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlot2",      "\u2193 Download sensitivity plot (.png)",
+                             class="btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlotPower",  "\u2193 Download power vs n plot (.png)",
+                             class="btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlotCI",     "\u2193 Download CI diagram (.png)",
+                             class="btn-sm btn-outline-primary pgp-btn"),
+              downloadButton("downloadPlotCIAll",  "\u2193 Download CI diagram \u2014 all methods (.png)",
+                             class="btn-sm btn-outline-primary pgp-btn")
             ),
             
             tags$div(
@@ -842,28 +779,28 @@ ui <- fluidPage(
             tags$p("Power vs sample size for the current performance goal and expected proportion. The orange dot marks the required n and the dashed line is the target power.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
-          plotlyOutput("plot_power", height = "380px"),
+          plotlyOutput("plot_power", height="380px"),
           uiOutput("n_box_prop"),
-          tags$div(style = "height:22px;"),
+          tags$div(style="height:22px;"),
           conditionalPanel(
             condition = "input.showTable2 == true",
-            plotlyOutput("plot2", height = "380px"),
-            tags$div(style = "height:12px;")
+            plotlyOutput("plot2", height="380px"),
+            tags$div(style="height:12px;")
           ),
           uiOutput("compare_section"),
           conditionalPanel(
             condition = "input.showCIDiagram == true",
-            tags$div(style = "height:16px;"),
+            tags$div(style="height:16px;"),
             uiOutput("ci_diagram_wrapper")
           ),
           conditionalPanel(
             condition = "input.showPowerTable == true",
-            tags$div(style = "height:16px;"),
+            tags$div(style="height:16px;"),
             uiOutput("power_table_ui")
           ),
           conditionalPanel(
             condition = "input.showTable2 == true",
-            tags$div(style = "height:8px;"),
+            tags$div(style="height:8px;"),
             DTOutput("dataTable2")
           ),
           conditionalPanel(
@@ -875,7 +812,7 @@ ui <- fluidPage(
     ),
     
     # --------------------------------------------------------------------------
-    # Tab 4 - Generate Report
+    # Tab 3 - Generate Report
     # --------------------------------------------------------------------------
     tabPanel(
       title = "Generate Report",
@@ -889,212 +826,164 @@ ui <- fluidPage(
           tags$div(
             class = "report-export-left",
             radioButtons(
-              "report_format", label = NULL,
-              choices  = c("PDF (.pdf)" = "pdf", "Word (.docx)" = "docx"),
-              selected = "pdf", inline = TRUE
+              "report_format", label=NULL,
+              choices=c("PDF (.pdf)"="pdf", "Word (.docx)"="docx"),
+              selected="pdf", inline=TRUE
             ),
             uiOutput("report_download_ui"),
-            tags$p(
-              class = "report-note",
-              style = "margin-top:8px;",
-              "Report is built from your current Calculator tab inputs."
-            )
+            tags$p(class="report-note", style="margin-top:8px;",
+                   "Report is built from your current Calculator tab inputs.")
           ),
           
           tags$div(
             class = "report-export-right",
-            tags$p(style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                            letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
+            tags$p(style="font-size:11px; font-weight:700; text-transform:uppercase;
+                          letter-spacing:0.06em; color:#64748b; margin:0 0 8px;",
                    "Report contents"),
             uiOutput("report_contents_ui")
           )
         ),
         
-        # Title & Header
         acc_panel(
-          id = "acc_rpt_header", heading = "Title & Header", open = FALSE,
+          id="acc_rpt_header", heading="Title & Header", open=FALSE,
           
           tags$div(
-            style = "display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
+            style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;",
             tags$div(
-              style = "flex:1 1 auto; min-width:180px;",
+              style="flex:1 1 auto; min-width:180px;",
               tags$label(
-                style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                style="font-size:11px; font-weight:700; text-transform:uppercase;
+                        letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
                 "Title template"
               ),
               tags$select(
-                id    = "title_template_select",
-                class = "form-control",
-                style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
-                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
-                tags$option(value = "default",  "Default \u2014 PG-Power Sample Size Report"),
-                tags$option(value = "study",    "Study protocol title"),
-                tags$option(value = "clinical", "Clinical investigation title"),
-                tags$option(value = "stats",    "Statistical analysis plan title"),
-                tags$option(value = "blank",    "Blank \u2014 enter your own")
+                id="title_template_select", class="form-control",
+                style="font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                       border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                tags$option(value="default",  "Default \u2014 PG-Power Sample Size Report"),
+                tags$option(value="study",    "Study protocol title"),
+                tags$option(value="clinical", "Clinical investigation title"),
+                tags$option(value="stats",    "Statistical analysis plan title"),
+                tags$option(value="blank",    "Blank \u2014 enter your own")
               )
             ),
             tags$div(
-              style = "flex:0 0 auto; padding-top:20px;",
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
-                onclick = "pgpLoadTitleTemplate();",
-                "\u21ba Load template"
-              )
+              style="flex:0 0 auto; padding-top:20px;",
+              tags$button(class="btn btn-sm btn-outline-secondary",
+                          style="font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0; color:#374151; white-space:nowrap;",
+                          onclick="pgpLoadTitleTemplate();", "\u21ba Load template")
             ),
             tags$div(
-              style = "flex:0 0 auto; padding-top:20px;",
-              tags$button(
-                class   = "btn btn-sm btn-outline-secondary",
-                style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                           color:#374151; white-space:nowrap;",
-                onclick = "pgpRestoreTitleDefault();",
-                "\u21ba Defaults"
-              )
+              style="flex:0 0 auto; padding-top:20px;",
+              tags$button(class="btn btn-sm btn-outline-secondary",
+                          style="font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0; color:#374151; white-space:nowrap;",
+                          onclick="pgpRestoreTitleDefault();", "\u21ba Defaults")
             )
           ),
           
-          textInput(
-            "rpt_title", label = "Report title",
-            value       = "PG-Power \u2014 Sample Size Report",
-            placeholder = "Report title..."
-          ),
+          textInput("rpt_title", label="Report title",
+                    value="PG-Power \u2014 Sample Size Report",
+                    placeholder="Report title..."),
           
           tags$div(
-            style = "display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
-            checkboxInput("rpt_include_date",   "Include generation date", value = TRUE),
-            checkboxInput("rpt_include_method", "Include CI method",       value = TRUE),
-            checkboxInput("rpt_include_author", "Include author name",     value = FALSE)
+            style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:4px;",
+            checkboxInput("rpt_include_date",   "Include generation date", value=TRUE),
+            checkboxInput("rpt_include_method", "Include CI method",       value=TRUE),
+            checkboxInput("rpt_include_author", "Include author name",     value=FALSE)
           ),
           
           conditionalPanel(
-            condition = "input.rpt_include_author == true",
-            textInput(
-              "rpt_author_name", label = NULL,
-              value = "", placeholder = "Author name..."
-            )
+            condition="input.rpt_include_author == true",
+            textInput("rpt_author_name", label=NULL, value="", placeholder="Author name...")
           )
         ),
         
-        # Include in Report
         acc_panel(
-          id = "acc_rpt_include", heading = "Include in Report", open = FALSE,
+          id="acc_rpt_include", heading="Include in Report", open=FALSE,
           
-          tags$p("General",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
+          tags$p("General", style="font-size:10px; font-weight:700; text-transform:uppercase;
+                  letter-spacing:0.07em; color:#94a3b8; margin:0 0 4px;"),
           tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_results",      "Results table",         value = TRUE),
-            checkboxInput("rpt_interp_inc",   "Interpretation",        value = TRUE),
-            checkboxInput("rpt_definitions",  "Definitions",           value = TRUE),
-            checkboxInput("rpt_calc_code",    "Calculation code",      value = TRUE),
-            checkboxInput("rpt_ci_compare",   "CI comparison table",   value = FALSE),
-            checkboxInput("rpt_n_box",        "Full n summary table",  value = FALSE)
+            style="display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_results",     "Results table",       value=TRUE),
+            checkboxInput("rpt_interp_inc",  "Interpretation",      value=TRUE),
+            checkboxInput("rpt_definitions", "Definitions",         value=TRUE),
+            checkboxInput("rpt_calc_code",   "Calculation code",    value=TRUE),
+            checkboxInput("rpt_ci_compare",  "CI comparison table", value=FALSE),
+            checkboxInput("rpt_n_box",       "Full n summary table", value=FALSE)
           ),
           
-          tags$p("Plots & tables",
-                 style = "font-size:10px; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
+          tags$p("Plots & tables", style="font-size:10px; font-weight:700; text-transform:uppercase;
+                  letter-spacing:0.07em; color:#94a3b8; margin:8px 0 4px;"),
           tags$div(
-            style = "display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
-            checkboxInput("rpt_ci_diagram", "CI diagram",                   value = FALSE),
-            checkboxInput("rpt_plot_power", "Power vs n plot",              value = FALSE),
-            checkboxInput("rpt_plot_p1",    "Sensitivity plot",             value = FALSE),
-            checkboxInput("rpt_table_p1",   "Sensitivity table",            value = FALSE)
+            style="display:grid; grid-template-columns:1fr 1fr; gap:0 12px;",
+            checkboxInput("rpt_ci_diagram", "CI diagram",        value=FALSE),
+            checkboxInput("rpt_plot_power", "Power vs n plot",   value=FALSE),
+            checkboxInput("rpt_plot_p1",    "Sensitivity plot",  value=FALSE),
+            checkboxInput("rpt_table_p1",   "Sensitivity table", value=FALSE)
           ),
           
-          
-          
           tags$div(
-            style = "margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;
-                     display:flex; gap:6px; flex-wrap:wrap;",
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpRestoreIncludes();",
-              "\u21ba Defaults"
-            ),
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpTickAllIncludes();",
-              "\u2713 Tick all"
-            ),
-            tags$button(
-              class   = "btn btn-sm btn-outline-secondary",
-              style   = "font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
-              onclick = "pgpUntickAllIncludes();",
-              "\u2715 Untick all"
-            )
+            style="margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9; display:flex; gap:6px; flex-wrap:wrap;",
+            tags$button(class="btn btn-sm btn-outline-secondary",
+                        style="font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+                        onclick="pgpRestoreIncludes();", "\u21ba Defaults"),
+            tags$button(class="btn btn-sm btn-outline-secondary",
+                        style="font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+                        onclick="pgpTickAllIncludes();", "\u2713 Tick all"),
+            tags$button(class="btn btn-sm btn-outline-secondary",
+                        style="font-size:12px; padding:4px 12px; border-color:#e2e8f0; color:#374151;",
+                        onclick="pgpUntickAllIncludes();", "\u2715 Untick all")
           )
         ),
         
-        # Interpretation
         acc_panel(
-          id = "acc_rpt_interp", heading = "Interpretation", open = FALSE,
+          id="acc_rpt_interp", heading="Interpretation", open=FALSE,
           
           tags$div(
-            style = "margin-top:4px;",
-            
+            style="margin-top:4px;",
             
             tags$div(
-              style = "display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
+              style="display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;",
               tags$div(
-                style = "flex:1 1 auto; min-width:180px;",
+                style="flex:1 1 auto; min-width:180px;",
                 tags$label(
-                  style = "font-size:11px; font-weight:700; text-transform:uppercase;
-                            letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
+                  style="font-size:11px; font-weight:700; text-transform:uppercase;
+                          letter-spacing:0.06em; color:#64748b; display:block; margin-bottom:4px;",
                   "Template"
                 ),
                 tags$select(
-                  id    = "interp_template_select",
-                  class = "form-control",
-                  style = "font-size:12px; height:32px; padding:4px 8px; color:#374151;
-                           border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
-                  tags$option(value = "default",       "Default — success, full statement"),
-                  tags$option(value = "concise",       "Concise — brief statistical"),
-                  tags$option(value = "regulatory",    "Regulatory — ISO / FDA formal"),
-                  tags$option(value = "success_ci",    "Success — CI-focused"),
-                  tags$option(value = "success_power", "Success — power justification"),
-                  tags$option(value = "safety",        "Safety — complication rate"),
-                  tags$option(value = "safety_ci",     "Safety — CI upper bound"),
-                  tags$option(value = "safety_reg",    "Safety — regulatory formal"),
-                  tags$option(value = "blank",         "Blank — start from scratch")
+                  id="interp_template_select", class="form-control",
+                  style="font-size:12px; height:32px; padding:4px 8px; color:#374151;
+                         border:1px solid #e2e8f0; border-radius:6px; background:#fafcff;",
+                  tags$option(value="default",       "Default \u2014 success, full statement"),
+                  tags$option(value="concise",       "Concise \u2014 brief statistical"),
+                  tags$option(value="regulatory",    "Regulatory \u2014 ISO / FDA formal"),
+                  tags$option(value="success_ci",    "Success \u2014 CI-focused"),
+                  tags$option(value="success_power", "Success \u2014 power justification"),
+                  tags$option(value="safety",        "Safety \u2014 complication rate"),
+                  tags$option(value="safety_ci",     "Safety \u2014 CI upper bound"),
+                  tags$option(value="safety_reg",    "Safety \u2014 regulatory formal"),
+                  tags$option(value="blank",         "Blank \u2014 start from scratch")
                 )
               ),
               tags$div(
-                style = "flex:0 0 auto; padding-top:20px;",
-                tags$button(
-                  id      = "interp_load_template",
-                  class   = "btn btn-sm btn-outline-secondary",
-                  style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                             color:#374151; white-space:nowrap;",
-                  onclick = "pgpLoadTemplate();",
-                  "\u21ba Load template"
-                )
+                style="flex:0 0 auto; padding-top:20px;",
+                tags$button(id="interp_load_template", class="btn btn-sm btn-outline-secondary",
+                            style="font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0; color:#374151; white-space:nowrap;",
+                            onclick="pgpLoadTemplate();", "\u21ba Load template")
               ),
               tags$div(
-                style = "flex:0 0 auto; padding-top:20px;",
-                tags$button(
-                  id      = "interp_restore_default",
-                  class   = "btn btn-sm btn-outline-secondary",
-                  style   = "font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0;
-                             color:#374151; white-space:nowrap;",
-                  onclick = "pgpRestoreDefault();",
-                  "\u21ba Defaults"
-                )
+                style="flex:0 0 auto; padding-top:20px;",
+                tags$button(id="interp_restore_default", class="btn btn-sm btn-outline-secondary",
+                            style="font-size:12px; height:32px; padding:0 12px; border-color:#e2e8f0; color:#374151; white-space:nowrap;",
+                            onclick="pgpRestoreDefault();", "\u21ba Defaults")
               )
             ),
             
             tags$textarea(
-              id          = "rpt_interp_text",
-              class       = "form-control interp-textarea",
-              rows        = "6",
-              placeholder = "Interpretation text...",
+              id="rpt_interp_text", class="form-control interp-textarea",
+              rows="6", placeholder="Interpretation text...",
               paste0(
                 "A total of {n} evaluable patients are required to demonstrate, with ",
                 "{power_pct}% power, that the device success proportion exceeds the performance ",
@@ -1105,7 +994,6 @@ ui <- fluidPage(
               )
             ),
             
-            # ── Current calculator values (with insert buttons) ──────────
             uiOutput("rpt_calc_summary_ui")
           )
         )
@@ -1113,6 +1001,5 @@ ui <- fluidPage(
     )
   ),
   
-  # ── JavaScript ──────────────────────────────────────────────────────────────
   tags$script(src = "app.js")
 )
