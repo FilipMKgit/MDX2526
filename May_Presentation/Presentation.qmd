@@ -1060,11 +1060,11 @@ Posit Cloud:
 
 # Thank You {background-color="#5A3A6E"}
 
--   **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
+- **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 
--   Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
+- Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
 
--   Incorporate historical data using a **Bayesian weighting framework**.
+- Incorporate historical data using a **Bayesian weighting framework**.
 
 ## QR Code to Shiny App
 
@@ -1072,14 +1072,14 @@ Posit Cloud:
 
 ## References {.smaller}
 
--   Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
+- Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
 
--   Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
+- Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
 
--   FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
+- FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
 
--   Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
+- Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
 
--   Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
+- Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
 
--   Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
+- Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
