@@ -320,4 +320,159 @@ forest(RCCIncreasedByOne,
 The pooled analysis obtained a Rutherford classification score for 2(Increase by 1 category) proportion of 0.0441 by month 12, 95%CI:[0.0143; 0.1280]. This demonstrated an expected event rate of approximately 4%, ranging from 1% to 13%. Due to the small number of studies & sample sizes, we recommended that the performance goal for Rutherford classification score 2 to be set at 1%, to account for expected variation.
 
 
-There were no participants categorized Within the Rutherford classification score 3. Increase by 2: Symptoms have worsened by two categories in the 12 month period. Therefore we recommend this to be set at 0%. 
+There were no participants categorized Within the Rutherford classification score 3. Increase by 2: Symptoms have worsened by two categories in the 12 month period. Therefore we recommend this to be set at 0%.
+
+
+#### **Option A — Two Separate Tables (Safety & Efficacy)**
+Summary of the proposed primary performance goals. Safety is represented by the 30-Day Composite (Death, Amputation, TVR) and Efficacy by Rutherford Classification: Improved or No Change. Three formats are shown below — pick the one you prefer.
+
+##### Format 1 — Compact (counts + estimates)
+
+```{r, echo=FALSE, fig.width=9, fig.height=3.4}
+#Safety Table: 30-Day Composite (Death, Amputation, TVR)
+forest(ThirtyDayComposite,
+       col.square = "purple",
+       col.diamond = "purple",
+       col.study = "black",
+       leftcols = c("studlab", "event", "n"),
+       leftlabs = c("Trial", "Events", "Total"),
+       rightcols = c("effect", "ci"),
+       rightlabs = c("Proportion", "95% CI"),
+       smlab = "Safety: 30-Day Composite\n(Death, Amputation, TVR)",
+       xlim = c(0, 0.25),
+       fontsize = 12,
+       spacing = 1.15,
+       colgap = "4mm",
+       colgap.forest.left = "6mm",
+       squaresize = 0.7)
+```
+
+```{r, echo=FALSE, fig.width=9, fig.height=3.4}
+#Efficacy Table: RCC Improved or No Change
+forest(RCCImproved,
+       col.square = "goldenrod2",
+       col.diamond = "goldenrod2",
+       col.study = "black",
+       leftcols = c("studlab", "event", "n"),
+       leftlabs = c("Trial", "Events", "Total"),
+       rightcols = c("effect", "ci"),
+       rightlabs = c("Proportion", "95% CI"),
+       smlab = "Efficacy: RCC\nImproved or No Change",
+       xlim = c(0.7, 1),
+       fontsize = 12,
+       spacing = 1.15,
+       colgap = "4mm",
+       colgap.forest.left = "6mm",
+       squaresize = 0.7)
+```
+
+##### Format 2 — JAMA journal style (clean, minimal columns)
+
+```{r, echo=FALSE, fig.width=8.5, fig.height=3.2}
+#Safety Table: 30-Day Composite (Death, Amputation, TVR)
+forest(ThirtyDayComposite,
+       layout = "JAMA",
+       col.square = "purple",
+       col.diamond = "purple",
+       col.study = "black",
+       smlab = "Safety: 30-Day Composite (Death, Amputation, TVR)",
+       xlim = c(0, 0.25),
+       fontsize = 12,
+       colgap = "4mm")
+```
+
+```{r, echo=FALSE, fig.width=8.5, fig.height=3.2}
+#Efficacy Table: RCC Improved or No Change
+forest(RCCImproved,
+       layout = "JAMA",
+       col.square = "goldenrod2",
+       col.diamond = "goldenrod2",
+       col.study = "black",
+       smlab = "Efficacy: RCC Improved or No Change",
+       xlim = c(0.7, 1),
+       fontsize = 12,
+       colgap = "4mm")
+```
+
+##### Format 3 — Presentation style (large text, stats hidden)
+
+```{r, echo=FALSE, fig.width=9, fig.height=3}
+#Safety Table: 30-Day Composite (Death, Amputation, TVR)
+forest(ThirtyDayComposite,
+       col.square = "purple",
+       col.diamond = "purple",
+       col.study = "black",
+       leftcols = c("studlab"),
+       leftlabs = c("Trial"),
+       rightcols = c("effect", "ci"),
+       rightlabs = c("Proportion", "95% CI"),
+       smlab = "Safety: 30-Day Composite\n(Death, Amputation, TVR)",
+       xlim = c(0, 0.25),
+       fontsize = 14,
+       fs.heading = 15,
+       spacing = 1.3,
+       colgap = "5mm",
+       squaresize = 0.9,
+       hetstat = FALSE,
+       text.random = "Pooled estimate")
+```
+
+```{r, echo=FALSE, fig.width=9, fig.height=3}
+#Efficacy Table: RCC Improved or No Change
+forest(RCCImproved,
+       col.square = "goldenrod2",
+       col.diamond = "goldenrod2",
+       col.study = "black",
+       leftcols = c("studlab"),
+       leftlabs = c("Trial"),
+       rightcols = c("effect", "ci"),
+       rightlabs = c("Proportion", "95% CI"),
+       smlab = "Efficacy: RCC\nImproved or No Change",
+       xlim = c(0.7, 1),
+       fontsize = 14,
+       fs.heading = 15,
+       spacing = 1.3,
+       colgap = "5mm",
+       squaresize = 0.9,
+       hetstat = FALSE,
+       text.random = "Pooled estimate")
+```
+
+
+#### **Option B — Single Combined Summary Table**
+One table summarising both proposed performance goals, with Safety and Efficacy group header rows.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(flextable)
+
+combined_B <- data.frame(
+  Category = c("Safety Endpoints", "Efficacy Endpoints"),
+  Endpoint = c("Composite (Death, Amputation, TVR)",
+               "RCC: Improved or No Change"),
+  Timepoint = c("30 Days", "12 Months"),
+  `Pooled Rate` = c("6.0%", "95.8%"),
+  `95% CI` = c("[2.9, 12.1%]", "[87.9, 98.6%]"),
+  `Performance Goal` = c("≤ 12%", "≥ 88%"),
+  check.names = FALSE
+)
+
+# Turn the Category column into group header rows (flextable's version of pack_rows)
+combined_B_grouped <- as_grouped_data(combined_B, groups = "Category")
+
+as_flextable(combined_B_grouped, hide_grouplabel = FALSE) %>%
+  set_caption("Table 1. Summary of Recommended Safety and Efficacy Performance Goals") %>%
+  # padding() goes here - anywhere in the flextable pipe after the table is created:
+  flextable::padding(padding = 6, part = "all") %>%
+  fontsize(size = 12, part = "all") %>%
+  bold(part = "header") %>%
+  bold(j = "Performance Goal") %>%
+  # Style the two group header rows (row 1 = Safety, row 3 = Efficacy)
+  bg(i = 1, bg = "#4A4A6A") %>%
+  color(i = 1, color = "white") %>%
+  bold(i = 1) %>%
+  bg(i = 3, bg = "#6B4A2A") %>%
+  color(i = 3, color = "white") %>%
+  bold(i = 3) %>%
+  align(j = 2:5, align = "center", part = "all") %>%
+  autofit()
+```
