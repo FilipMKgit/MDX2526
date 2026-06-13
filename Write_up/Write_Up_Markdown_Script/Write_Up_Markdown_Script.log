@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.13)  13 JUN 2026 15:18
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.13)  13 JUN 2026 21:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -685,7 +685,10 @@ Package microtype Info: Loading generic protrusion settings for font family
 [10]
 File: Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1.pdf Graphic file (type pdf)
 <use Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1.pdf>
-[11] [12] [13] [14] [15] [16] [17] [18]
+[11] [12]
+Underfull \vbox (badness 5022) has occurred while \output is active []
+
+[13] [14] [15] [16] [17] [18]
 File: Figures/performance_goals_table.png Graphic file (type bmp)
 <Figures/performance_goals_table.png>
 File: Figures/forest_plot_pooled_estimates.png Graphic file (type bmp)
@@ -736,142 +739,142 @@ Underfull \vbox (badness 6063) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [29] [30] [31] [32]
-Underfull \hbox (badness 10000) in paragraph at lines 1858--1862
+Underfull \hbox (badness 10000) in paragraph at lines 1857--1861
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1864--1869
+Underfull \hbox (badness 10000) in paragraph at lines 1863--1868
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1871--1876
+Underfull \hbox (badness 10000) in paragraph at lines 1870--1875
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1878--1883
+Underfull \hbox (badness 10000) in paragraph at lines 1877--1882
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1885--1890
+Underfull \hbox (badness 10000) in paragraph at lines 1884--1889
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1892--1898
+Underfull \hbox (badness 10000) in paragraph at lines 1891--1897
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1900--1906
+Underfull \hbox (badness 10000) in paragraph at lines 1899--1905
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1908--1913
+Underfull \hbox (badness 10000) in paragraph at lines 1907--1912
 
  []
 
 
-Underfull \hbox (badness 1454) in paragraph at lines 1919--1919
+Underfull \hbox (badness 1454) in paragraph at lines 1918--1918
 []\TU/lmr/m/n/10 Rocha-Singh KJ et al. Performance goals and endpoint assessments for clinical trials of
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1915--1920
+Underfull \hbox (badness 10000) in paragraph at lines 1914--1919
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1922--1927
+Underfull \hbox (badness 10000) in paragraph at lines 1921--1926
 
  []
 
 
-Underfull \hbox (badness 1953) in paragraph at lines 1933--1933
+Underfull \hbox (badness 1953) in paragraph at lines 1932--1932
 []\TU/lmr/m/n/10 Medical Devices - Clinical investigations and performance studies - European Commission
  []
 
 
-Underfull \hbox (badness 2990) in paragraph at lines 1933--1933
+Underfull \hbox (badness 2990) in paragraph at lines 1932--1932
 \TU/lmr/m/n/10 [Internet]. 2026 [cited 2026 Jun 4]. Available from: [][]$[][][][][] [] [] [] [][][][][][] [] [][] [] [][][][][][] [] [][] []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1929--1934
+Underfull \hbox (badness 10000) in paragraph at lines 1928--1933
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1936--1941
+Underfull \hbox (badness 10000) in paragraph at lines 1935--1940
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1943--1946
+Underfull \hbox (badness 10000) in paragraph at lines 1942--1945
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1948--1953
+Underfull \hbox (badness 10000) in paragraph at lines 1947--1952
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1955--1961
+Underfull \hbox (badness 10000) in paragraph at lines 1954--1960
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1963--1969
+Underfull \hbox (badness 10000) in paragraph at lines 1962--1968
 
  []
 
 [33]
-Underfull \hbox (badness 10000) in paragraph at lines 1971--1976
+Underfull \hbox (badness 10000) in paragraph at lines 1970--1975
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1978--1981
+Underfull \hbox (badness 10000) in paragraph at lines 1977--1980
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1983--1987
+Underfull \hbox (badness 10000) in paragraph at lines 1982--1986
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1989--1993
+Underfull \hbox (badness 10000) in paragraph at lines 1988--1992
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1995--1999
+Underfull \hbox (badness 10000) in paragraph at lines 1994--1998
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2001--2005
+Underfull \hbox (badness 10000) in paragraph at lines 2000--2004
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2007--2012
+Underfull \hbox (badness 10000) in paragraph at lines 2006--2011
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2014--2017
+Underfull \hbox (badness 10000) in paragraph at lines 2013--2016
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2019--2024
+Underfull \hbox (badness 10000) in paragraph at lines 2018--2023
 
  []
 
@@ -880,47 +883,47 @@ Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=
 Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
 Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
 
-Underfull \hbox (badness 10000) in paragraph at lines 2026--2029
+Underfull \hbox (badness 10000) in paragraph at lines 2025--2028
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2031--2034
+Underfull \hbox (badness 10000) in paragraph at lines 2030--2033
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2036--2040
+Underfull \hbox (badness 10000) in paragraph at lines 2035--2039
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2042--2046
+Underfull \hbox (badness 10000) in paragraph at lines 2041--2045
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2048--2051
+Underfull \hbox (badness 10000) in paragraph at lines 2047--2050
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2053--2057
+Underfull \hbox (badness 10000) in paragraph at lines 2052--2056
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2059--2063
+Underfull \hbox (badness 10000) in paragraph at lines 2058--2062
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2065--2069
+Underfull \hbox (badness 10000) in paragraph at lines 2064--2068
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2071--2075
+Underfull \hbox (badness 10000) in paragraph at lines 2070--2074
 
  []
 
@@ -928,32 +931,32 @@ Underfull \hbox (badness 10000) in paragraph at lines 2071--2075
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [34]
-Underfull \hbox (badness 10000) in paragraph at lines 2077--2081
+Underfull \hbox (badness 10000) in paragraph at lines 2076--2080
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2083--2091
+Underfull \hbox (badness 10000) in paragraph at lines 2082--2090
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2093--2100
+Underfull \hbox (badness 10000) in paragraph at lines 2092--2099
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2102--2107
+Underfull \hbox (badness 10000) in paragraph at lines 2101--2106
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2109--2113
+Underfull \hbox (badness 10000) in paragraph at lines 2108--2112
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2115--2119
+Underfull \hbox (badness 10000) in paragraph at lines 2114--2118
 
  []
 
@@ -975,7 +978,7 @@ Package rerunfilecheck Info: File `Write_Up_Markdown_Script.out' has not changed
 Here is how much of TeX's memory you used:
  17612 strings out of 469836
  342908 string characters out of 5463498
- 842113 words of memory out of 5000000
+ 843113 words of memory out of 5000000
  46290 multiletter control sequences out of 15000+600000
  652873 words of font info for 80 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191

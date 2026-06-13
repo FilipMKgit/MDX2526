@@ -98,28 +98,29 @@
 \begin{abstract}
 Single-arm performance goal studies are widely used in medical device
 evaluation when a randomised active-control trial is impractical or
-ethically unjustifiable. The conclusion depends on whether sufficient
-evidence is provided (using a hypothesis test or confidence interval) to
-satisfy a specific performance goal. Despite their apparent simplicity,
-the conclusions of such studies are sensitive to three interconnected
-methodological choices: the derivation and value of the performance
-goal, the confidence interval method used to construct the decision
-rule, and the sample size calculation underlying the study design. This
-thesis examines each of these choices in the context of a retrospective
-case study of a vascular stent developed for the treatment of
-femoropopliteal peripheral artery disease.
+ethically unjustifiable. The trial conclusion depends on whether a
+pre-specified performance goal is met, as determined by a hypothesis
+test or confidence interval procedure applied to the observed outcome.
+Despite their apparent simplicity, the conclusions of such studies are
+sensitive to three interconnected methodological choices: the derivation
+and value of the performance goal, the confidence interval method used
+to construct the decision rule, and the sample size calculation
+underlying the study design. This thesis examines each of these choices
+in the context of a retrospective case study of a vascular stent
+developed for the treatment of femoropopliteal peripheral artery
+disease.
 
 Performance goals for a 30-day composite safety endpoint and a 12-month
 Rutherford classification efficacy endpoint were derived through a
 meta-analysis of three historical femoropopliteal bare nitinol stent
-studies comprising 116 patients in total. Confidence interval boundaries
-rather than point estimates were used to account for uncertainty in the
+studies comprising 116 patients. Confidence interval boundaries rather
+than point estimates were used to account for uncertainty in the
 historical evidence yielded a maximum acceptable 30-day composite
-adverse event rate of 12\% and a minimum acceptable 12-month Rutherford
-success proportion of 88\%. The limited evidence base produced wide
-uncertainty around both estimates, illustrating that performance goals
-carry inherent uncertainty that is not always visible when they are
-reported as fixed values.
+adverse event proportion of 12\% and a minimum acceptable 12-month
+Rutherford success proportion of 88\%. The limited evidence base
+produced wide uncertainty around both estimates, illustrating that
+performance goals carry inherent uncertainty that is not always visible
+when they are reported as fixed values.
 
 A simulation study evaluated six confidence interval methods for binary
 proportions across a grid of true event proportions and sample sizes
@@ -140,11 +141,12 @@ coverage level, the required sample size ranged from 198 patients under
 Jeffreys to 247 under the continuity-corrected Wilson Score.
 
 An interactive R Shiny application, PG-Power, was developed to implement
-the sample size framework and make the sensitivity of required sample
-size to key design assumptions accessible and reproducible. The
-application supports confidence interval method comparison, power curve
-visualisation, sensitivity analysis and report generation for single-arm
-performance goal studies.
+the proposed sample size framework and provide a transparent,
+accessible, and reproducible assessment of the sensitivity of required
+sample sizes to different design assumptions. The application supports
+confidence interval method comparison, power curve visualisation,
+sensitivity analysis and report generation for single-arm performance
+goal studies.
 
 The thesis concludes with an exploration of Bayesian historical
 borrowing as a framework for formally incorporating prior evidence into
@@ -231,7 +233,7 @@ Studies}\label{performance-goals-in-medical-device-studies}
 
 Performance goal studies are essentially another word for a single-arm
 non-inferiority designs and are particularly common in medical device
-evaluation
+trials
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-wang_single-arm_2024}{8}).
 Rather than comparing the new intervention against an active control,
 the observed outcome is compared with a pre-specified benchmark derived
@@ -369,7 +371,7 @@ Framework}\label{background-and-statistical-framework}
 Non-Inferiority}\label{superiority-equivalence-and-non-inferiority}
 
 Superiority, equivalence and non-inferiority trials address distinct
-clinical questions and should not be interpreted interchangeably
+clinical questions and cannot not be interpreted interchangeably
 (\citeproc{ref-lesaffre_superiority_2008}{12},\citeproc{ref-chow_sample_2017}{13}).
 Let \(p_T\) denote the success probability in the investigational
 treatment group and \(p_C\) denote the success probability in the
@@ -527,9 +529,11 @@ distribution directly (\citeproc{ref-brown_interval_2001}{17}):
 
 \[\frac{\hat{p} + \frac{z^2}{2n} \pm z\sqrt{\frac{\hat{p}(1-\hat{p})}{n} + \frac{z^2}{4n^2}}}{1 + \frac{z^2}{n}}\]
 
-where \(z = z_{1-\alpha/2}\). It generally achieves better coverage
-behaviour than the Wald interval, especially near the boundaries
-(\citeproc{ref-brown_interval_2001}{17}).
+where \(z = z_{1-\alpha/2}\). Unlike the Wald interval, it recentres the
+interval away from the observed proportion toward the centre of the
+parameter space, which stabilizes coverage probability near the
+boundaries of the \([0, 1]\) interval where the normal approximation
+breaks down (\citeproc{ref-brown_interval_2001}{17}).
 
 The \textbf{Agresti-Coull interval} is closely related to the Wilson
 interval but constructs the interval around an adjusted proportion
@@ -559,9 +563,9 @@ concurrent control makes protection of the Type I error rate especially
 important and conservative interval methods provide a natural safeguard
 against inflated false positive rates
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-us_food_and_drug_administration_non-inferiority_2016}{15},\citeproc{ref-health_cdrh_2026}{21}).
-However, this conservatism comes at a practical cost: wider intervals
-and larger sample size requirements relative to methods that sit closer
-to the nominal coverage level
+However, this conservatism comes at a practical cost: the wider
+intervals it produces increase sample size requirements relative to
+methods that sit closer to the nominal coverage level
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-agresti_approximate_1998}{19},\citeproc{ref-pires_interval_2008}{22}).
 
 The \textbf{Wilson Score interval with continuity correction},
@@ -714,9 +718,8 @@ the analysis through a prior distribution, which is then updated with
 current trial data to produce a posterior distribution
 (\citeproc{ref-robert_harold_2009}{23},\citeproc{ref-campbell_bayesian_2011}{29},\citeproc{ref-ibrahim_power_2000}{30}).
 In medical device studies, where single-arm designs are common and
-historical data from comparable devices are often available, this
-approach can meaningfully reduce the number of patients required in the
-current trial
+exchangeable historical data from comparable devices may be available,
+this approach can meaningfully reduce the required sample size
 (\citeproc{ref-wang_single-arm_2024}{8},\citeproc{ref-cao_estimating_2025}{10},\citeproc{ref-campbell_bayesian_2011}{29}).
 
 For a binary endpoint, a natural and tractable model uses the
@@ -753,10 +756,10 @@ them is scientifically justified
 Where full exchangeability cannot be assumed, partial borrowing
 approaches allow the historical contribution to be downweighted
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32}).
-The power prior of Ibrahim and Chen (2000) achieves this by raising the
-historical likelihood to a discounting factor \(a_0 \in [0,1]\) before
-forming the prior, with \(a_0 = 1\) representing full borrowing and
-\(a_0 = 0\) representing no borrowing
+The power prior of Ibrahim and Chen (2000) formalises this by raising
+the historical likelihood to a discounting factor \(a_0 \in [0,1]\)
+before forming the prior, with \(a_0 = 1\) representing full borrowing
+and \(a_0 = 0\) representing no borrowing
 (\citeproc{ref-ibrahim_power_2000}{30}). Adaptive borrowing methods take
 a data-driven approach, adjusting the degree of borrowing based on the
 observed compatibility between historical and current data ---
@@ -795,31 +798,28 @@ influence the conclusion of a study, and pre-specifying those choices
 removes the opportunity for them to be made, consciously or otherwise,
 in a direction favourable to a particular outcome.
 
-Pre-specification is considered a cornerstone of reproducible clinical
-research and is expected by regulatory bodies including the FDA and EMA
-as part of any submission supporting a marketing authorisation
+Pre-specification is a cornerstone of reproducible clinical research and
+is expected by regulatory bodies, including the FDA and EMA, in
+submissions supporting a marketing authorisation
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-noauthor_medical_2026}{11},\citeproc{ref-kahan_how_2020}{35}).
-For randomised controlled trials, the discipline of the randomisation
-process provides some inherent protection against bias, but the SAP
-remains essential for ensuring that the primary analysis is defined
-prospectively and that any deviations from it are transparent and
-justified
+In single-arm designs, where the absence of randomisation provides less
+protection against bias, a rigorously developed SAP is particularly
+important, and any deviations from it must be transparent and justified
 (\citeproc{ref-schulz_sample_2005}{14},\citeproc{ref-gamble_guidelines_2017}{33}).
-
-In single-arm performance goal studies, the SAP carries particular
-weight. Without a concurrent control group, the trial conclusion depends
-entirely on how the observed data are compared against a pre-specified
-benchmark, and the choices embedded in that comparison --- namely the
-performance goal value, the confidence interval method and the decision
-rule --- can each independently alter the conclusion
+Without a concurrent control group, the conclusion relies on comparing
+the observed outcomes against a pre-specified benchmark. Consequently,
+key elements of this comparison --- namely the performance goal value,
+confidence interval method and decision rule --- can each independently
+alter the conclusion
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-cao_estimating_2025}{10},\citeproc{ref-kahan_how_2020}{35}).
-A SAP that specifies these choices before data collection provides the
-primary safeguard against the analytical flexibility that the single-arm
-design would otherwise permit
+
+Pre-specifying these choices in the SAP before data collection provides
+the primary safeguard against potential analytical flexibility that the
+single-arm design may otherwise permit
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_single-arm_2024}{8}).
-The practical implications of these choices for sample size and study
-feasibility are examined in the context of the BioMimics 3D case study
-throughout this thesis.
+The implications of these methodological choices for sample size
+requirements and study feasibility are examined thorugh the BioMimics 3D
+case study presented throughout this thesis.
 
 \section{Case Study and Data Sources}\label{case-study-and-data-sources}
 
@@ -832,10 +832,9 @@ bare-metal nitinol stent developed for the treatment of femoropopliteal
 peripheral artery disease, a condition characterised by atherosclerotic
 narrowing of the arteries supplying the lower limb
 (\citeproc{ref-rammos_biomimics_2024}{36}--\citeproc{ref-zeller_helical_2016}{38}).
-In this setting, successful treatment is judged on achieving initial
-vessel patency and its ability to maintain clinical benefit over time
-without restenosis, repeat intervention, amputation or major adverse
-events
+In this setting, successful treatment is defined by achieving initial
+vessel patency and maintaining clinical benefit over time without
+restenosis, reintervention, amputation or major adverse events
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-tepe_local_2008}{39}).
 
 Unlike conventional straight stents, the BioMimics 3D stent incorporates
@@ -843,7 +842,7 @@ a helical geometry intended to mimic the natural curvature and movement
 of the femoropopliteal artery
 (\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-zeller_helical_2016}{38}).
 This design is hypothesised to promote blood flow patterns within the
-treated vessel and to reduce the risk of restenosis after implantation
+treated vessel and reduce the risk of restenosis after implantation
 (\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-zeller_helical_2016}{38}).
 Consequently, clinically meaningful outcomes such as target vessel
 revascularisation, amputation and changes in Rutherford classification
@@ -853,16 +852,16 @@ disease
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-laird_nitinol_2010}{37}).
 
 Initial meetings with the lead scientist involved in the BioMimics
-development helped clarify the selection of appropriate performance
-goals, the purpose of the device and the statistical issues most
-relevant to the design of a pivotal study. These discussions informed
-the choice of safety and efficacy endpoints, the interpretation of
-clinically meaningful performance, and the practical constraints
-surrounding sample size. This was important because the statistical
-design requires clinical knowledge of the device's intended purpose
+development helped clarify the purpose of the device, the selection of
+appropriate endpoints and performance goals, and the statistical issues
+most relevant to the design of a pivotal study. These discussions
+informed the choice of safety and efficacy endpoints, the interpretation
+of clinically meaningful performance, and the practical constraints
+surrounding sample size determination. TThis demonstrates the importance
+of clinical knowledge in informing the statistical design of the trial
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_leveraging_2021}{7}).
 Performance goals, endpoints and sample size that are mathematically
-convenient but clinically weak would not provide a convincing basis for
+convenient but lack clinical relevance do not provide a robust basis for
 evaluating the device
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 
