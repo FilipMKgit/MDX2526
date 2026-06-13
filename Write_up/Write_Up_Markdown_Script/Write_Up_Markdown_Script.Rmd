@@ -10,8 +10,7 @@ abstract: |
   Single-arm performance goal studies are widely used in medical device evaluation when a 
   randomised active-control trial is impractical or ethically unjustifiable. The conclusion depends on whether sufficient evidence is provided (using a hypothesis test or confidence interval) to satisfy a specific performance goal. Despite 
   their apparent simplicity, the conclusions of such studies are sensitive to three 
-  interconnected methodological choices: the value of the performance goal, the confidence 
-  interval method used to construct the decision rule, and the sample size calculation 
+  interconnected methodological choices: the derivation and value of the performance goal, the confidence interval method used to construct the decision rule, and the sample size calculation 
   underlying the study design. This thesis examines each of these choices in the context of 
   a retrospective case study of a vascular stent developed for the treatment of femoropopliteal peripheral artery disease.
 
