@@ -91,6 +91,20 @@
 \setlength{\belowcaptionskip}{3pt}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue, filecolor=black}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \begin{document}
 \maketitle
 
@@ -1166,14 +1180,24 @@ The meta-analysis of the three femoropopliteal bare nitinol stent
 studies described in Section 3.3 produced pooled estimates for both
 endpoints. The results are summarised in Figures 3 and 4.
 
-\begin{figure}[t]
-
-{\centering \includegraphics[width=1\linewidth]{Figures/performance_goals_table} 
-
-}
-
-\caption{Proposed performance goals for the BioMimics 3D vascular stent pivotal study derived from meta-analysis of historical femoropopliteal bare nitinol stent studies.}\label{fig:performance-goals-table}
-\end{figure}
+\begin{table}[!h]
+\centering
+\caption{\label{tab:performance-goals-table}Performance Goals for Safety and Efficacy}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5.2cm}ccc>{}c}
+\toprule
+Endpoint & Timepoint & Pooled Rate & 95\% CI & Performance Goal\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\cellcolor[HTML]{4A4A6A}{\textcolor{white}{\textbf{Safety Endpoints}}}}\\
+\hspace{1em}Composite (Death, Amputation, TVR) & 30 Days & 6.0\% & {}[2.9, 12.1\%] & \textbf{$\leq$ 12\%}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\cellcolor[HTML]{6B4A2A}{\textcolor{white}{\textbf{Efficacy Endpoints}}}}\\
+\hspace{1em}RCC: Improved or No Change & 12 Months & 95.8\% & {}[87.9, 98.6\%] & \textbf{$\geq$ 88\%}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure}[t]
 
@@ -1187,14 +1211,41 @@ endpoints. The results are summarised in Figures 3 and 4.
 The heterogeneity statistics for both endpoints are reported in Figure
 5.
 
-\begin{figure}[t]
+\begin{table}[!h]
+\centering
+\caption{\label{tab:heterogeneity-A}Heterogeneity Statistics: 30-day Composite}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}cc}
+\toprule
+\cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Measure}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Value}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{CI or p-value}}}\\
+\midrule
+$\tau^2$ & 0.00 & NA\\
+$I^2$ & 0.0\% & 0.0\% to 0.9\%\\
+H & 1.00 & 1.00 to 3.10\\
+Q (Wald) & 0.00 & $p$ = 0.998\\
+Q (LRT) & NA & NA\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-{\centering \includegraphics[width=0.6\linewidth]{Figures/heterogeneity_statistics} 
-
-}
-
-\caption{Heterogeneity statistics from the random-effects meta-analysis for the 30-day composite safety endpoint (Table A) and the 12-month Rutherford classification efficacy endpoint (Table B).}\label{fig:heterogeneity}
-\end{figure}
+\begin{table}[!h]
+\centering
+\caption{\label{tab:heterogeneity-B}Heterogeneity Statistics: 12-month Rutherford classification}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}cc}
+\toprule
+\cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Measure}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Value}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{CI or p-value}}}\\
+\midrule
+$\tau^2$ & 0.00 & NA\\
+$I^2$ & 0.0\% & 0.0\% to 0.9\%\\
+H & 1.00 & 1.00 to 3.10\\
+Q (Wald) & 1.31 & $p$ = 0.520\\
+Q (LRT) & NA & NA\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 For both endpoints, the estimated between-study variance \(\tau^2\) was
 0 and the \(I^2\) statistic was 0.0\% (95\% CI: 0.0--0.9\%), with

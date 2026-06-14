@@ -589,18 +589,60 @@ To examine sensitivity to prior weight, three prior distributions were compared:
 
 The meta-analysis of the three femoropopliteal bare nitinol stent studies described in Section 3.3 produced pooled estimates for both endpoints. The results are summarised in Figures 3 and 4.
 
-```{r performance-goals-table, echo=FALSE, fig.cap="Proposed performance goals for the BioMimics 3D vascular stent pivotal study derived from meta-analysis of historical femoropopliteal bare nitinol stent studies.", out.width="100%"}
-knitr::include_graphics("Figures/performance_goals_table.png")
+```{r performance-goals-table, echo=FALSE, message=FALSE, warning=FALSE}
+library(kableExtra)
+
+pg_tbl <- data.frame(
+  Endpoint           = c("Composite (Death, Amputation, TVR)", "RCC: Improved or No Change"),
+  Timepoint          = c("30 Days", "12 Months"),
+  `Pooled Rate`      = c("6.0\\%", "95.8\\%"),
+  `95\\% CI`         = c("[2.9, 12.1\\%]", "[87.9, 98.6\\%]"),
+  `Performance Goal` = c("$\\leq$ 12\\%", "$\\geq$ 88\\%"),
+  check.names = FALSE
+)
+
+kbl(pg_tbl, booktabs = TRUE, escape = FALSE, align = "lcccc", linesep = "",
+    caption = "Performance Goals for Safety and Efficacy") |>
+  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  column_spec(1, width = "5.2cm") |>
+  column_spec(5, bold = TRUE) |>
+  pack_rows("Safety Endpoints",   1, 1, background = "#4A4A6A", color = "white", bold = TRUE) |>
+  pack_rows("Efficacy Endpoints", 2, 2, background = "#6B4A2A", color = "white", bold = TRUE)
 ```
 
-```{r forest-plot, echo=FALSE, fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.", out.width="90%"}
+```{r forest-plot, echo=FALSE, fig.pos="H", fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.", out.width="90%"}
 knitr::include_graphics("Figures/forest_plot_pooled_estimates.png")
 ```
 
 The heterogeneity statistics for both endpoints are reported in Figure 5.
 
-```{r heterogeneity, echo=FALSE, fig.cap="Heterogeneity statistics from the random-effects meta-analysis for the 30-day composite safety endpoint (Table A) and the 12-month Rutherford classification efficacy endpoint (Table B).", out.width="60%"}
-knitr::include_graphics("Figures/heterogeneity_statistics.png")
+```{r heterogeneity-A, echo=FALSE, message=FALSE, warning=FALSE}
+library(kableExtra)
+het_A <- data.frame(
+  Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
+  Value           = c("0.00", "0.0\\%", "1.00", "0.00", "NA"),
+  `CI or p-value` = c("NA", "0.0\\% to 0.9\\%", "1.00 to 3.10", "$p$ = 0.998", "NA"),
+  check.names = FALSE
+)
+kbl(het_A, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
+    caption = "Heterogeneity Statistics: 30-day Composite") |>
+  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
+  column_spec(1, width = "3cm")
+```
+
+```{r heterogeneity-B, echo=FALSE, message=FALSE, warning=FALSE}
+het_B <- data.frame(
+  Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
+  Value           = c("0.00", "0.0\\%", "1.00", "1.31", "NA"),
+  `CI or p-value` = c("NA", "0.0\\% to 0.9\\%", "1.00 to 3.10", "$p$ = 0.520", "NA"),
+  check.names = FALSE
+)
+kbl(het_B, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
+    caption = "Heterogeneity Statistics: 12-month Rutherford classification") |>
+  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
+  column_spec(1, width = "3cm")
 ```
 
 For both endpoints, the estimated between-study variance $\tau^2$ was 0 and the $I^2$ statistic was 0.0% (95% CI: 0.0--0.9%), with $H = 1.00$. Cochran's Q test produced $p$-values of 0.998 and 0.520 for the safety and efficacy endpoints respectively. The implications of these heterogeneity estimates for the interpretation of the derived performance goals are discussed in Section 6.1.

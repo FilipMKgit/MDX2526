@@ -1,0 +1,44 @@
+\contentsline {section}{Acknowledgments}{3}{section*.1}%
+\contentsline {section}{\numberline {1}Introduction}{6}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Single Arm Non-inferiority Trials}{6}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Performance Goals in Medical Device Studies}{6}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Motivation for Study}{6}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Case Study: BioMimics 3D Vascular Stent}{7}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Study Aims}{7}{subsection.1.5}%
+\contentsline {section}{\numberline {2}Background and Statistical Framework}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Superiority, Equivalence and Non-Inferiority}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Non-Inferiority Margins and Performance Goals}{8}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Confidence Intervals for Proportions}{9}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Sample Size in Non-Inferiority Studies}{10}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Incorporating Prior Evidence: Bayesian Historical Borrowing}{12}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Statistical Analysis Plans in Clinical Trials}{13}{subsection.2.6}%
+\contentsline {section}{\numberline {3}Case Study and Data Sources}{13}{section.3}%
+\contentsline {subsection}{\numberline {3.1}BioMimics 3D Vascular Stent}{13}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Endpoints}{14}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Literature Search and Meta-analysis Data}{14}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Derivation of Performance Goals}{14}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Methods}{16}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Simulation Study}{16}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Sample Size Calculation}{17}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Shiny Application: PG-Power}{17}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Applying Bayesian Borrowing to the Safety Endpoint}{17}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Results}{19}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Meta-Analysis Results}{19}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Simulation Study: CI Method Comparison}{20}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Sample Size and Confidence Interval Method Comparison}{20}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Bayesian Historical Borrowing Results}{22}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Discussion}{23}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Interpretation of Main Findings}{23}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}Aim 1: Deriving Evidence-Based Performance Goals Through Meta-Analysis}{23}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}Aim 2: Comparing Confidence Interval Methods for Binary Endpoints}{24}{subsubsection.6.1.2}%
+\contentsline {subsubsection}{\numberline {6.1.3}Aim 3: Evaluating the Effect of Performance Goal and Interval Choice on Sample Size}{25}{subsubsection.6.1.3}%
+\contentsline {subsubsection}{\numberline {6.1.4}Aim 4: Developing PG-Power}{25}{subsubsection.6.1.4}%
+\contentsline {subsubsection}{\numberline {6.1.5}Aim 5: The Value and Limits of Bayesian Borrowing}{26}{subsubsection.6.1.5}%
+\contentsline {subsubsection}{\numberline {6.1.6}Combined Implications}{27}{subsubsection.6.1.6}%
+\contentsline {subsection}{\numberline {6.2}SAP in Performance Goal Studies}{28}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Study Limitations}{28}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Directions for Future Research}{29}{subsection.6.4}%
+\contentsline {section}{Conclusion}{31}{section*.19}%
+\contentsline {section}{Appendix}{32}{section*.20}%
+\contentsline {subsection}{Project GitHub Repository}{32}{section*.21}%
+\contentsline {section}{References}{33}{section*.22}%
