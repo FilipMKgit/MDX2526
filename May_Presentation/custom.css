@@ -126,3 +126,13 @@
 .reveal .slide-number {
   color: #5A3A6E;
 }
+
+/* ── Thank-you slide: gradient text doesn't survive printing,
+      fall back to solid colour in print/PDF mode ── */
+@media print {
+  .thank-you-gradient {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    color: #5A3A6E !important;
+  }
+}
