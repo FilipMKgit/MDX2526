@@ -781,18 +781,17 @@ increasing borrowing when the two are consistent and reducing it when
 they diverge
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31},\citeproc{ref-chiaruttini_bayesian_2025}{32}).
 
-Because borrowing affects operating characteristics including Type I
-error and power, regulatory guidance recommends that its properties be
-evaluated through simulation across a range of plausible scenarios
-before the design is finalised
+Because borrowing can affect operating characteristics including Type I
+error and power, its properties should be evaluated through simulation
+across a range of plausible scenarios before the design is finalised
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}--\citeproc{ref-gamble_guidelines_2017}{33}).
-The FDA guidance on Bayesian statistics in medical device trials
-acknowledges the potential for historical borrowing to reduce sample
-size requirements while emphasising that the assumptions underlying the
-prior must be clinically and statistically justified
+Regulatory guidance on Bayesian statistics in medical device trials
+recognises the potential for historical borrowing to reduce sample size
+requirements while emphasising that the assumptions underlying the prior
+must be clinically and statistically justified
 (\citeproc{ref-campbell_bayesian_2011}{29},\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}).
 Section 4.4 applies this framework to the BioMimics 3D safety endpoint
-using the historical evidence derived in Section 5.1.
+by incoperating the historical evidence derived in Section 5.1.
 
 \subsection{Statistical Analysis Plans in Clinical
 Trials}\label{statistical-analysis-plans-in-clinical-trials}
@@ -808,9 +807,9 @@ independently of the observed results
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5}).
 This requirement exists because statistical analysis involves choices
 about endpoints, methods, populations and decision rules that can
-influence the conclusion of a study, and pre-specifying those choices
-removes the opportunity for them to be made, consciously or otherwise,
-in a direction favourable to a particular outcome.
+influence the study's conclusions. Pre-specifying those choices reduces
+the risk of bias and of inflated Type I error while promoting
+transparency, reproducibility, and scientific integrity.
 
 Pre-specification is a cornerstone of reproducible clinical research and
 is expected by regulatory bodies, including the FDA and EMA, in
@@ -866,13 +865,11 @@ disease
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-laird_nitinol_2010}{37}).
 
 Initial meetings with the lead scientist involved in the BioMimics
-development helped clarify the purpose of the device, the selection of
-appropriate endpoints and performance goals, and the statistical issues
-most relevant to the design of a pivotal study. These discussions
-informed the choice of safety and efficacy endpoints, the interpretation
-of clinically meaningful performance, and the practical constraints
-surrounding sample size determination. TThis demonstrates the importance
-of clinical knowledge in informing the statistical design of the trial
+development helped clarify the purpose of the device, the interpretation
+of clinically meaningful performance, and the practical and statistical
+constraints most relevant to the design of the pivotal study. This
+demonstrates the importance of clinical knowledge in informing the
+statistical design of the trial
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_leveraging_2021}{7}).
 Performance goals, endpoints and sample size that are mathematically
 convenient but lack clinical relevance do not provide a robust basis for
@@ -896,8 +893,9 @@ analysis
 For safety, candidate endpoints were assessed at 30 days and included
 all-cause mortality, major amputation and target vessel
 revascularisation. These were combined into a single composite endpoint
-because each component represents a clinically significant harm but
-individually occurs too infrequently to yield stable estimates
+because each component represents a clinically significant harm and
+individually the events occurs too infrequently to yield stable
+estimates
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-laird_nitinol_2010}{37}).
 
 For efficacy, candidate endpoints were assessed at 12 months. Rutherford
@@ -978,12 +976,11 @@ limited sample sizes and differing endpoint definitions
 For this reason, the proposed performance goals in this study were based
 on confidence interval boundaries rather than the pooled point
 estimates. For the safety endpoint, the upper confidence limit was used
-because it allows for uncertainty around the estimated historical event
-proportion
-(\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
-For the efficacy endpoint, the lower confidence limit was used because
-it allows for greater uncertainty around the estimated success
-proportion
+because higher event proportions represent worse performance. For the
+efficacy endpoint, the lower confidence limit was used because lower
+event proportions represent worse performance. This provided a
+conservative estimate incorporating the uncertainty in the historical
+event proportions
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 
 \newpage
@@ -993,8 +990,8 @@ proportion
 \subsection{Simulation Study}\label{simulation-study}
 
 To evaluate the confidence interval methods introduced in Section 2.3, a
-simulation study was designed following the approach of
-(\citeproc{ref-pires_interval_2008}{22}). The aim was to compare
+simulation study was designed following the approach of Pires \& Amado
+(2008) (\citeproc{ref-pires_interval_2008}{22}). The aim was to compare
 coverage probability and expected interval width across a range of true
 event proportions and sample sizes, before applying these methods within
 the performance goal framework (\citeproc{ref-pires_interval_2008}{22}).
@@ -1008,9 +1005,9 @@ where \(X\) is the number of observed events, \(n\) is the sample size
 and \(p\) is the true underlying event probability
 (\citeproc{ref-brown_interval_2001}{17}). Rather than evaluating
 performance at a single fixed proportion, a grid of true proportions was
-used so that interval behaviour could be examined across a range of
-clinically plausible event rates. Given that the BioMimics 3D endpoints
-involve either low complication rates or high success rates, the
+used to examine interval behaviour across a range of clinically
+plausible event proportions. Given that the BioMimics 3D endpoints
+involve either low complication or high success proportions, the
 simulation focused on the range
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-pires_interval_2008}{22}):
 
@@ -1075,8 +1072,8 @@ Sample size calculations were carried out for the BioMimics 3D case
 study using the single-arm performance goal framework described in
 Section 2.4
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
-The performance goal values, assumed true event proportion and endpoint
-were determined from the meta-analysis and clinical discussions
+The endpoints, performance goal values, and assumed true event
+proportion were informed by the meta-analysis and clinical discussions
 described in Sections 3.1 and 3.3, with results reported in Section 5.3.
 
 A target power of 90\% was used throughout, which is conventional in
@@ -1133,10 +1130,9 @@ dataset of 50 participants with 2 observed events was used, producing a
 approximately 4\% and an effective sample size of 50
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}). The
 choice of a hypothetical dataset rather than the historical studies
-directly was deliberate --- the meta-analysis in Section 5.1 identified
-wide uncertainty around the heterogeneity estimates and only three
-contributing studies, making a fully justified prior difficult to
-construct
+directly was deliberate. As the meta-analysis in Section 5.1 comprised
+of only three studies of limited sample sizes, a fully justified prior
+would be difficult to construct
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
 The hypothetical prior therefore serves as an illustrative example of
 how borrowing would operate under plausible assumptions, rather than as
@@ -1275,12 +1271,12 @@ scatter plots.
 At \(n = 50\), the Wald interval produced coverage below 0.80 for true
 proportions near zero, only approaching the nominal level near
 \(p = 0.20\). The Wilson Score interval oscillated around 0.95, with
-dips below 0.90 at very low proportions near \(p = 0.001\) to 0.01. The
+dips below 0.90 at low proportions near \(p = 0.001\) to 0.01. The
 Jeffreys interval followed a similar pattern but with more pronounced
-dips below nominal at very low proportions. The Wilson Score with
-continuity correction and Agresti-Coull interval maintained coverage
-above the nominal level across virtually the entire proportion range.
-The Clopper-Pearson interval was the most conservative, with coverage
+dips below nominal at low proportions. The Wilson Score with continuity
+correction and Agresti-Coull interval maintained coverage above the
+nominal level across virtually the entire proportion range. The
+Clopper-Pearson interval was the most conservative, with coverage
 remaining above 0.97 across nearly the entire evaluated range.
 
 \begin{figure}[t]
@@ -1373,10 +1369,10 @@ formal hypotheses were:
 The Clopper-Pearson interval was used as the primary method for the main
 sample size calculation. This choice was made partly on the basis of the
 simulation results in Section 5.2, which showed Clopper-Pearson to be
-the most conservative method with guaranteed nominal coverage, but also
-because the exact binomial method underlying the Clopper-Pearson
-interval is the default approach used in widely adopted sample size
-software including PASS and nQuery
+the most conservative method with guaranteed nominal coverage, and
+additionally because the exact binomial method underlying the
+Clopper-Pearson interval is the default approach used in widely adopted
+sample size software including PASS and nQuery
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-clopper_use_1934}{20},\citeproc{ref-noauthor_pass_nodate}{25},\citeproc{ref-elashoff_nquery_nodate}{26}).
 
 \begin{figure}[t]
@@ -1402,20 +1398,19 @@ the table below.
 \end{figure}
 
 The Wald interval produced the smallest required sample size of 169
-patients but achieved power of only 77.3\% under the assumed true
-complication proportion, falling well short of the 90\% target. This is
-consistent with the simulation results in Section 5.2, which showed the
-Wald interval systematically undercovering across the proportion range
-relevant to this endpoint
+patients but achieved 77.3\% power under the assumed true complication
+proportion, falling to meet the 90\% target. This is consistent with the
+simulation results in Section 5.2, which showed systematic undercoverage
+of the Wald interval across the relevant range of event proportions
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-agresti_approximate_1998}{19}).
-A sample size derived from the Wald interval would therefore be
-unreliable as a basis for study design.
+A sample size derived from the Wald interval would be unreliable as a
+basis for study design.
 
 Among the remaining methods, Jeffreys required 198 patients with
 achieved power of 87.7\%, and Wilson Score required 208 patients at
-83.9\% power, both falling below the 90\% target despite requiring more
-patients than Wald. Clopper-Pearson and Agresti-Coull were the only
-methods to approach the target, requiring 209 and 210 patients at
+83.9\% power, both falling below the 90\% target despite requiring
+larger sample sizes. Clopper-Pearson and Agresti-Coull methods
+approached the target power, requiring 209 and 210 patients with
 achieved powers of 89.7\% and 89.4\% respectively. The Wilson Score with
 continuity correction required the largest sample size of 247 patients,
 achieving 92.8\% power, consistent with its conservative coverage
@@ -1428,11 +1423,11 @@ binary endpoints discussed in Section 2.4, where a single additional
 patient can shift the maximum allowable number of events and produce a
 discrete jump in achieved power
 (\citeproc{ref-chow_sample_2017}{13},\citeproc{ref-brown_interval_2001}{17}).
-The difference between the smallest reliable sample size and the
-largest, Clopper-Pearson at 209 and Wilson Score with continuity
-correction at 247, represents 38 additional evaluable patients or
-approximately 42 additional enrolments after dropout adjustment,
-illustrating how method choice directly affects study feasibility
+The difference between the Clopper-Pearson (209 patients) and Wilson
+Score with continuity correction (247 patients), represents 38
+additional evaluable patients or approximately 42 additional enrolments
+after dropout adjustment. This illustrates how choice of method directly
+affects study feasibility
 (\citeproc{ref-schulz_sample_2005}{14},\citeproc{ref-wang_sample_2020}{16}).
 
 \begin{figure}[t]
@@ -1477,7 +1472,7 @@ the 90\% threshold.
 The sensitivity of this result to prior weight is shown in the figure
 below. All three distributions, \(\text{Beta}(0.2, 4.8)\),
 \(\text{Beta}(2, 48)\) and \(\text{Beta}(20, 480)\), encode the same
-underlying event ratio but differ substantially in how tightly they
+underlying event ratio but differ substantially in how strongly they
 concentrate the posterior.
 
 \begin{figure}[t]
@@ -1497,10 +1492,15 @@ historical event proportion of 4\%, well below the performance goal of
 500 the posterior is narrow and the prior dominates, largely overriding
 the current trial data. While this produces the greatest reduction in
 required sample size, it also renders the conclusion highly sensitive to
-the validity of the exchangeability assumption. If the true event
-proportion in the current study differs from the historical estimate, a
-strongly informative prior will pull the posterior toward the historical
-value regardless of what the current data show.
+the validity of the historical data and the exchangeability assumption.
+If the true event proportion in the current study differs from the
+historical estimate, a strongly informative prior will pull the
+posterior toward the historical value regardless of what the current
+data show. Similarly, the substantial reductions in required sample size
+correspond to the favourable historical event proportion of 0.04. If the
+historical event proportion were less favourable or closer to the
+pre-specified threshold, the resulting reduction in required sample size
+would be more modest.
 
 \newpage
 
@@ -1531,41 +1531,42 @@ inherent in a small historical evidence base of only three studies and
 width of those ranges reflects the limited precision of the available
 evidence.
 
-This has two practical consequences. First, where within the range the
-performance goal is set matters: the sensitivity of sample size
-requirements to the difference between the proposed 12\% and approved
-11\% thresholds is examined in Aim 3. Second, deriving performance goals
-from conservative confidence interval boundaries rather than point
-estimates produces a less stringent benchmark, which reduces the risk of
-an unrealistically strict threshold but introduces the possibility of
-biocreep (\citeproc{ref-eversonstewart_biocreep_2010}{40}). If
-successive device generations are each evaluated against benchmarks
-derived from increasingly conservative historical estimates, acceptable
-performance standards may gradually drift from the original level of
-clinical effectiveness. In a single-arm study without a concurrent
-control, this risk is amplified because there is no active comparator to
-anchor the comparison
+Although using confidence interval limits protects against incorrectly
+concluding that an effective device does not meet the performance
+requirement, the choice of benchmark has important consequences for
+study design and interpretation. First, the value of the selected
+performance goal within the plausible range of values matters: the
+sensitivity of sample size requirements to the difference between the
+proposed 12\% and approved 11\% thresholds is examined in Aim 3. Second,
+deriving performance goals from conservative confidence interval
+boundaries rather than point estimates can introduce biocreep
+(\citeproc{ref-eversonstewart_biocreep_2010}{40}). If successive device
+generations are each evaluated against benchmarks derived from
+increasingly conservative historical estimates, acceptable performance
+standards may gradually drift from the original level of clinical
+effectiveness. This risk is amplified in a single-arm study because
+there is no active comparator to anchor the comparison
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-cao_estimating_2025}{10}).
-The validity of the derived benchmarks ultimately depends on clinical
-and regulatory judgement alongside the statistical evidence, and no
-amount of methodological care can substitute for that judgement.
+Therefore the validity of the derived benchmarks ultimately depends on
+the statistical evidence with clinical and regulatory judgement, as
+methodological approaches alone cannot substitute for clinical context.
 
 \subsubsection{Aim 2: Comparing Confidence Interval Methods for Binary
 Endpoints}\label{aim-2-comparing-confidence-interval-methods-for-binary-endpoints}
 
 The simulation study confirmed that confidence interval method choice
 has a meaningful and consistent effect on coverage behaviour at the low
-event proportions relevant to the BioMimics 3D safety endpoint. The Wald
-interval was the only method to consistently fall below the nominal 95\%
-level, with average coverage of approximately 0.73 at \(n = 20\), 0.84
-at \(n = 50\) and 0.89 at \(n = 100\). Importantly, this undercoverage
-was not accompanied by any compensating gain in precision: the Wald
-interval produced average widths comparable to better-performing methods
-while failing to meet the nominal level throughout. Although its poor
-behaviour at extreme proportions is well documented in the literature,
-its inclusion here serves a practical purpose by demonstrating that a
-method commonly applied by default in standard software would produce
-unreliable results in exactly this setting
+event proportions, relevant to the BioMimics 3D safety endpoint. The
+Wald interval consistently fell below the nominal 95\% level, with
+average coverage of approximately 0.73 at \(n = 20\), 0.84 at \(n = 50\)
+and 0.89 at \(n = 100\). This undercoverage was not accompanied by any
+compensating gain in precision: the Wald interval produced average
+widths comparable to better-performing methods while failing to meet the
+nominal level throughout. Although its poor behaviour at extreme
+proportions is well documented in the literature, its inclusion here
+serves a practical purpose by demonstrating that a method commonly
+applied by default in standard software would produce unreliable results
+in this setting
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-agresti_approximate_1998}{19}).
 
 Among the remaining five methods, Wilson Score and Jeffreys sat closest
@@ -1592,20 +1593,20 @@ ranged from 169 patients under the Wald interval, which failed to meet
 the 90\% power target, to 247 under the continuity-corrected Wilson
 Score. Among the methods approaching the power target, Clopper-Pearson
 required 209 patients at 89.7\% power and Agresti-Coull required 210 at
-89.4\%, while Jeffreys and Wilson Score fell short of 90\% at their
-minimum required sample sizes despite requiring fewer patients.
+89.4\%, while Jeffreys required 198 patients at 87.7\% power and Wilson
+Score required 208 patients at 83.9\% power.
 
 This pattern reflects the saw-tooth structure of power calculations for
 binary endpoints discussed in Section 2.4
 (\citeproc{ref-brown_interval_2001}{17}). A single additional patient
 can shift the maximum allowable event count and produce a discrete jump
 in achieved power, meaning a method requiring slightly fewer patients
-may achieve substantially lower power if that threshold has not been
-crossed. The difference between the most and least demanding reliable
-methods represents 38 evaluable patients, or approximately 42 additional
-enrolments after dropout adjustment, illustrating how a statistical
-design decision made at the planning stage propagates directly into
-recruitment targets and study cost.
+may achieve substantially lower power if the next event-count threshold
+has not been crossed. The difference between the most and least
+demanding reliable methods represents 38 evaluable patients, or
+approximately 42 additional enrolments after dropout adjustment,
+illustrating how a statistical design decision made at the planning
+stage propagates directly into recruitment targets and study cost.
 
 \subsubsection{Aim 4: Developing
 PG-Power}\label{aim-4-developing-pg-power}
@@ -1632,28 +1633,34 @@ medical device setting where recruitment is costly and historical
 evidence from comparable devices is available.
 
 However, the magnitude of this reduction is sensitive to the weight
-assigned to the prior. Moving from an effective sample size of 5 to 500
-while holding the event ratio constant progressively concentrates the
-posterior around the historical estimate, reducing the required sample
-size but increasing dependence on the exchangeability assumption. When
-the prior is strongly informative and the historical and current
-populations differ, the posterior can be drawn toward the historical
-estimate regardless of what the current data show, inflating the Type I
-error rate in ways that undermine the trial conclusion
-(\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
-The prior weight is therefore a substantive design choice rather than a
-technical detail.
+assigned to the prior. Increasing the effective sample size from 5 to
+500 while holding the event ratio constant progressively concentrates
+the posterior around the historical estimate, reducing the required
+sample size but increasing dependence on the exchangeability assumption
+and the validity of the historical data. This is particularly relevant
+when the prior is informed by early-phase evidence, where bias and
+uncertainty may be greater than in confirmatory studies.
 
-In the BioMimics 3D context this concern is not hypothetical. The
-meta-analysis drew on only three studies with wide uncertainty around
-the heterogeneity estimates, and the exchangeability of that evidence
-with a future pivotal study cannot be assumed. The reduction from 209 to
-79 patients should be understood as an illustration of the method's
-potential rather than a design recommendation. Realising that potential
-in practice would require formal exchangeability assessment, sensitivity
-analyses across a range of prior specifications, and simulation studies
-evaluating operating characteristics under scenarios where historical
-and current data diverge
+When the prior is strongly informative and the historical
+exchangeability between historical and current populations does not hold
+or the validity of the historical data is under question, the posterior
+may be overly influenced, inflating the Type I error rate and
+undermining the validity of the trial conclusion
+(\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
+The choice of prior weight is therefore a substantive design choice
+rather than a technical detail.
+
+Phase I trials are often characterised by small sample sizes, selective
+patient populations, and limited follow-up, which can result in unstable
+estimates and reduced external validity. This is a particular concern in
+the BioMimics context when applying historical evidence to inform the
+prior. Consequently, the reduction from 209 to 79 patients should be
+understood as an illustration of the method's potential rather than a
+design recommendation. Realising such reductions in practice would
+require regulatory justification, including formal exchangeability
+assessment, sensitivity analyses across a range of prior specifications,
+and simulation studies evaluating operating characteristics under
+scenarios where historical and current data diverge
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
 
 \subsubsection{Combined Implications}\label{combined-implications}
@@ -1665,27 +1672,31 @@ size calculation and the incorporation of prior evidence are not
 independent decisions. Each constrains and is constrained by the others,
 and the trial conclusion reflects all of them simultaneously.
 
-The meta-analysis established that the performance goal is a range, not
-a fixed value. The simulation study showed that the confidence interval
-method determines both the reliability of the decision rule and the
-sample size required to achieve a given power. The sample size analysis
-made this concrete, with an interval-method-driven difference of 38
-evaluable patients under identical clinical assumptions. The PG-Power
-application demonstrated that these calculations can be made transparent
-and reproducible, and the Bayesian analysis showed that efficiency gains
-are available from historical borrowing but only when the underlying
-assumptions are honestly examined.
+The meta-analysis established that the performance goal is derived from
+a range of plausible values, not a fixed estimate. The simulation study
+showed that the confidence interval method determines both the
+reliability of the decision rule and the sample size required to achieve
+a given power. The sample size analysis made this concrete, with an
+interval-method-driven difference of 38 evaluable patients under
+identical clinical assumptions. The PG-Power application demonstrated
+that these calculations can be made transparent and reproducible, and
+the Bayesian analysis showed that efficiency gains are available from
+historical borrowing, but only when the underlying assumptions are
+honestly examined and justified.
 
-The thread running through all five aims is the one identified in
+The thread running through all five aims is the that identified in
 Section 1.3. These choices are routinely made in performance goal
-studies, but their rationale is not always made visible. The results of
-this study suggest that the concern
-(\citeproc{ref-piaggio_reporting_2012}{6}) raised about non-inferiority
-margin reporting extends equally to the confidence interval method, the
-sample size procedure and the prior specification. Making these choices
-explicit, justified and pre-specified is not a procedural formality. It
-is the mechanism by which a performance goal study earns the credibility
-needed to support a regulatory decision.
+studies, but their rationale is not always made transparent. The results
+of this study suggest that the concern
+(\citeproc{ref-piaggio_reporting_2012}{6}) raised regarding
+non-inferiority margin reporting extends equally to performance goal
+methodology, including the preformance goal value, choice of confidence
+interval method, sample size procedure and prior specification. These
+choices are not merely procedural; they can materially influence study
+conclusions through their impact on sample size requirements and
+operating characteristics. Consequently, these choices must be
+explicitly considered, justified, and pre-specified to ensure both
+scientific integrity and to support a regulatory decision.
 
 \subsection{SAP in Performance Goal
 Studies}\label{sap-in-performance-goal-studies}
@@ -1710,9 +1721,10 @@ PG-Power directly supports this process by allowing the sensitivity of
 sample size requirements to method choice, performance goal value and
 dropout assumptions to be examined transparently before the SAP is
 finalised. Documenting these outputs alongside the chosen method and its
-justification provides a clear and reproducible record of the design
-rationale, which is precisely what regulators and future reviewers need
-to evaluate the study's conclusions with confidence
+justification provides a transparent and reproducible record of the
+design rationale, which is essential for regulatory assessment and
+independent review of the validity and robustness of the study's
+conclusions
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-gamble_guidelines_2017}{33}).
 
 \subsection{Study Limitations}\label{study-limitations}
@@ -1818,9 +1830,9 @@ This thesis examined how three interconnected statistical choices, the
 performance goal value, the confidence interval method and the sample
 size calculation, interact to shape the conclusion of a single-arm
 performance goal study. Using the BioMimics 3D vascular stent as a case
-study, it demonstrated that none of these choices is neutral and that
-each can alter the trial conclusion independently of the underlying
-clinical data.
+study, demonstrated that none of these choices is neutral and that each
+can alter the trial conclusion independently of the underlying clinical
+data.
 
 The meta-analysis of three historical femoropopliteal nitinol stent
 studies yielded pooled estimates of approximately 6\% for the 30-day
@@ -1837,23 +1849,22 @@ as the numbers themselves.
 The simulation study showed that confidence interval method choice has a
 consistent and meaningful effect on coverage behaviour at the low event
 proportions characteristic of medical device safety endpoints. The Wald
-interval was the only method to consistently fall below the nominal 95\%
-coverage level and is unsuitable as a decision tool in this setting
-(\citeproc{ref-brown_interval_2001}{17}). Wilson Score and Jeffreys
-achieved coverage closest to the nominal level with the narrowest
-intervals, while Clopper-Pearson, Agresti-Coull and the
-continuity-corrected Wilson Score provided conservative coverage at the
-cost of wider intervals. These differences translated directly into
-sample size requirements, with the required evaluable sample size
-ranging from 169 patients under the Wald interval to 247 under the
-continuity-corrected Wilson Score under identical design assumptions,
-and Clopper-Pearson requiring 209 patients as the primary result.
+interval consistently fell below the nominal 95\% coverage level making
+it unsuitable for this setting (\citeproc{ref-brown_interval_2001}{17}).
+Wilson Score and Jeffreys achieved coverage closest to the nominal level
+with relatively narrow intervals, while Clopper-Pearson, Agresti-Coull
+and the continuity-corrected Wilson Score provided conservative coverage
+with wider intervals. These differences translated directly into
+differences in sample size requirements, ranging from 169 patients under
+the Wald to 247 patients under the continuity-corrected Wilson Score
+under identical design assumptions.
 
 The Bayesian historical borrowing analysis demonstrated that
 incorporating prior evidence through a \(\text{Beta}(2, 48)\) prior
 reduced the required sample size from 209 to 79 patients, a reduction of
-approximately 62\%. This reduction was sensitive to the weight assigned
-to the prior, and stronger borrowing increased dependence on the
+approximately 62\%. This reduction was sensitive to the credibility of
+the historical evidence informing the prior and the weight assigned to
+the prior. Stronger borrowing increased dependence on the
 exchangeability assumption in ways that risk inflating the Type I error
 rate. The analysis established the potential of Bayesian borrowing as a
 complementary approach to the frequentist framework, contingent on
@@ -1868,12 +1879,12 @@ consistently point toward.
 Taken together, these findings reinforce a conclusion that extends
 beyond the BioMimics 3D case study. The concern raised in Section 1.3,
 that performance goals and statistical methods are often presented
-without explanation, applies not only to the benchmark itself but to the
-confidence interval method, the sample size procedure and the prior
+without explanation, applies to the benchmark itself and to the
+confidence interval method, sample size procedure and prior
 specification (\citeproc{ref-piaggio_reporting_2012}{6}). Each of these
-choices shapes the trial conclusion before a patient is enrolled, and
-making them explicit, justified and pre-specified in the SAP is not a
-procedural formality. It is the foundation on which a credible and
+choices shape the trial conclusion before a patient is enrolled. Making
+them explicit, justified and pre-specified in the SAP is not a
+procedural formality, but the foundation on which a credible and
 reproducible performance goal study rests.
 
 \newpage

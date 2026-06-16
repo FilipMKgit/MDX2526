@@ -27,17 +27,17 @@
 \contentsline {subsection}{\numberline {5.2}Simulation Study: CI Method Comparison}{20}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Sample Size and Confidence Interval Method Comparison}{20}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}Bayesian Historical Borrowing Results}{22}{subsection.5.4}%
-\contentsline {section}{\numberline {6}Discussion}{23}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Interpretation of Main Findings}{23}{subsection.6.1}%
-\contentsline {subsubsection}{\numberline {6.1.1}Aim 1: Deriving Evidence-Based Performance Goals Through Meta-Analysis}{23}{subsubsection.6.1.1}%
-\contentsline {subsubsection}{\numberline {6.1.2}Aim 2: Comparing Confidence Interval Methods for Binary Endpoints}{24}{subsubsection.6.1.2}%
-\contentsline {subsubsection}{\numberline {6.1.3}Aim 3: Evaluating the Effect of Performance Goal and Interval Choice on Sample Size}{25}{subsubsection.6.1.3}%
-\contentsline {subsubsection}{\numberline {6.1.4}Aim 4: Developing PG-Power}{25}{subsubsection.6.1.4}%
-\contentsline {subsubsection}{\numberline {6.1.5}Aim 5: The Value and Limits of Bayesian Borrowing}{26}{subsubsection.6.1.5}%
-\contentsline {subsubsection}{\numberline {6.1.6}Combined Implications}{27}{subsubsection.6.1.6}%
-\contentsline {subsection}{\numberline {6.2}SAP in Performance Goal Studies}{28}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Study Limitations}{28}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}Directions for Future Research}{29}{subsection.6.4}%
+\contentsline {section}{\numberline {6}Discussion}{24}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Interpretation of Main Findings}{24}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}Aim 1: Deriving Evidence-Based Performance Goals Through Meta-Analysis}{25}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}Aim 2: Comparing Confidence Interval Methods for Binary Endpoints}{25}{subsubsection.6.1.2}%
+\contentsline {subsubsection}{\numberline {6.1.3}Aim 3: Evaluating the Effect of Performance Goal and Interval Choice on Sample Size}{26}{subsubsection.6.1.3}%
+\contentsline {subsubsection}{\numberline {6.1.4}Aim 4: Developing PG-Power}{27}{subsubsection.6.1.4}%
+\contentsline {subsubsection}{\numberline {6.1.5}Aim 5: The Value and Limits of Bayesian Borrowing}{27}{subsubsection.6.1.5}%
+\contentsline {subsubsection}{\numberline {6.1.6}Combined Implications}{28}{subsubsection.6.1.6}%
+\contentsline {subsection}{\numberline {6.2}SAP in Performance Goal Studies}{29}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Study Limitations}{29}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Directions for Future Research}{30}{subsection.6.4}%
 \contentsline {section}{Conclusion}{31}{section*.19}%
 \contentsline {section}{Appendix}{32}{section*.20}%
 \contentsline {subsection}{Project GitHub Repository}{32}{section*.21}%
