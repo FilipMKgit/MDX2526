@@ -10,7 +10,7 @@ abstract: |
   Single-arm performance goal studies are widely used in medical device evaluation when a 
   randomised active-control trial is impractical or ethically unjustifiable. The trial conclusion depends on whether a pre-specified performance goal is met, as determined by a hypothesis test or confidence interval procedure applied to the observed outcome. Despite 
   their apparent simplicity, the conclusions of such studies are sensitive to three 
-  interconnected methodological choices: the derivation and value of the performance goal, the confidence interval method used to construct the decision rule, and the sample size calculation 
+  interconnected methodological choices: the derivation and value of the performance goal, the confidence interval method used to construct the decision rule and the sample size calculation 
   underlying the study design. This thesis examines each of these choices in the context of 
   a retrospective case study of a vascular stent developed for the treatment of femoropopliteal peripheral artery disease.
 
@@ -36,7 +36,7 @@ abstract: |
   89.7% achieved power. Among methods meeting the nominal coverage level, the required sample 
   size ranged from 198 patients under Jeffreys to 247 patients under the continuity-corrected Wilson Score.
 
-  An interactive R Shiny application, PG-Power, was developed to implement the proposed sample      size framework and provide a transparent, accessible, and reproducible assessment of the sensitivity of required sample sizes to different design assumptions. The application supports confidence interval method comparison, 
+  An interactive R Shiny application, PG-Power, was developed to implement the proposed sample      size framework and provide a transparent, accessible and reproducible assessment of the sensitivity of required sample sizes to different design assumptions. The application supports confidence interval method comparison, 
   power curve visualisation, sensitivity analysis and report generation for single-arm 
   performance goal studies.
   
@@ -387,7 +387,7 @@ This formulation directly aligns the sample size calculation with the planned pr
 
 Power calculations for binomial endpoints follow a discrete, stepwise pattern because the decision criterion depends on an integer number of allowable events. As $n$ increases, the maximum allowable number of events remains fixed across certain ranges and increases only at specific thresholds [@brown_interval_2001]. Within each range, power decreases gradually as $n$ grows; it then jumps upward when an additional event becomes permissible. The result is a saw-tooth power curve that reflects the discrete nature of the binomial endpoint [@chow_sample_2017; @brown_interval_2001].
 
-```{r sawtooth-power, echo=FALSE, fig.cap="Example saw-tooth power curve illustrating the discrete stepwise behaviour of binomial power calculations for a single-arm binary endpoint. Power is plotted against sample size n. Within each range of n, power decreases gradually before jumping sharply upward when an additional allowable event becomes permissible.", out.width="80%"}
+```{r sawtooth-power, echo=FALSE, fig.cap="Example saw-tooth power curve for a single-arm binary endpoint.", out.width="80%"}
 
 N     <- 150:270
 alpha <- 0.025
