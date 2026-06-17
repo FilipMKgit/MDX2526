@@ -118,7 +118,7 @@ test or confidence interval procedure applied to the observed outcome.
 Despite their apparent simplicity, the conclusions of such studies are
 sensitive to three interconnected methodological choices: the derivation
 and value of the performance goal, the confidence interval method used
-to construct the decision rule, and the sample size calculation
+to construct the decision rule and the sample size calculation
 underlying the study design. This thesis examines each of these choices
 in the context of a retrospective case study of a vascular stent
 developed for the treatment of femoropopliteal peripheral artery
@@ -154,12 +154,11 @@ coverage level, the required sample size ranged from 198 patients under
 Jeffreys to 247 patients under the continuity-corrected Wilson Score.
 
 An interactive R Shiny application, PG-Power, was developed to implement
-the proposed sample size framework and provide a transparent,
-accessible, and reproducible assessment of the sensitivity of required
-sample sizes to different design assumptions. The application supports
-confidence interval method comparison, power curve visualisation,
-sensitivity analysis and report generation for single-arm performance
-goal studies.
+the proposed sample size framework and provide a transparent, accessible
+and reproducible assessment of the sensitivity of required sample sizes
+to different design assumptions. The application supports confidence
+interval method comparison, power curve visualisation, sensitivity
+analysis and report generation for single-arm performance goal studies.
 
 The thesis concludes with an exploration of Bayesian historical
 borrowing as a framework for formally incorporating prior evidence into
@@ -677,10 +676,9 @@ sample size is the smallest \(n\) achieving the target power:
 This formulation directly aligns the sample size calculation with the
 planned primary analysis
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-us_food_and_drug_administration_non-inferiority_2016}{15}).
-If the final decision will be based on a Wilson, Clopper-Pearson or
-Jeffreys interval, the sample size calculation should use the same
-method --- otherwise the design and analysis are operating under
-different statistical rules
+If the final decision will be based on a confidence interval method, the
+sample size calculation should use the same method --- otherwise the
+design and analysis are operating under different statistical rules
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-brown_interval_2001}{17}).
 
 Power calculations for binomial endpoints follow a discrete, stepwise
@@ -700,7 +698,7 @@ endpoint
 
 }
 
-\caption{Example saw-tooth power curve illustrating the discrete stepwise behaviour of binomial power calculations for a single-arm binary endpoint. Power is plotted against sample size n. Within each range of n, power decreases gradually before jumping sharply upward when an additional allowable event becomes permissible.}\label{fig:sawtooth-power}
+\caption{Example saw-tooth power curve for a single-arm binary endpoint.}\label{fig:sawtooth-power}
 \end{figure}
 
 The required sample size can also be estimated through simulation. For
@@ -808,7 +806,7 @@ This requirement exists because statistical analysis involves choices
 about endpoints, methods, populations and decision rules that can
 influence the study's conclusions. Pre-specifying those choices reduces
 the risk of bias and of inflated Type I error while promoting
-transparency, reproducibility, and scientific integrity.
+transparency, reproducibility and scientific integrity.
 
 Pre-specification is a cornerstone of reproducible clinical research and
 is expected by regulatory bodies, including the FDA and EMA, in
@@ -825,10 +823,6 @@ confidence interval method and decision rule --- can each independently
 alter the conclusion
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-cao_estimating_2025}{10},\citeproc{ref-kahan_how_2020}{35}).
 
-Pre-specifying these choices in the SAP before data collection provides
-the primary safeguard against potential analytical flexibility that the
-single-arm design may otherwise permit
-(\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_single-arm_2024}{8}).
 The implications of these methodological choices for sample size
 requirements and study feasibility are examined thorugh the BioMimics 3D
 case study presented throughout this thesis.
@@ -1129,9 +1123,9 @@ dataset of 50 participants with 2 observed events was used, producing a
 approximately 4\% and an effective sample size of 50
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}). The
 choice of a hypothetical dataset rather than the historical studies
-directly was deliberate. As the meta-analysis in Section 5.1 comprised
-of only three studies of limited sample sizes, a fully justified prior
-would be difficult to construct
+directly was deliberate. As the meta-analysis comprised of only three
+studies of limited sample sizes, a fully justified prior would be
+difficult to construct
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
 The hypothetical prior therefore serves as an illustrative example of
 how borrowing would operate under plausible assumptions, rather than as
@@ -1417,17 +1411,10 @@ behaviour observed in Section 5.2.
 
 Notably, Wilson Score required only one fewer patient than
 Clopper-Pearson but achieved considerably lower power at 83.9\% versus
-89.7\%. This reflects the stepwise nature of the power calculation for
-binary endpoints discussed in Section 2.4, where a single additional
-patient can shift the maximum allowable number of events and produce a
-discrete jump in achieved power
-(\citeproc{ref-chow_sample_2017}{13},\citeproc{ref-brown_interval_2001}{17}).
-The difference between the Clopper-Pearson (209 patients) and Wilson
-Score with continuity correction (247 patients), represents 38
+89.7\%. The difference between the Clopper-Pearson (209 patients) and
+Wilson Score with continuity correction (247 patients), represents 38
 additional evaluable patients or approximately 42 additional enrolments
-after dropout adjustment. This illustrates how choice of method directly
-affects study feasibility
-(\citeproc{ref-schulz_sample_2005}{14},\citeproc{ref-wang_sample_2020}{16}).
+after dropout adjustment.
 
 \begin{figure}[t]
 

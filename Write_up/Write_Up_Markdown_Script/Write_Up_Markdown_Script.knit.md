@@ -85,12 +85,7 @@ header-includes:
   - \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue, filecolor=black}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, 
-                      message = FALSE, fig.pos = "t",
-                      out.width = "80%",
-                      fig.align = "center")
-```
+
 
 \newpage
 
@@ -178,110 +173,14 @@ $$L_{1-\alpha}(\theta) > -\Delta_{NI}$$
 
 These three designs are often confused in practice, but the distinction matters. Failure to demonstrate superiority does not imply equivalence or non-inferiority — a non-significant superiority test may simply reflect insufficient power or imprecision rather than genuine similarity between treatments [@schumi_through_2011; @cuzick_interpreting_2022; @lesaffre_superiority_2008]. Each design therefore requires its own pre-specified margin, endpoints, analysis population and decision rule, and conclusions should not be switched between frameworks after the data have been collected [@international_council_for_harmonisation_statistical_1998; @piaggio_reporting_2012; @chow_sample_2017].
 
-```{r trial-designs, echo=FALSE, fig.cap="Confidence interval decision rules for superiority, non-inferiority and equivalence trials. Each row shows a representative 95% confidence interval for the treatment difference. The shaded region indicates the null hypothesis zone for each design.", out.width="100%"}
+\begin{figure}[t]
 
-library(ggplot2)
+{\centering \includegraphics[width=1\linewidth]{Write_Up_Markdown_Script_files/figure-latex/trial-designs-1} 
 
-col_sup  <- "#7F77DD"
-col_ni   <- "#1D9E75"
-col_eq   <- "#D85A30"
-col_axis <- "#888780"
-col_line <- "#2C2C2A"
+}
 
-# CI data
-cis <- data.frame(
-  label = factor(c("Superiority", "Non-inferiority", "Equivalence"),
-                 levels = c("Equivalence", "Non-inferiority", "Superiority")),
-  lo    = c(0.05, -0.10, -0.13),
-  hi    = c(0.37,  0.24,  0.14),
-  mid   = c(0.21,  0.07,  0.005),
-  y     = c(3, 2, 1),
-  color = c(col_sup, col_ni, col_eq)
-)
-
-ggplot() +
-  
-  # shading: superiority H0 (left of 0)
-  annotate("rect", xmin = -0.55, xmax = 0,
-           ymin = 2.6, ymax = 3.4, fill = col_sup, alpha = 0.10) +
-  
-  # shading: non-inferiority H0 (left of -delta)
-  annotate("rect", xmin = -0.55, xmax = -0.20,
-           ymin = 1.6, ymax = 2.4, fill = col_ni, alpha = 0.10) +
-  
-  # shading: equivalence H0 (both tails)
-  annotate("rect", xmin = -0.55, xmax = -0.20,
-           ymin = 0.6, ymax = 1.4, fill = col_eq, alpha = 0.10) +
-  annotate("rect", xmin = 0.20, xmax = 0.55,
-           ymin = 0.6, ymax = 1.4, fill = col_eq, alpha = 0.10) +
-  
-  # zero line
-  geom_vline(xintercept = 0, colour = col_line,
-             linewidth = 0.5, alpha = 0.45, linetype = "solid") +
-  
-  # NI margin
-  geom_segment(aes(x = -0.20, xend = -0.20, y = 1.6, yend = 2.4),
-               colour = col_ni, linewidth = 0.7, linetype = "dashed", alpha = 0.8) +
-  
-  # Equivalence margins
-  geom_segment(aes(x = -0.20, xend = -0.20, y = 0.6, yend = 1.4),
-               colour = col_eq, linewidth = 0.7, linetype = "dashed", alpha = 0.8) +
-  geom_segment(aes(x =  0.20, xend =  0.20, y = 0.6, yend = 1.4),
-               colour = col_eq, linewidth = 0.7, linetype = "dashed", alpha = 0.8) +
-  
-  # CI bars
-  geom_segment(data = cis,
-               aes(x = lo, xend = hi, y = y, yend = y, colour = label),
-               linewidth = 1.6, lineend = "round", show.legend = FALSE) +
-  geom_segment(data = cis,
-               aes(x = lo, xend = lo, y = y - 0.09, yend = y + 0.09, colour = label),
-               linewidth = 1.1, show.legend = FALSE) +
-  geom_segment(data = cis,
-               aes(x = hi, xend = hi, y = y - 0.09, yend = y + 0.09, colour = label),
-               linewidth = 1.1, show.legend = FALSE) +
-  geom_point(data = cis,
-             aes(x = mid, y = y, colour = label),
-             size = 2.8, shape = 16, show.legend = FALSE) +
-  
-  # row labels (right side)
-  geom_text(data = cis,
-            aes(x = 0.57, y = y, label = label, colour = label),
-            hjust = 0, size = 3.8, fontface = "bold", show.legend = FALSE) +
-  
-  # axis zero label
-  annotate("text", x = 0, y = 0.45, label = "0",
-           size = 3, colour = col_axis, hjust = 0.5) +
-  
-  # margin labels
-  annotate("text", x = -0.20, y = 0.45, label = "-\u0394",
-           size = 3, colour = col_axis, hjust = 0.5) +
-  annotate("text", x =  0.20, y = 0.45, label = "+\u0394",
-           size = 3, colour = col_axis, hjust = 0.5) +
-  
-  scale_colour_manual(values = c(
-    "Superiority"     = col_sup,
-    "Non-inferiority" = col_ni,
-    "Equivalence"     = col_eq
-  )) +
-  
-  coord_cartesian(xlim = c(-0.55, 0.85), ylim = c(0.3, 3.6), clip = "off") +
-  
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid       = element_blank(),
-    axis.text        = element_blank(),
-    axis.ticks       = element_blank(),
-    axis.title       = element_blank(),
-    axis.line.x      = element_line(colour = col_axis, linewidth = 0.5),
-    plot.background  = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
-    plot.margin      = margin(16, 100, 12, 20)
-  )
-
-ggsave("trial_designs.png", width = 8, height = 4.5, dpi = 200, bg = "white")
-
-
-```
+\caption{Confidence interval decision rules for superiority, non-inferiority and equivalence trials. Each row shows a representative 95\% confidence interval for the treatment difference. The shaded region indicates the null hypothesis zone for each design.}\label{fig:trial-designs}
+\end{figure}
 
 ## Non-Inferiority Margins and Performance Goals
 
@@ -387,57 +286,14 @@ This formulation directly aligns the sample size calculation with the planned pr
 
 Power calculations for binomial endpoints follow a discrete, stepwise pattern because the decision criterion depends on an integer number of allowable events. As $n$ increases, the maximum allowable number of events remains fixed across certain ranges and increases only at specific thresholds [@brown_interval_2001]. Within each range, power decreases gradually as $n$ grows; it then jumps upward when an additional event becomes permissible. The result is a saw-tooth power curve that reflects the discrete nature of the binomial endpoint [@chow_sample_2017; @brown_interval_2001].
 
-```{r sawtooth-power, echo=FALSE, fig.cap="Example saw-tooth power curve for a single-arm binary endpoint.", out.width="80%"}
+\begin{figure}[t]
 
-N     <- 150:270
-alpha <- 0.025
-p0    <- 0.89
-p1    <- 0.95
+{\centering \includegraphics[width=0.8\linewidth]{Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1} 
 
-crit  <- qbinom(p = 1 - alpha, size = N, prob = p0)
-power <- 1 - pbinom(q = crit, size = N, prob = p1)
+}
 
-par(
-  mar    = c(4.5, 4.5, 1.5, 1.5),
-  family = "sans",
-  mgp    = c(2.8, 0.7, 0),
-  tcl    = -0.3
-)
-
-plot(N, power,
-     type = "l",
-     lwd  = 1.8,
-     col  = "#1D9E75",
-     las  = 1,
-     xlab = "Sample size (n)",
-     ylab = "Power",
-     ylim = c(0.65, 1.00),
-     yaxt = "n",
-     xaxt = "n",
-     bty  = "l")
-
-axis(2, at = seq(0.65, 1.00, by = 0.05),
-     labels = sprintf("%.2f", seq(0.65, 1.00, by = 0.05)),
-     las = 1, cex.axis = 0.85)
-
-axis(1, at = seq(150, 270, by = 20),
-     cex.axis = 0.85)
-
-legend("bottomright",
-       title     = "Example design",
-       title.col = "#2C2C2A",
-       legend    = c(
-         expression(paste(p[0], " = 0.11  (performance goal)")),
-         expression(paste(p[1], " = 0.05  (expected proportion)")),
-         expression(paste(alpha,  " = 0.025  (one-sided)"))
-       ),
-       col      = "#888780",
-       lty      = 0,
-       pch      = NA,
-       bty      = "n",
-       cex      = 0.82,
-       text.col = "#888780")
-```
+\caption{Example saw-tooth power curve for a single-arm binary endpoint.}\label{fig:sawtooth-power}
+\end{figure}
 
 The required sample size can also be estimated through simulation. For each candidate $n$, a large number of trial datasets are generated under the assumed true proportion $p_1$, the selected confidence interval method is applied to each, and power is estimated as the proportion of simulated trials in which the decision rule is satisfied [@international_council_for_harmonisation_statistical_1998; @chow_sample_2017]. The required sample size is the smallest $n$ at which this simulated power meets the target [@wang_leveraging_2021; @brown_interval_2001; @chow_sample_2017]. This approach is implemented in specialist software including PASS [@noauthor_pass_nodate], nQuery [@elashoff_nquery_nodate] and Cytel East [@noauthor_east_nodate], as well as several R packages [@noauthor_binomconfint_nodate], and is particularly useful because it mirrors the planned analysis directly [@wang_leveraging_2021; @chow_sample_2017].
 
@@ -587,61 +443,71 @@ To examine sensitivity to prior weight, three prior distributions were compared:
 
 The meta-analysis of the three femoropopliteal bare nitinol stent studies described in Section 3.3 produced pooled estimates for both endpoints. The results are summarised in Figures 3 and 4.
 
-```{r performance-goals-table, echo=FALSE, message=FALSE, warning=FALSE}
-library(kableExtra)
+\begin{table}[!h]
+\centering
+\caption{\label{tab:performance-goals-table}Performance Goals for Safety and Efficacy}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5.2cm}ccc>{}c}
+\toprule
+Endpoint & Timepoint & Pooled Rate & 95\% CI & Performance Goal\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\cellcolor[HTML]{4A4A6A}{\textcolor{white}{\textbf{Safety Endpoints}}}}\\
+\hspace{1em}Composite (Death, Amputation, TVR) & 30 Days & 6.0\% & {}[2.9, 12.1\%] & \textbf{$\leq$ 12\%}\\
+\addlinespace[0.3em]
+\multicolumn{5}{l}{\cellcolor[HTML]{6B4A2A}{\textcolor{white}{\textbf{Efficacy Endpoints}}}}\\
+\hspace{1em}RCC: Improved or No Change & 12 Months & 95.8\% & {}[87.9, 98.6\%] & \textbf{$\geq$ 88\%}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-pg_tbl <- data.frame(
-  Endpoint           = c("Composite (Death, Amputation, TVR)", "RCC: Improved or No Change"),
-  Timepoint          = c("30 Days", "12 Months"),
-  `Pooled Rate`      = c("6.0\\%", "95.8\\%"),
-  `95\\% CI`         = c("[2.9, 12.1\\%]", "[87.9, 98.6\\%]"),
-  `Performance Goal` = c("$\\leq$ 12\\%", "$\\geq$ 88\\%"),
-  check.names = FALSE
-)
+\begin{figure}[H]
 
-kbl(pg_tbl, booktabs = TRUE, escape = FALSE, align = "lcccc", linesep = "",
-    caption = "Performance Goals for Safety and Efficacy") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
-  column_spec(1, width = "5.2cm") |>
-  column_spec(5, bold = TRUE) |>
-  pack_rows("Safety Endpoints",   1, 1, background = "#4A4A6A", color = "white", bold = TRUE) |>
-  pack_rows("Efficacy Endpoints", 2, 2, background = "#6B4A2A", color = "white", bold = TRUE)
-```
+{\centering \includegraphics[width=0.9\linewidth]{Figures/forest_plot_pooled_estimates} 
 
-```{r forest-plot, echo=FALSE, fig.pos="H", fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.", out.width="90%"}
-knitr::include_graphics("Figures/forest_plot_pooled_estimates.png")
-```
+}
+
+\caption{Pooled event proportions with 95\% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.}\label{fig:forest-plot}
+\end{figure}
 
 The heterogeneity statistics for both endpoints are reported in Figure 5.
 
-```{r heterogeneity-A, echo=FALSE, message=FALSE, warning=FALSE}
-library(kableExtra)
-het_A <- data.frame(
-  Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
-  Value           = c("0.00", "0.0\\%", "1.00", "0.00", "NA"),
-  `CI or p-value` = c("NA", "0.0\\% to 0.9\\%", "1.00 to 3.10", "$p$ = 0.998", "NA"),
-  check.names = FALSE
-)
-kbl(het_A, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
-    caption = "Heterogeneity Statistics: 30-day Composite") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
-  row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
-  column_spec(1, width = "3cm")
-```
+\begin{table}[!h]
+\centering
+\caption{\label{tab:heterogeneity-A}Heterogeneity Statistics: 30-day Composite}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}cc}
+\toprule
+\cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Measure}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Value}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{CI or p-value}}}\\
+\midrule
+$\tau^2$ & 0.00 & NA\\
+$I^2$ & 0.0\% & 0.0\% to 0.9\%\\
+H & 1.00 & 1.00 to 3.10\\
+Q (Wald) & 0.00 & $p$ = 0.998\\
+Q (LRT) & NA & NA\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-```{r heterogeneity-B, echo=FALSE, message=FALSE, warning=FALSE}
-het_B <- data.frame(
-  Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
-  Value           = c("0.00", "0.0\\%", "1.00", "1.31", "NA"),
-  `CI or p-value` = c("NA", "0.0\\% to 0.9\\%", "1.00 to 3.10", "$p$ = 0.520", "NA"),
-  check.names = FALSE
-)
-kbl(het_B, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
-    caption = "Heterogeneity Statistics: 12-month Rutherford classification") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
-  row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
-  column_spec(1, width = "3cm")
-```
+\begin{table}[!h]
+\centering
+\caption{\label{tab:heterogeneity-B}Heterogeneity Statistics: 12-month Rutherford classification}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}cc}
+\toprule
+\cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Measure}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Value}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{CI or p-value}}}\\
+\midrule
+$\tau^2$ & 0.00 & NA\\
+$I^2$ & 0.0\% & 0.0\% to 0.9\%\\
+H & 1.00 & 1.00 to 3.10\\
+Q (Wald) & 1.31 & $p$ = 0.520\\
+Q (LRT) & NA & NA\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 For both endpoints, the estimated between-study variance $\tau^2$ was 0 and the $I^2$ statistic was 0.0% (95% CI: 0.0--0.9%), with $H = 1.00$. Cochran's Q test produced $p$-values of 0.998 and 0.520 for the safety and efficacy endpoints respectively. The implications of these heterogeneity estimates for the interpretation of the derived performance goals are discussed in Section 6.1.
 
@@ -649,39 +515,69 @@ For both endpoints, the estimated between-study variance $\tau^2$ was 0 and the 
 
 Coverage probability was evaluated across a grid of true proportions $p \in \{0.001, \ldots, 0.200\}$ for each of the six confidence interval methods at sample sizes $n = 50$ and $n = 100$. Results are summarised through coverage probability curves and coverage-width scatter plots.
 
-```{r coverage-prob-n50, echo=FALSE, fig.cap="Coverage probability curves for six binomial confidence interval methods at n = 50, evaluated across true proportions p in {0.001, ..., 0.200}. The dashed red line indicates the nominal 95% level.", out.width="100%"}
-knitr::include_graphics("Figures/coverage_probability_n50.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n50} 
+
+}
+
+\caption{Coverage probability curves for six binomial confidence interval methods at n = 50, evaluated across true proportions p in {0.001, ..., 0.200}. The dashed red line indicates the nominal 95\% level.}\label{fig:coverage-prob-n50}
+\end{figure}
 
 At $n = 50$, the Wald interval produced coverage below 0.80 for true proportions near zero, only approaching the nominal level near $p = 0.20$. The Wilson Score interval oscillated around 0.95, with dips below 0.90 at low proportions near $p = 0.001$ to 0.01. The Jeffreys interval followed a similar pattern but with more pronounced dips below nominal at low proportions. The Wilson Score with continuity correction and Agresti-Coull interval maintained coverage above the nominal level across virtually the entire proportion range. The Clopper-Pearson interval was the most conservative, with coverage remaining above 0.97 across nearly the entire evaluated range.
 
-```{r coverage-prob-n100, echo=FALSE, fig.cap="Coverage probability curves for six binomial confidence interval methods at n = 100, evaluated across true proportions p in {0.001, ..., 0.200}. The dashed red line indicates the nominal 95% level.", out.width="100%"}
-knitr::include_graphics("Figures/coverage_probability_n100.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n100} 
+
+}
+
+\caption{Coverage probability curves for six binomial confidence interval methods at n = 100, evaluated across true proportions p in {0.001, ..., 0.200}. The dashed red line indicates the nominal 95\% level.}\label{fig:coverage-prob-n100}
+\end{figure}
 
 At $n = 100$ the pattern was broadly similar. The Wald interval remained well below 0.95 across most of the proportion range. The remaining five methods continued to oscillate above the nominal level, with Wilson Score and Jeffreys tracking closest to 0.95 and Clopper-Pearson and Wilson Score with continuity correction remaining the most conservative.
 
-```{r coverage-prob-overlay, echo=FALSE, fig.cap="Coverage probability curves for all six methods overlaid at n = 100. The dashed red line indicates the nominal 95% level.", out.width="100%"}
-knitr::include_graphics("Figures/coverage_probability_n100_overlay.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n100_overlay} 
+
+}
+
+\caption{Coverage probability curves for all six methods overlaid at n = 100. The dashed red line indicates the nominal 95\% level.}\label{fig:coverage-prob-overlay}
+\end{figure}
 
 The combined overlay for $n = 100$ shows all six methods on the same axes, illustrating the clear separation between the Wald interval and the remaining five methods across the full proportion range.
 
 The coverage-width scatter plots summarise the trade-off between average coverage probability and average expected interval width at each sample size.
 
-```{r coverage-width-n20, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 20. The dashed red line indicates the 95% target coverage.", out.width="80%"}
-knitr::include_graphics("Figures/coverage_width_n20.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n20} 
+
+}
+
+\caption{Average coverage probability against average expected interval width at n = 20. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n20}
+\end{figure}
 
 At $n = 20$, the Wald interval produced average coverage of approximately 0.73 with an average width of approximately 0.21. Wilson Score and Jeffreys sat at or just above the nominal line with average widths of approximately 0.24 and 0.25 respectively. Clopper-Pearson and Wilson Score with continuity correction sat above the nominal line with average widths of approximately 0.29 and 0.30.
 
-```{r coverage-width-n50, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 50. The dashed red line indicates the 95% target coverage.", out.width="80%"}
-knitr::include_graphics("Figures/coverage_width_n50.png")
-```
+\begin{figure}[t]
 
-```{r coverage-width-n100, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 100. The dashed red line indicates the 95% target coverage.", out.width="80%"}
-knitr::include_graphics("Figures/coverage_width_n100.png")
-```
+{\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n50} 
+
+}
+
+\caption{Average coverage probability against average expected interval width at n = 50. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n50}
+\end{figure}
+
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n100} 
+
+}
+
+\caption{Average coverage probability against average expected interval width at n = 100. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n100}
+\end{figure}
 
 At $n = 50$ and $n = 100$ the five non-Wald methods converged, with all five clustered near and above the nominal line in the coverage-width plots. The ordering remained consistent across both sample sizes: Wilson Score and Jeffreys sat closest to 0.95 with average widths of approximately 0.16 and 0.11 at $n = 50$ and $n = 100$ respectively, while Clopper-Pearson produced the widest average intervals at both sample sizes.
 
@@ -693,17 +589,27 @@ $$H_0: p \geq 0.11 \qquad H_1: p < 0.11$$
 
 The Clopper-Pearson interval was used as the primary method for the main sample size calculation. This choice was made partly on the basis of the simulation results in Section 5.2, which showed Clopper-Pearson to be the most conservative method with guaranteed nominal coverage, and additionally because the exact binomial method underlying the Clopper-Pearson interval is the default approach used in widely adopted sample size software including PASS and nQuery [@brown_interval_2001; @clopper_use_1934; @noauthor_pass_nodate; @elashoff_nquery_nodate].
 
-```{r power-curve-cp, echo=FALSE, fig.cap="Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7%. The dashed line indicates the 90% target power. The decision rule is to reject H0 if no more than 14 of 209 patients experience the composite endpoint.", out.width="90%"}
-knitr::include_graphics("Figures/power_curve_clopper_pearson.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.9\linewidth]{Figures/power_curve_clopper_pearson} 
+
+}
+
+\caption{Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7\%. The dashed line indicates the 90\% target power. The decision rule is to reject H0 if no more than 14 of 209 patients experience the composite endpoint.}\label{fig:power-curve-cp}
+\end{figure}
 
 The required sample size varied across the six confidence interval methods evaluated under the same design assumptions, as summarised in the table below.
 
 <!-- INSERT TABLE HERE: CI method comparison table from PG-Power -->
 
-```{r sample-size-table, echo=FALSE, fig.cap="Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, target power 90%), produced by PG-Power. Clopper-Pearson was used as the primary method.", out.width="100%"}
-knitr::include_graphics("Figures/sample_size_comparison_table.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=1\linewidth]{Figures/sample_size_comparison_table} 
+
+}
+
+\caption{Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, target power 90\%), produced by PG-Power. Clopper-Pearson was used as the primary method.}\label{fig:sample-size-table}
+\end{figure}
 
 The Wald interval produced the smallest required sample size of 169 patients but achieved 77.3% power under the assumed true complication proportion, falling to meet the 90% target. This is consistent with the simulation results in Section 5.2, which showed systematic undercoverage of the Wald interval across the relevant range of event proportions [@brown_interval_2001; @agresti_approximate_1998]. A sample size derived from the Wald interval would be unreliable as a basis for study design.
 
@@ -711,9 +617,14 @@ Among the remaining methods, Jeffreys required 198 patients with achieved power 
 
 Notably, Wilson Score required only one fewer patient than Clopper-Pearson but achieved considerably lower power at 83.9% versus 89.7%. The difference between the Clopper-Pearson (209 patients) and Wilson Score with continuity correction (247 patients), represents 38 additional evaluable patients or approximately 42 additional enrolments after dropout adjustment.
 
-```{r ci-diagram, echo=FALSE, fig.cap="Confidence intervals for the observed event proportion across all six methods at n = 209 with 14 observed events, produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11%. All six methods produce an upper bound below the performance goal at the decision boundary.", out.width="100%"}
-knitr::include_graphics("Figures/ci_diagram_all_methods.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=1\linewidth]{Figures/ci_diagram_all_methods} 
+
+}
+
+\caption{Confidence intervals for the observed event proportion across all six methods at n = 209 with 14 observed events, produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11\%. All six methods produce an upper bound below the performance goal at the decision boundary.}\label{fig:ci-diagram}
+\end{figure}
 
 A full report generated by the PG-Power application for these design assumptions, including power curves and sensitivity analyses, is available in PDF form on the project GitHub repository (see Appendix).
 
@@ -721,17 +632,27 @@ A full report generated by the PG-Power application for these design assumptions
 
 Under the $\text{Beta}(2, 48)$ prior and the design assumptions described in Section 4.4, the required evaluable sample size was $n = 79$, permitting no more than 4 observed events. This represents a reduction of 130 patients, approximately 62%, relative to the Clopper-Pearson frequentist result of 209 from Section 5.3.
 
-```{r bayesian-power, echo=FALSE, fig.cap="Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90%). The red point marks the required evaluable sample size of n = 79.", out.width="90%"}
-knitr::include_graphics("Figures/bayesian_power_curve.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.9\linewidth]{Figures/bayesian_power_curve} 
+
+}
+
+\caption{Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90\%). The red point marks the required evaluable sample size of n = 79.}\label{fig:bayesian-power}
+\end{figure}
 
 The power curve illustrates how achieved power evolves across candidate sample sizes under the Bayesian model. The saw-tooth pattern reflects the same discrete stepwise behaviour described in Section 2.4, where power decreases gradually within ranges of $n$ and increases sharply when an additional event becomes permissible. The required sample size of 79 corresponds to the first point at which the power curve crosses the 90% threshold.
 
 The sensitivity of this result to prior weight is shown in the figure below. All three distributions, $\text{Beta}(0.2, 4.8)$, $\text{Beta}(2, 48)$ and $\text{Beta}(20, 480)$, encode the same underlying event ratio but differ substantially in how strongly they concentrate the posterior.
 
-```{r prior-weight, echo=FALSE, fig.cap="Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24) but increasing effective sample sizes of 5, 50 and 500. The dashed vertical line indicates the performance goal of 0.11. Greater prior weight concentrates the posterior further from the performance goal, reducing the required sample size but increasing sensitivity to the exchangeability assumption.", out.width="90%"}
-knitr::include_graphics("Figures/prior_weight_sensitivity.png")
-```
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.9\linewidth]{Figures/prior_weight_sensitivity} 
+
+}
+
+\caption{Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24) but increasing effective sample sizes of 5, 50 and 500. The dashed vertical line indicates the performance goal of 0.11. Greater prior weight concentrates the posterior further from the performance goal, reducing the required sample size but increasing sensitivity to the exchangeability assumption.}\label{fig:prior-weight}
+\end{figure}
 
 With ESS = 5 the posterior is broad and driven largely by the current data, offering modest sample size reduction relative to the frequentist result. With ESS = 50 the posterior concentrates more clearly around the historical event proportion of 4%, well below the performance goal of 11%, producing the reduction to $n = 79$ reported above. With ESS = 500 the posterior is narrow and the prior dominates, largely overriding the current trial data. While this produces the greatest reduction in required sample size, it also renders the conclusion highly sensitive to the validity of the historical data and the exchangeability assumption. If the true event proportion in the current study differs from the historical estimate, a strongly informative prior will pull the posterior toward the historical value regardless of what the current data show. Similarly, the substantial reductions in required sample size correspond to the favourable historical event proportion of 0.04. If the historical event proportion were less favourable or closer to the pre-specified threshold, the resulting reduction in required sample size would be more modest.
 
