@@ -101,7 +101,15 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE,
 
 # Acknowledgments {.unnumbered}
 
-We are grateful to Prof. John Newell for his guidance and support throughout this project. We would also like to thank the lead scientist involved in the BioMimics 3D trial, whose clinical and regulatory insight shaped much of the thinking behind this case study.
+We would like to sincerely thank Prof. John Newell for his
+guidance, encouragement, and support throughout this project. His expertise and
+passion for his field, combined with his consistent energy, welcoming nature,
+and humour made this experience both memorable and inspiring. We are also grateful
+to the lead scientist involved in the BioMimics 3D trial for sharing their
+time, experience, and insight with us. Our meetings provided a valuable
+opportunity to understand the journey of a clinical trial from a statistical
+and practical perspective. Both experiences provided us with a glimpse into
+the work we hope to contribute to in our future careers.
 
 \newpage
 \tableofcontents
