@@ -72,18 +72,19 @@
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 \usepackage{fontspec}
+\usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{bm}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{array}
+\usepackage[table]{xcolor}
 \usepackage{geometry}
 \usepackage{setspace}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{floatrow}
-\usepackage{tocloft}
-\floatsetup[figure]{capposition=bottom}
+\usepackage{placeins}
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 \setlength{\floatsep}{6pt plus 2pt minus 2pt}
 \setlength{\intextsep}{6pt plus 2pt minus 2pt}
@@ -91,20 +92,9 @@
 \setlength{\belowcaptionskip}{3pt}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue, filecolor=black}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
+\usepackage{tocloft}
+\let\oldmaketitle\maketitle
+\renewcommand{\maketitle}{\begin{center}\includegraphics[width=4cm]{Figures/logo2UG.png}\end{center}\vspace{0.5cm}\oldmaketitle}
 \begin{document}
 \maketitle
 
@@ -194,15 +184,28 @@ device evaluation.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-We would like to thank Prof.~John Newell for his supervision and
-guidance throughout this project. We also thank the lead scientist
-involved in the BioMimics 3D trial for providing clinical and regulatory
-context that informed the case study analysis.
+We are grateful to Prof.~John Newell for his guidance and support
+throughout this project. We would also like to thank the lead scientist
+involved in the BioMimics 3D trial, whose clinical and regulatory
+insight shaped much of the thinking behind this case study.
 
 \newpage
 \tableofcontents
 \newpage
 \listoffigures
+\listoftables
+\newpage
+
+\section*{Abbreviations and Acronyms}\label{abbreviations-and-acronyms}
+\addcontentsline{toc}{section}{Abbreviations and Acronyms}
+
+\begin{tabular}{ll}
+SAP & Statistical Analysis Plan \\
+TVR & Target Vessel Revascularisation \\
+PAD & Peripheral Artery Disease \\
+ESS & Effective Sample Size \\
+\end{tabular}
+
 \newpage
 
 \section{Introduction}\label{introduction}
@@ -442,7 +445,7 @@ analysis population and decision rule, and conclusions should not be
 switched between frameworks after the data have been collected
 (\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-piaggio_reporting_2012}{6},\citeproc{ref-chow_sample_2017}{13}).
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=1\linewidth]{Write_Up_Markdown_Script_files/figure-latex/trial-designs-1} 
 
@@ -692,7 +695,7 @@ saw-tooth power curve that reflects the discrete nature of the binomial
 endpoint
 (\citeproc{ref-chow_sample_2017}{13},\citeproc{ref-brown_interval_2001}{17}).
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.8\linewidth]{Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1} 
 
@@ -750,13 +753,13 @@ the posterior distribution is obtained by conjugate updating
 
 This posterior combines historical and current evidence into a single
 updated estimate of the true event probability. The influence of the
-prior relative to the current data is often summarised by its effective
-sample size, which approximates the number of current observations the
-prior is equivalent to
+prior relative to the current data is often summarised by its Effective
+Sample Size (ESS), which approximates the number of current observations
+the prior is equivalent to
 (\citeproc{ref-robert_harold_2009}{23},\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}).
-A prior with a large effective sample size concentrates the posterior
-more tightly around the historical estimate, reducing the number of
-current patients needed to reach a given level of precision or power
+A prior with a large ESS concentrates the posterior more tightly around
+the historical estimate, reducing the number of current patients needed
+to reach a given level of precision or power
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}).
 
 The central assumption underlying any borrowing strategy is
@@ -835,8 +838,8 @@ Stent}\label{biomimics-3d-vascular-stent}
 The BioMimics 3D vascular stent was selected as the primary case study
 throughout this analysis. The device is a self-expanding, permanent
 bare-metal nitinol stent developed for the treatment of femoropopliteal
-peripheral artery disease, a condition characterised by atherosclerotic
-narrowing of the arteries supplying the lower limb
+Peripheral Artery Disease (PAD), a condition characterised by
+atherosclerotic narrowing of the arteries supplying the lower limb
 (\citeproc{ref-rammos_biomimics_2024}{36}--\citeproc{ref-zeller_helical_2016}{38}).
 In this setting, successful treatment is defined by achieving initial
 vessel patency and maintaining clinical benefit over time without
@@ -850,11 +853,10 @@ of the femoropopliteal artery
 This design is hypothesised to promote blood flow patterns within the
 treated vessel and reduce the risk of restenosis after implantation
 (\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-zeller_helical_2016}{38}).
-Consequently, clinically meaningful outcomes such as target vessel
-revascularisation, amputation and changes in Rutherford classification
-are important measures of the device's ability to provide sustained
-therapeutic benefit in patients with symptomatic peripheral artery
-disease
+Consequently, clinically meaningful outcomes such as Target Vessel
+Revascularisation (TVR), amputation and changes in Rutherford
+classification are important measures of the device's ability to provide
+sustained therapeutic benefit in patients with symptomatic PAD
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-laird_nitinol_2010}{37}).
 
 Initial meetings with the lead scientist involved in the BioMimics
@@ -884,17 +886,16 @@ analysis
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-laird_nitinol_2010}{37},\citeproc{ref-zeller_helical_2016}{38}).
 
 For safety, candidate endpoints were assessed at 30 days and included
-all-cause mortality, major amputation and target vessel
-revascularisation. These were combined into a single composite endpoint
-because each component represents a clinically significant harm and
-individually the events occurs too infrequently to yield stable
-estimates
+all-cause mortality, major amputation and TVR. These were combined into
+a single composite endpoint because each component represents a
+clinically significant harm and individually the events occurs too
+infrequently to yield stable estimates
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36},\citeproc{ref-laird_nitinol_2010}{37}).
 
 For efficacy, candidate endpoints were assessed at 12 months. Rutherford
-classification, a clinical scale describing the severity of peripheral
-artery disease symptoms, was selected because it captures patient-level
-disease status rather than purely anatomical outcomes
+classification, a clinical scale describing the severity of PAD
+symptoms, was selected because it captures patient-level disease status
+rather than purely anatomical outcomes
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-laird_nitinol_2010}{37}).
 Specifically, improvement or no deterioration in Rutherford score from
 post-intervention baseline was used, as this reflects whether patients
@@ -902,9 +903,9 @@ experienced meaningful clinical benefit over the follow-up period
 (\citeproc{ref-rocha-singh_performance_2007}{9},\citeproc{ref-rammos_biomimics_2024}{36}).
 
 The selected endpoints were therefore the 30-day composite of all-cause
-mortality, major amputation and target vessel revascularisation for
-safety, and improvement or no deterioration in Rutherford classification
-score at 12 months for efficacy.
+mortality, major amputation and TVR for safety, and improvement or no
+deterioration in Rutherford classification score at 12 months for
+efficacy.
 
 \subsection{Literature Search and Meta-analysis
 Data}\label{literature-search-and-meta-analysis-data}
@@ -1120,7 +1121,7 @@ sample size relative to the frequentist result obtained in Section 5.3
 To construct a concrete and interpretable prior, a hypothetical Phase II
 dataset of 50 participants with 2 observed events was used, producing a
 \(\text{Beta}(2, 48)\) prior with an estimated event proportion of
-approximately 4\% and an effective sample size of 50
+approximately 4\% and an EES of 50
 (\citeproc{ref-us_food_and_drug_administration_guidance_2010}{31}). The
 choice of a hypothetical dataset rather than the historical studies
 directly was deliberate. As the meta-analysis comprised of only three
@@ -1155,8 +1156,8 @@ design assumptions in Section 4.2
 To examine sensitivity to prior weight, three prior distributions were
 compared: \(\text{Beta}(0.2, 4.8)\), \(\text{Beta}(2, 48)\) and
 \(\text{Beta}(20, 480)\), encoding the same event ratio of approximately
-1:24 but corresponding to effective sample sizes of approximately 5, 50
-and 500, representing weak, moderate and strong borrowing respectively
+1:24 but corresponding to ESS of approximately 5, 50 and 500,
+representing weak, moderate and strong borrowing respectively
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
 
 \newpage
@@ -1190,15 +1191,15 @@ Endpoint & Timepoint & Pooled Rate & 95\% CI & Performance Goal\\
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.9\linewidth]{Figures/forest_plot_pooled_estimates} 
+{\centering \includegraphics[width=0.8\linewidth]{Figures/forest_plot_pooled_estimates} 
 
 }
 
-\caption{Pooled event proportions with 95\% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.}\label{fig:forest-plot}
+\caption{Pooled event proportions with 95\% confidence intervals for the safety and efficacy endpoints.}\label{fig:forest-plot}
 \end{figure}
 
-The heterogeneity statistics for both endpoints are reported in Figure
-5.
+The heterogeneity statistics for both endpoints are reported in Tables 2
+and 3.
 
 \begin{table}[!h]
 \centering
@@ -1252,7 +1253,7 @@ interval methods at sample sizes \(n = 50\) and \(n = 100\). Results are
 summarised through coverage probability curves and coverage-width
 scatter plots.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n50} 
 
@@ -1272,7 +1273,7 @@ nominal level across virtually the entire proportion range. The
 Clopper-Pearson interval was the most conservative, with coverage
 remaining above 0.97 across nearly the entire evaluated range.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n100} 
 
@@ -1288,7 +1289,7 @@ with Wilson Score and Jeffreys tracking closest to 0.95 and
 Clopper-Pearson and Wilson Score with continuity correction remaining
 the most conservative.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=1\linewidth]{Figures/coverage_probability_n100_overlay} 
 
@@ -1305,13 +1306,13 @@ The coverage-width scatter plots summarise the trade-off between average
 coverage probability and average expected interval width at each sample
 size.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n20} 
 
 }
 
-\caption{Average coverage probability against average expected interval width at n = 20. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n20}
+\caption{Average coverage probability against average expected interval width at n = 20.}\label{fig:coverage-width-n20}
 \end{figure}
 
 At \(n = 20\), the Wald interval produced average coverage of
@@ -1321,22 +1322,22 @@ widths of approximately 0.24 and 0.25 respectively. Clopper-Pearson and
 Wilson Score with continuity correction sat above the nominal line with
 average widths of approximately 0.29 and 0.30.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n50} 
 
 }
 
-\caption{Average coverage probability against average expected interval width at n = 50. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n50}
+\caption{Average coverage probability against average expected interval width at n = 50.}\label{fig:coverage-width-n50}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.8\linewidth]{Figures/coverage_width_n100} 
 
 }
 
-\caption{Average coverage probability against average expected interval width at n = 100. The dashed red line indicates the 95\% target coverage.}\label{fig:coverage-width-n100}
+\caption{Average coverage probability against average expected interval width at n = 100.}\label{fig:coverage-width-n100}
 \end{figure}
 
 At \(n = 50\) and \(n = 100\) the five non-Wald methods converged, with
@@ -1368,26 +1369,26 @@ Clopper-Pearson interval is the default approach used in widely adopted
 sample size software including PASS and nQuery
 (\citeproc{ref-brown_interval_2001}{17},\citeproc{ref-clopper_use_1934}{20},\citeproc{ref-noauthor_pass_nodate}{25},\citeproc{ref-elashoff_nquery_nodate}{26}).
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.9\linewidth]{Figures/power_curve_clopper_pearson} 
 
 }
 
-\caption{Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7\%. The dashed line indicates the 90\% target power. The decision rule is to reject H0 if no more than 14 of 209 patients experience the composite endpoint.}\label{fig:power-curve-cp}
+\caption{Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7\%.}\label{fig:power-curve-cp}
 \end{figure}
 
 The required sample size varied across the six confidence interval
 methods evaluated under the same design assumptions, as summarised in
 the table below.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth]{Figures/sample_size_comparison_table} 
+{\centering \includegraphics[width=0.8\linewidth]{Figures/sample_size_comparison_table} 
 
 }
 
-\caption{Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, target power 90\%), produced by PG-Power. Clopper-Pearson was used as the primary method.}\label{fig:sample-size-table}
+\caption{Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions. Produced by PG-Power. Clopper-Pearson was set as the primary method.}\label{fig:sample-size-table}
 \end{figure}
 
 The Wald interval produced the smallest required sample size of 169
@@ -1416,13 +1417,13 @@ Wilson Score with continuity correction (247 patients), represents 38
 additional evaluable patients or approximately 42 additional enrolments
 after dropout adjustment.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=1\linewidth]{Figures/ci_diagram_all_methods} 
 
 }
 
-\caption{Confidence intervals for the observed event proportion across all six methods at n = 209 with 14 observed events, produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11\%. All six methods produce an upper bound below the performance goal at the decision boundary.}\label{fig:ci-diagram}
+\caption{Confidence intervals for the observed event proportion across all six methods at n = 209. Produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11\%.}\label{fig:ci-diagram}
 \end{figure}
 
 A full report generated by the PG-Power application for these design
@@ -1438,13 +1439,13 @@ described in Section 4.4, the required evaluable sample size was
 reduction of 130 patients, approximately 62\%, relative to the
 Clopper-Pearson frequentist result of 209 from Section 5.3.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.9\linewidth]{Figures/bayesian_power_curve} 
 
 }
 
-\caption{Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90\%). The red point marks the required evaluable sample size of n = 79.}\label{fig:bayesian-power}
+\caption{Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90\%).}\label{fig:bayesian-power}
 \end{figure}
 
 The power curve illustrates how achieved power evolves across candidate
@@ -1461,13 +1462,13 @@ below. All three distributions, \(\text{Beta}(0.2, 4.8)\),
 underlying event ratio but differ substantially in how strongly they
 concentrate the posterior.
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics[width=0.9\linewidth]{Figures/prior_weight_sensitivity} 
 
 }
 
-\caption{Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24) but increasing effective sample sizes of 5, 50 and 500. The dashed vertical line indicates the performance goal of 0.11. Greater prior weight concentrates the posterior further from the performance goal, reducing the required sample size but increasing sensitivity to the exchangeability assumption.}\label{fig:prior-weight}
+\caption{Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24).}\label{fig:prior-weight}
 \end{figure}
 
 With ESS = 5 the posterior is broad and driven largely by the current
@@ -1619,13 +1620,13 @@ medical device setting where recruitment is costly and historical
 evidence from comparable devices is available.
 
 However, the magnitude of this reduction is sensitive to the weight
-assigned to the prior. Increasing the effective sample size from 5 to
-500 while holding the event ratio constant progressively concentrates
-the posterior around the historical estimate, reducing the required
-sample size but increasing dependence on the exchangeability assumption
-and the validity of the historical data. This is particularly relevant
-when the prior is informed by early-phase evidence, where bias and
-uncertainty may be greater than in confirmatory studies.
+assigned to the prior. Increasing the EES from 5 to 500 while holding
+the event ratio constant progressively concentrates the posterior around
+the historical estimate, reducing the required sample size but
+increasing dependence on the exchangeability assumption and the validity
+of the historical data. This is particularly relevant when the prior is
+informed by early-phase evidence, where bias and uncertainty may be
+greater than in confirmatory studies.
 
 When the prior is strongly informative and the historical
 exchangeability between historical and current populations does not hold

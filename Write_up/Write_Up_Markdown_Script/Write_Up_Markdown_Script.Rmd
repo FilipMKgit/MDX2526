@@ -64,18 +64,19 @@ output:
       in_header: null
 header-includes:
   - \usepackage{fontspec}
+  - \usepackage{float}
   - \usepackage{amsmath}
   - \usepackage{amssymb}
   - \usepackage{bm}
   - \usepackage{booktabs}
   - \usepackage{graphicx}
+  - \usepackage{array}
+  - \usepackage[table]{xcolor}
   - \usepackage{geometry}
   - \usepackage{setspace}
   - \usepackage{caption}
   - \usepackage{subcaption}
-  - \usepackage{floatrow}
-  - \usepackage{tocloft}
-  - \floatsetup[figure]{capposition=bottom}
+  - \usepackage{placeins}
   - \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
   - \setlength{\floatsep}{6pt plus 2pt minus 2pt}
   - \setlength{\intextsep}{6pt plus 2pt minus 2pt}
@@ -83,25 +84,41 @@ header-includes:
   - \setlength{\belowcaptionskip}{3pt}
   - \usepackage{hyperref}
   - \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue, filecolor=black}
+  - \usepackage{tocloft}
+  - \let\oldmaketitle\maketitle
+  - \renewcommand{\maketitle}{\begin{center}\includegraphics[width=4cm]{Figures/logo2UG.png}\end{center}\vspace{0.5cm}\oldmaketitle}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, 
-                      message = FALSE, fig.pos = "t",
+                      message = FALSE, fig.pos = "H",
                       out.width = "80%",
-                      fig.align = "center")
+                      fig.align = "center",
+                      cache = TRUE)
 ```
 
 \newpage
 
 # Acknowledgments {.unnumbered}
 
-We would like to thank Prof. John Newell for his supervision and guidance throughout this project. We also thank the lead scientist involved in the BioMimics 3D trial for providing clinical and regulatory context that informed the case study analysis.
+We are grateful to Prof. John Newell for his guidance and support throughout this project. We would also like to thank the lead scientist involved in the BioMimics 3D trial, whose clinical and regulatory insight shaped much of the thinking behind this case study.
 
 \newpage
 \tableofcontents
 \newpage
 \listoffigures
+\listoftables
+\newpage
+
+# Abbreviations and Acronyms {.unnumbered}
+
+\begin{tabular}{ll}
+SAP & Statistical Analysis Plan \\
+TVR & Target Vessel Revascularisation \\
+PAD & Peripheral Artery Disease \\
+ESS & Effective Sample Size \\
+\end{tabular}
+
 \newpage
 
 # Introduction
@@ -253,10 +270,10 @@ ggplot() +
            size = 3, colour = col_axis, hjust = 0.5) +
   
   # margin labels
-  annotate("text", x = -0.20, y = 0.45, label = "-\u0394",
-           size = 3, colour = col_axis, hjust = 0.5) +
-  annotate("text", x =  0.20, y = 0.45, label = "+\u0394",
-           size = 3, colour = col_axis, hjust = 0.5) +
+annotate("text", x = -0.20, y = 0.45, label = expression(-Delta),
+         size = 3, colour = col_axis, hjust = 0.5) +
+annotate("text", x =  0.20, y = 0.45, label = expression(+Delta),
+         size = 3, colour = col_axis, hjust = 0.5) +
   
   scale_colour_manual(values = c(
     "Superiority"     = col_sup,
@@ -453,7 +470,7 @@ After observing $s$ events and $f$ non-events in the current trial, the posterio
 
 $$p \mid s, f \sim \text{Beta}(\alpha_0 + s,\; \beta_0 + f)$$
 
-This posterior combines historical and current evidence into a single updated estimate of the true event probability. The influence of the prior relative to the current data is often summarised by its effective sample size, which approximates the number of current observations the prior is equivalent to [@robert_harold_2009; @ibrahim_power_2000; @us_food_and_drug_administration_guidance_2010]. A prior with a large effective sample size concentrates the posterior more tightly around the historical estimate, reducing the number of current patients needed to reach a given level of precision or power [@us_food_and_drug_administration_guidance_2010].
+This posterior combines historical and current evidence into a single updated estimate of the true event probability. The influence of the prior relative to the current data is often summarised by its Effective Sample Size (ESS), which approximates the number of current observations the prior is equivalent to [@robert_harold_2009; @ibrahim_power_2000; @us_food_and_drug_administration_guidance_2010]. A prior with a large ESS concentrates the posterior more tightly around the historical estimate, reducing the number of current patients needed to reach a given level of precision or power [@us_food_and_drug_administration_guidance_2010].
 
 The central assumption underlying any borrowing strategy is exchangeability — the requirement that the historical and current populations are sufficiently similar that combining information across them is scientifically justified [@us_food_and_drug_administration_guidance_2010; @chiaruttini_bayesian_2025]. Where full exchangeability cannot be assumed, partial borrowing approaches allow the historical contribution to be downweighted [@ibrahim_power_2000; @chiaruttini_bayesian_2025]. The power prior of Ibrahim and Chen (2000) formalises this by raising the historical likelihood to a discounting factor $a_0 \in [0,1]$ before forming the prior, with $a_0 = 1$ representing full borrowing and $a_0 = 0$ representing no borrowing [@ibrahim_power_2000]. Adaptive borrowing methods take a data-driven approach, adjusting the degree of borrowing based on the observed compatibility between historical and current data — increasing borrowing when the two are consistent and reducing it when they diverge [@us_food_and_drug_administration_guidance_2010; @chiaruttini_bayesian_2025].
 
@@ -461,19 +478,19 @@ Because borrowing can affect operating characteristics including Type I error an
 
 ## Statistical Analysis Plans in Clinical Trials
 
-A Statistical Analysis Plan (SAP) is a formal document that provides a detailed and technical description of the statistical methods to be used in the analysis of a clinical trial, elaborating on the approaches outlined in the study protocol [@gamble_guidelines_2017; @fradera_statistical_2024]. According to ICH E9, the SAP should be finalised before the unblinded review of data, ensuring that all analytical decisions are made independently of the observed results [@international_council_for_harmonisation_statistical_1998]. This requirement exists because statistical analysis involves choices about endpoints, methods, populations and decision rules that can influence the study's conclusions. Pre-specifying those choices reduces the risk of bias and of inflated Type I error while promoting transparency, reproducibility and scientific integrity. 
+A Statistical Analysis Plan (SAP) is a formal document that provides a detailed and technical description of the statistical methods to be used in the analysis of a clinical trial, elaborating on the approaches outlined in the study protocol [@gamble_guidelines_2017; @fradera_statistical_2024]. According to ICH E9, the SAP should be finalised before the unblinded review of data, ensuring that all analytical decisions are made independently of the observed results [@international_council_for_harmonisation_statistical_1998]. This requirement exists because statistical analysis involves choices about endpoints, methods, populations and decision rules that can influence the study's conclusions. Pre-specifying those choices reduces the risk of bias and of inflated Type I error while promoting transparency, reproducibility and scientific integrity.
 
-Pre-specification is a cornerstone of reproducible clinical research and is expected by regulatory bodies, including the FDA and EMA, in submissions supporting a marketing authorisation [@international_council_for_harmonisation_statistical_1998; @noauthor_medical_2026; @kahan_how_2020]. In single-arm designs, where the absence of randomisation provides less protection against bias, a rigorously developed SAP is particularly important, and any deviations from it must be transparent and justified [@schulz_sample_2005; @gamble_guidelines_2017]. Without a concurrent control group, the conclusion relies on comparing the observed outcomes against a pre-specified benchmark. Consequently, key elements of this comparison — namely the performance goal value, confidence interval method and decision rule — can each independently alter the conclusion [@wang_leveraging_2021; @cao_estimating_2025; @kahan_how_2020]. 
+Pre-specification is a cornerstone of reproducible clinical research and is expected by regulatory bodies, including the FDA and EMA, in submissions supporting a marketing authorisation [@international_council_for_harmonisation_statistical_1998; @noauthor_medical_2026; @kahan_how_2020]. In single-arm designs, where the absence of randomisation provides less protection against bias, a rigorously developed SAP is particularly important, and any deviations from it must be transparent and justified [@schulz_sample_2005; @gamble_guidelines_2017]. Without a concurrent control group, the conclusion relies on comparing the observed outcomes against a pre-specified benchmark. Consequently, key elements of this comparison — namely the performance goal value, confidence interval method and decision rule — can each independently alter the conclusion [@wang_leveraging_2021; @cao_estimating_2025; @kahan_how_2020].
 
-The  implications of these methodological choices for sample size requirements and study feasibility are examined thorugh the BioMimics 3D case study presented throughout this thesis.
+The implications of these methodological choices for sample size requirements and study feasibility are examined thorugh the BioMimics 3D case study presented throughout this thesis.
 
 # Case Study and Data Sources
 
 ## BioMimics 3D Vascular Stent
 
-The BioMimics 3D vascular stent was selected as the primary case study throughout this analysis. The device is a self-expanding, permanent bare-metal nitinol stent developed for the treatment of femoropopliteal peripheral artery disease, a condition characterised by atherosclerotic narrowing of the arteries supplying the lower limb [@rammos_biomimics_2024; @laird_nitinol_2010; @zeller_helical_2016]. In this setting, successful treatment is defined by achieving initial vessel patency and maintaining clinical benefit over time without restenosis, reintervention, amputation or major adverse events [@rocha-singh_performance_2007; @rammos_biomimics_2024; @tepe_local_2008].
+The BioMimics 3D vascular stent was selected as the primary case study throughout this analysis. The device is a self-expanding, permanent bare-metal nitinol stent developed for the treatment of femoropopliteal Peripheral Artery Disease (PAD), a condition characterised by atherosclerotic narrowing of the arteries supplying the lower limb [@rammos_biomimics_2024; @laird_nitinol_2010; @zeller_helical_2016]. In this setting, successful treatment is defined by achieving initial vessel patency and maintaining clinical benefit over time without restenosis, reintervention, amputation or major adverse events [@rocha-singh_performance_2007; @rammos_biomimics_2024; @tepe_local_2008].
 
-Unlike conventional straight stents, the BioMimics 3D stent incorporates a helical geometry intended to mimic the natural curvature and movement of the femoropopliteal artery [@rammos_biomimics_2024; @zeller_helical_2016]. This design is hypothesised to promote blood flow patterns within the treated vessel and reduce the risk of restenosis after implantation [@rammos_biomimics_2024; @zeller_helical_2016]. Consequently, clinically meaningful outcomes such as target vessel revascularisation, amputation and changes in Rutherford classification are important measures of the device's ability to provide sustained therapeutic benefit in patients with symptomatic peripheral artery disease [@rocha-singh_performance_2007; @rammos_biomimics_2024; @laird_nitinol_2010].
+Unlike conventional straight stents, the BioMimics 3D stent incorporates a helical geometry intended to mimic the natural curvature and movement of the femoropopliteal artery [@rammos_biomimics_2024; @zeller_helical_2016]. This design is hypothesised to promote blood flow patterns within the treated vessel and reduce the risk of restenosis after implantation [@rammos_biomimics_2024; @zeller_helical_2016]. Consequently, clinically meaningful outcomes such as Target Vessel Revascularisation (TVR), amputation and changes in Rutherford classification are important measures of the device's ability to provide sustained therapeutic benefit in patients with symptomatic PAD [@rocha-singh_performance_2007; @rammos_biomimics_2024; @laird_nitinol_2010].
 
 Initial meetings with the lead scientist involved in the BioMimics development helped clarify the purpose of the device, the interpretation of clinically meaningful performance, and the practical and statistical constraints most relevant to the design of the pivotal study. This demonstrates the importance of clinical knowledge in informing the statistical design of the trial [@schumi_through_2011; @international_council_for_harmonisation_statistical_1998; @wang_leveraging_2021]. Performance goals, endpoints and sample size that are mathematically convenient but lack clinical relevance do not provide a robust basis for evaluating the device [@international_council_for_harmonisation_statistical_1998; @wang_leveraging_2021; @rocha-singh_performance_2007].
 
@@ -481,11 +498,11 @@ Initial meetings with the lead scientist involved in the BioMimics development h
 
 Endpoint selection was guided by two criteria: clinical relevance to femoropopliteal disease and sufficient historical literature to support defensible performance goals [@wang_leveraging_2021; @rocha-singh_performance_2007]. Candidate endpoints were identified through a targeted review of comparable peripheral vascular device trials and the 2007 guidance document by Rocha-Singh et al. on behalf of VIVA Physicians, which synthesised evidence from three studies of femoropopliteal bare nitinol stents and served as the primary regulatory reference point for this analysis [@rocha-singh_performance_2007; @laird_nitinol_2010; @zeller_helical_2016].
 
-For safety, candidate endpoints were assessed at 30 days and included all-cause mortality, major amputation and target vessel revascularisation. These were combined into a single composite endpoint because each component represents a clinically significant harm and individually the events occurs too infrequently to yield stable estimates [@rocha-singh_performance_2007; @rammos_biomimics_2024; @laird_nitinol_2010].
+For safety, candidate endpoints were assessed at 30 days and included all-cause mortality, major amputation and TVR. These were combined into a single composite endpoint because each component represents a clinically significant harm and individually the events occurs too infrequently to yield stable estimates [@rocha-singh_performance_2007; @rammos_biomimics_2024; @laird_nitinol_2010].
 
-For efficacy, candidate endpoints were assessed at 12 months. Rutherford classification, a clinical scale describing the severity of peripheral artery disease symptoms, was selected because it captures patient-level disease status rather than purely anatomical outcomes [@rocha-singh_performance_2007; @laird_nitinol_2010]. Specifically, improvement or no deterioration in Rutherford score from post-intervention baseline was used, as this reflects whether patients experienced meaningful clinical benefit over the follow-up period [@rocha-singh_performance_2007; @rammos_biomimics_2024].
+For efficacy, candidate endpoints were assessed at 12 months. Rutherford classification, a clinical scale describing the severity of PAD symptoms, was selected because it captures patient-level disease status rather than purely anatomical outcomes [@rocha-singh_performance_2007; @laird_nitinol_2010]. Specifically, improvement or no deterioration in Rutherford score from post-intervention baseline was used, as this reflects whether patients experienced meaningful clinical benefit over the follow-up period [@rocha-singh_performance_2007; @rammos_biomimics_2024].
 
-The selected endpoints were therefore the 30-day composite of all-cause mortality, major amputation and target vessel revascularisation for safety, and improvement or no deterioration in Rutherford classification score at 12 months for efficacy.
+The selected endpoints were therefore the 30-day composite of all-cause mortality, major amputation and TVR for safety, and improvement or no deterioration in Rutherford classification score at 12 months for efficacy.
 
 ## Literature Search and Meta-analysis Data
 
@@ -565,7 +582,7 @@ The application was used to carry out the BioMimics 3D sample size calculations 
 
 The frequentist sample size calculations in Section 4.2 made no use of the historical studies identified in Section 3.3 beyond their role in deriving the performance goal. This section examines whether formally incorporating that evidence as a prior distribution reduces the required sample size relative to the frequentist result obtained in Section 5.3 [@campbell_bayesian_2011; @us_food_and_drug_administration_guidance_2010].
 
-To construct a concrete and interpretable prior, a hypothetical Phase II dataset of 50 participants with 2 observed events was used, producing a $\text{Beta}(2, 48)$ prior with an estimated event proportion of approximately 4% and an effective sample size of 50 [@us_food_and_drug_administration_guidance_2010]. The choice of a hypothetical dataset rather than the historical studies directly was deliberate. As the meta-analysis comprised of only three studies of limited sample sizes, a fully justified prior would be difficult to construct  [@ibrahim_power_2000; @chiaruttini_bayesian_2025; @gamble_guidelines_2017]. The hypothetical prior therefore serves as an illustrative example of how borrowing would operate under plausible assumptions, rather than as a formal design recommendation [@campbell_bayesian_2011; @chiaruttini_bayesian_2025].
+To construct a concrete and interpretable prior, a hypothetical Phase II dataset of 50 participants with 2 observed events was used, producing a $\text{Beta}(2, 48)$ prior with an estimated event proportion of approximately 4% and an EES of 50 [@us_food_and_drug_administration_guidance_2010]. The choice of a hypothetical dataset rather than the historical studies directly was deliberate. As the meta-analysis comprised of only three studies of limited sample sizes, a fully justified prior would be difficult to construct [@ibrahim_power_2000; @chiaruttini_bayesian_2025; @gamble_guidelines_2017]. The hypothetical prior therefore serves as an illustrative example of how borrowing would operate under plausible assumptions, rather than as a formal design recommendation [@campbell_bayesian_2011; @chiaruttini_bayesian_2025].
 
 Under the Beta-Binomial model introduced in Section 2.5, incorporating $s$ events and $f$ non-events from the current trial updates the prior to [@robert_harold_2009; @us_food_and_drug_administration_guidance_2010]:
 
@@ -577,7 +594,7 @@ $$P(p < p_0 \mid s, f) \geq 0.95$$
 
 The required sample size was determined as the smallest $n$ for which this criterion was satisfied with at least 90% probability under the assumed true event proportion of 5%, consistent with the frequentist design assumptions in Section 4.2 [@chow_sample_2017; @us_food_and_drug_administration_guidance_2010].
 
-To examine sensitivity to prior weight, three prior distributions were compared: $\text{Beta}(0.2, 4.8)$, $\text{Beta}(2, 48)$ and $\text{Beta}(20, 480)$, encoding the same event ratio of approximately 1:24 but corresponding to effective sample sizes of approximately 5, 50 and 500, representing weak, moderate and strong borrowing respectively [@ibrahim_power_2000; @chiaruttini_bayesian_2025; @gamble_guidelines_2017].
+To examine sensitivity to prior weight, three prior distributions were compared: $\text{Beta}(0.2, 4.8)$, $\text{Beta}(2, 48)$ and $\text{Beta}(20, 480)$, encoding the same event ratio of approximately 1:24 but corresponding to ESS of approximately 5, 50 and 500, representing weak, moderate and strong borrowing respectively [@ibrahim_power_2000; @chiaruttini_bayesian_2025; @gamble_guidelines_2017].
 
 \newpage
 
@@ -587,7 +604,7 @@ To examine sensitivity to prior weight, three prior distributions were compared:
 
 The meta-analysis of the three femoropopliteal bare nitinol stent studies described in Section 3.3 produced pooled estimates for both endpoints. The results are summarised in Figures 3 and 4.
 
-```{r performance-goals-table, echo=FALSE, message=FALSE, warning=FALSE}
+```{r performance-goals-table, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%"}
 library(kableExtra)
 
 pg_tbl <- data.frame(
@@ -608,13 +625,13 @@ kbl(pg_tbl, booktabs = TRUE, escape = FALSE, align = "lcccc", linesep = "",
   pack_rows("Efficacy Endpoints", 2, 2, background = "#6B4A2A", color = "white", bold = TRUE)
 ```
 
-```{r forest-plot, echo=FALSE, fig.pos="H", fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints. The diamond denotes the pooled estimate and the dashed red line indicates the derived performance goal.", out.width="90%"}
+```{r forest-plot, echo=FALSE, fig.pos="H", fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints.", out.width="80%"}
 knitr::include_graphics("Figures/forest_plot_pooled_estimates.png")
 ```
 
-The heterogeneity statistics for both endpoints are reported in Figure 5.
+The heterogeneity statistics for both endpoints are reported in Tables 2 and 3.
 
-```{r heterogeneity-A, echo=FALSE, message=FALSE, warning=FALSE}
+```{r heterogeneity-A, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%"}
 library(kableExtra)
 het_A <- data.frame(
   Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
@@ -629,7 +646,7 @@ kbl(het_A, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
   column_spec(1, width = "3cm")
 ```
 
-```{r heterogeneity-B, echo=FALSE, message=FALSE, warning=FALSE}
+```{r heterogeneity-B, echo=FALSE, message=FALSE, warning=FALSE, out.width="80%"}
 het_B <- data.frame(
   Measure         = c("$\\tau^2$", "$I^2$", "H", "Q (Wald)", "Q (LRT)"),
   Value           = c("0.00", "0.0\\%", "1.00", "1.31", "NA"),
@@ -669,17 +686,17 @@ The combined overlay for $n = 100$ shows all six methods on the same axes, illus
 
 The coverage-width scatter plots summarise the trade-off between average coverage probability and average expected interval width at each sample size.
 
-```{r coverage-width-n20, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 20. The dashed red line indicates the 95% target coverage.", out.width="80%"}
+```{r coverage-width-n20, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 20.", out.width="80%"}
 knitr::include_graphics("Figures/coverage_width_n20.png")
 ```
 
 At $n = 20$, the Wald interval produced average coverage of approximately 0.73 with an average width of approximately 0.21. Wilson Score and Jeffreys sat at or just above the nominal line with average widths of approximately 0.24 and 0.25 respectively. Clopper-Pearson and Wilson Score with continuity correction sat above the nominal line with average widths of approximately 0.29 and 0.30.
 
-```{r coverage-width-n50, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 50. The dashed red line indicates the 95% target coverage.", out.width="80%"}
+```{r coverage-width-n50, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 50.", out.width="80%"}
 knitr::include_graphics("Figures/coverage_width_n50.png")
 ```
 
-```{r coverage-width-n100, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 100. The dashed red line indicates the 95% target coverage.", out.width="80%"}
+```{r coverage-width-n100, echo=FALSE, fig.cap="Average coverage probability against average expected interval width at n = 100.", out.width="80%"}
 knitr::include_graphics("Figures/coverage_width_n100.png")
 ```
 
@@ -693,15 +710,13 @@ $$H_0: p \geq 0.11 \qquad H_1: p < 0.11$$
 
 The Clopper-Pearson interval was used as the primary method for the main sample size calculation. This choice was made partly on the basis of the simulation results in Section 5.2, which showed Clopper-Pearson to be the most conservative method with guaranteed nominal coverage, and additionally because the exact binomial method underlying the Clopper-Pearson interval is the default approach used in widely adopted sample size software including PASS and nQuery [@brown_interval_2001; @clopper_use_1934; @noauthor_pass_nodate; @elashoff_nquery_nodate].
 
-```{r power-curve-cp, echo=FALSE, fig.cap="Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7%. The dashed line indicates the 90% target power. The decision rule is to reject H0 if no more than 14 of 209 patients experience the composite endpoint.", out.width="90%"}
+```{r power-curve-cp, echo=FALSE, fig.cap="Power curve for the BioMimics 3D 30-day composite safety endpoint produced by PG-Power using the Clopper-Pearson method. The green point marks the required evaluable sample size of n = 209, at which achieved power was 89.7%.", out.width="90%"}
 knitr::include_graphics("Figures/power_curve_clopper_pearson.png")
 ```
 
 The required sample size varied across the six confidence interval methods evaluated under the same design assumptions, as summarised in the table below.
 
-<!-- INSERT TABLE HERE: CI method comparison table from PG-Power -->
-
-```{r sample-size-table, echo=FALSE, fig.cap="Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, target power 90%), produced by PG-Power. Clopper-Pearson was used as the primary method.", out.width="100%"}
+```{r sample-size-table, echo=FALSE, fig.cap="Required evaluable sample size and achieved power for six confidence interval methods under the BioMimics 3D safety endpoint design assumptions. Produced by PG-Power. Clopper-Pearson was set as the primary method.", out.width="80%"}
 knitr::include_graphics("Figures/sample_size_comparison_table.png")
 ```
 
@@ -711,7 +726,7 @@ Among the remaining methods, Jeffreys required 198 patients with achieved power 
 
 Notably, Wilson Score required only one fewer patient than Clopper-Pearson but achieved considerably lower power at 83.9% versus 89.7%. The difference between the Clopper-Pearson (209 patients) and Wilson Score with continuity correction (247 patients), represents 38 additional evaluable patients or approximately 42 additional enrolments after dropout adjustment.
 
-```{r ci-diagram, echo=FALSE, fig.cap="Confidence intervals for the observed event proportion across all six methods at n = 209 with 14 observed events, produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11%. All six methods produce an upper bound below the performance goal at the decision boundary.", out.width="100%"}
+```{r ci-diagram, echo=FALSE, fig.cap="Confidence intervals for the observed event proportion across all six methods at n = 209. Produced by PG-Power under the BioMimics 3D safety endpoint design assumptions. The dashed vertical line indicates the performance goal of 11%.", out.width="100%"}
 knitr::include_graphics("Figures/ci_diagram_all_methods.png")
 ```
 
@@ -721,7 +736,7 @@ A full report generated by the PG-Power application for these design assumptions
 
 Under the $\text{Beta}(2, 48)$ prior and the design assumptions described in Section 4.4, the required evaluable sample size was $n = 79$, permitting no more than 4 observed events. This represents a reduction of 130 patients, approximately 62%, relative to the Clopper-Pearson frequentist result of 209 from Section 5.3.
 
-```{r bayesian-power, echo=FALSE, fig.cap="Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90%). The red point marks the required evaluable sample size of n = 79.", out.width="90%"}
+```{r bayesian-power, echo=FALSE, fig.cap="Bayesian power curve for the BioMimics 3D 30-day composite safety endpoint under a Beta(2, 48) prior (performance goal p0 = 0.11, assumed true proportion p1 = 0.05, one-sided alpha = 0.025, decision threshold 0.95, target power 90%).", out.width="90%"}
 knitr::include_graphics("Figures/bayesian_power_curve.png")
 ```
 
@@ -729,7 +744,7 @@ The power curve illustrates how achieved power evolves across candidate sample s
 
 The sensitivity of this result to prior weight is shown in the figure below. All three distributions, $\text{Beta}(0.2, 4.8)$, $\text{Beta}(2, 48)$ and $\text{Beta}(20, 480)$, encode the same underlying event ratio but differ substantially in how strongly they concentrate the posterior.
 
-```{r prior-weight, echo=FALSE, fig.cap="Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24) but increasing effective sample sizes of 5, 50 and 500. The dashed vertical line indicates the performance goal of 0.11. Greater prior weight concentrates the posterior further from the performance goal, reducing the required sample size but increasing sensitivity to the exchangeability assumption.", out.width="90%"}
+```{r prior-weight, echo=FALSE, fig.cap="Effect of prior weight on the posterior distribution of the true event proportion theta under three Beta priors with the same event ratio (1:24).", out.width="90%"}
 knitr::include_graphics("Figures/prior_weight_sensitivity.png")
 ```
 
@@ -769,7 +784,7 @@ The PG-Power application provided a transparent and reproducible implementation 
 
 Incorporating a $\text{Beta}(2, 48)$ prior based on a hypothetical Phase II dataset of 50 patients with 2 observed events reduced the required sample size from 209 to 79 patients, a reduction of approximately 62% under the same design assumptions. This illustrates the potential efficiency gains that historical borrowing can offer in a medical device setting where recruitment is costly and historical evidence from comparable devices is available.
 
-However, the magnitude of this reduction is sensitive to the weight assigned to the prior. Increasing the effective sample size from 5 to 500 while holding the event ratio constant progressively concentrates the posterior around the historical estimate, reducing the required sample size but increasing dependence on the exchangeability assumption and the validity of the historical data. This is particularly relevant when the prior is informed by early-phase evidence, where bias and uncertainty may be greater than in confirmatory studies.
+However, the magnitude of this reduction is sensitive to the weight assigned to the prior. Increasing the EES from 5 to 500 while holding the event ratio constant progressively concentrates the posterior around the historical estimate, reducing the required sample size but increasing dependence on the exchangeability assumption and the validity of the historical data. This is particularly relevant when the prior is informed by early-phase evidence, where bias and uncertainty may be greater than in confirmatory studies.
 
 When the prior is strongly informative and the historical exchangeability between historical and current populations does not hold or the validity of the historical data is under question, the posterior may be overly influenced, inflating the Type I error rate and undermining the validity of the trial conclusion [@ibrahim_power_2000; @chiaruttini_bayesian_2025; @gamble_guidelines_2017]. The choice of prior weight is therefore a substantive design choice rather than a technical detail.
 
@@ -819,7 +834,7 @@ This thesis examined how three interconnected statistical choices, the performan
 
 The meta-analysis of three historical femoropopliteal nitinol stent studies yielded pooled estimates of approximately 6% for the 30-day composite safety endpoint and 95.8% for the 12-month Rutherford classification efficacy endpoint. Deriving performance goals from confidence interval boundaries rather than point estimates produced benchmarks of 12% for safety and 88% for efficacy, acknowledging the uncertainty inherent in a small and imprecise historical evidence base. The width of the uncertainty around these estimates illustrated that performance goals are rarely as settled as they appear when reported as single values, and that the reasoning behind them carries as much weight as the numbers themselves.
 
-The simulation study showed that confidence interval method choice has a consistent and meaningful effect on coverage behaviour at the low event proportions characteristic of medical device safety endpoints. The Wald interval consistently fell below the nominal 95% coverage level making it unsuitable for this setting [@brown_interval_2001]. Wilson Score and Jeffreys achieved coverage closest to the nominal level with relatively narrow intervals, while Clopper-Pearson, Agresti-Coull and the continuity-corrected Wilson Score provided conservative coverage with wider intervals. These differences translated directly into differences in sample size requirements, ranging from 169 patients under the Wald to 247 patients under the continuity-corrected Wilson Score under identical design assumptions. 
+The simulation study showed that confidence interval method choice has a consistent and meaningful effect on coverage behaviour at the low event proportions characteristic of medical device safety endpoints. The Wald interval consistently fell below the nominal 95% coverage level making it unsuitable for this setting [@brown_interval_2001]. Wilson Score and Jeffreys achieved coverage closest to the nominal level with relatively narrow intervals, while Clopper-Pearson, Agresti-Coull and the continuity-corrected Wilson Score provided conservative coverage with wider intervals. These differences translated directly into differences in sample size requirements, ranging from 169 patients under the Wald to 247 patients under the continuity-corrected Wilson Score under identical design assumptions.
 
 The Bayesian historical borrowing analysis demonstrated that incorporating prior evidence through a $\text{Beta}(2, 48)$ prior reduced the required sample size from 209 to 79 patients, a reduction of approximately 62%. This reduction was sensitive to the credibility of the historical evidence informing the prior and the weight assigned to the prior. Stronger borrowing increased dependence on the exchangeability assumption in ways that risk inflating the Type I error rate. The analysis established the potential of Bayesian borrowing as a complementary approach to the frequentist framework, contingent on careful prior specification and formal exchangeability assessment.
 
