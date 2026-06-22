@@ -10,22 +10,21 @@ abstract: |
   Single-arm performance goal studies are widely used in medical device evaluation when a 
   randomised active-control trial is impractical or ethically unjustifiable. The trial conclusion depends on whether a pre-specified performance goal is met, as determined by a hypothesis test or confidence interval procedure applied to the observed outcome. Despite 
   their apparent simplicity, the conclusions of such studies are sensitive to three 
-  interconnected methodological choices: the derivation and value of the performance goal, the confidence interval method used to construct the decision rule and the sample size calculation 
-  underlying the study design. This thesis examines each of these choices in the context of 
+  interconnected methodological choices: the derivation and value of the performance goal, the confidence interval method used to construct the decision rule and the assumptions underlying the sample size calculation. This thesis examines each of these choices in the context of 
   a retrospective case study of a vascular stent developed for the treatment of femoropopliteal peripheral artery disease.
 
   Performance goals for a 30-day composite safety endpoint and a 12-month Rutherford 
   classification efficacy endpoint were derived through a
   meta-analysis of three historical femoropopliteal bare nitinol stent studies comprising 
-  116 patients. Confidence interval boundaries rather than point estimates were used
+  116 patients. Confidence interval boundaries rather than point estimates were proposed
   to account for uncertainty in the historical evidence yielded a maximum acceptable 30-day 
   composite adverse event proportion of 12% and a minimum acceptable 12-month Rutherford success 
   proportion of 88%. The limited evidence base produced wide uncertainty around both 
   estimates, illustrating that performance goals carry inherent uncertainty that is not 
-  always visible when they are reported as fixed values.
+  always evident when they are reported as fixed values.
 
   A simulation study evaluated six confidence interval methods for binary proportions across 
-  a grid of true event proportions and sample sizes relevant to  case study endpoints which are on the margins of a probabilistic range (e.g. near zero). The 
+  a grid of true event proportions and sample sizes relevant to  case study endpoints that lie near the margins of a probabilistic range (e.g. near zero). The 
   Wald consistently fell below the nominal 95% coverage level 
   making it unsuitable for this setting. Among the remaining methods, 
   Wilson Score and Jeffreys achieved coverage closest to the nominal level with the relatively narrow intervals, while Clopper-Pearson, Agresti-Coull and the continuity-corrected Wilson Score 
@@ -616,9 +615,9 @@ The meta-analysis of the three femoropopliteal bare nitinol stent studies descri
 library(kableExtra)
 
 pg_tbl <- data.frame(
-  Endpoint           = c("Composite (Death, Amputation, TVR)", "RCC: Improved or No Change"),
+  Endpoint           = c("Composite (Death, Amputation, TVR)", "RCC (Improved, No Change)"),
   Timepoint          = c("30 Days", "12 Months"),
-  `Pooled Rate`      = c("6.0\\%", "95.8\\%"),
+  `Pooled Proportion` = c("6.0\\%", "95.8\\%"),
   `95\\% CI`         = c("[2.9, 12.1\\%]", "[87.9, 98.6\\%]"),
   `Performance Goal` = c("$\\leq$ 12\\%", "$\\geq$ 88\\%"),
   check.names = FALSE
@@ -627,10 +626,10 @@ pg_tbl <- data.frame(
 kbl(pg_tbl, booktabs = TRUE, escape = FALSE, align = "lcccc", linesep = "",
     caption = "Performance Goals for Safety and Efficacy") |>
   kable_styling(latex_options = "HOLD_position", full_width = FALSE, font_size = 11) |>
+  row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
   column_spec(1, width = "5.2cm") |>
-  column_spec(5, bold = TRUE) |>
-  pack_rows("Safety Endpoints",   1, 1, background = "#4A4A6A", color = "white", bold = TRUE) |>
-  pack_rows("Efficacy Endpoints", 2, 2, background = "#6B4A2A", color = "white", bold = TRUE)
+  pack_rows("Safety Endpoints",   1, 1, background = "#4A4A6A", color = "white", bold = FALSE) |>
+  pack_rows("Efficacy Endpoints", 2, 2, background = "#6B4A2A", color = "white", bold = FALSE)
 ```
 
 ```{r forest-plot, echo=FALSE, fig.pos="H", fig.cap="Pooled event proportions with 95% confidence intervals for the safety and efficacy endpoints.", out.width="80%"}
