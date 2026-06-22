@@ -1,54 +1,51 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.2) (preloaded format=xelatex 2026.6.12)  19 JUN 2026 09:47
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.13)  22 JUN 2026 09:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./Write_Up_Markdown_Script.tex
-(Write_Up_Markdown_Script.tex
-LaTeX2e <2025-11-01>
-L3 programming layer <2026-01-19>
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+**Write_Up_Markdown_Script.tex
+(./Write_Up_Markdown_Script.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-05-26>
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.clo
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/size10.clo
 File: size10.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
 )
-\c@part=\count271
-\c@section=\count272
-\c@subsection=\count273
-\c@subsubsection=\count274
-\c@paragraph=\count275
-\c@subparagraph=\count276
-\c@figure=\count277
-\c@table=\count278
+\c@part=\count273
+\c@section=\count274
+\c@subsection=\count275
+\c@subsubsection=\count276
+\c@paragraph=\count277
+\c@subparagraph=\count278
+\c@figure=\count279
+\c@table=\count280
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
-\bibindent=\dimen148
-) (arxiv.sty (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/geometry\g
-eometry.sty
-Package: geometry 2020/01/02 v5.9 Page Geometry
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
-Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\bibindent=\dimen150
+) (./arxiv.sty (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/iftex/ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2024/12/12 v1.0g TeX engine tests
 ))
-\Gm@cnth=\count279
-\Gm@cntv=\count280
-\c@Gm@tempcnt=\count281
-\Gm@bindingoffset=\dimen149
-\Gm@wd@mp=\dimen150
-\Gm@odd@mp=\dimen151
-\Gm@even@mp=\dimen152
-\Gm@layoutwidth=\dimen153
-\Gm@layoutheight=\dimen154
-\Gm@layouthoffset=\dimen155
-\Gm@layoutvoffset=\dimen156
+\Gm@cnth=\count281
+\Gm@cntv=\count282
+\c@Gm@tempcnt=\count283
+\Gm@bindingoffset=\dimen151
+\Gm@wd@mp=\dimen152
+\Gm@odd@mp=\dimen153
+\Gm@even@mp=\dimen154
+\Gm@layoutwidth=\dimen155
+\Gm@layoutheight=\dimen156
+\Gm@layouthoffset=\dimen157
+\Gm@layoutvoffset=\dimen158
 \Gm@dimlist=\toks18
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
-
 \f@nch@headwidth=\skip51
 \f@nch@offset@elh=\skip52
 \f@nch@offset@erh=\skip53
@@ -67,20 +64,19 @@ Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
 )
 \@abovecaptionskip=\skip65
 \@belowcaptionskip=\skip66
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2024/02/08 v1.3d Input encoding file
 \inpenc@prehook=\toks20
 \inpenc@posthook=\toks21
 
 Package inputenc Warning: inputenc package ignored with utf8 based engines.
 
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
-LaTeX Font Info:    Trying to load font information for T1+ptm on input line 11
-6.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1ptm.fd
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 116.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
-)) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
+)) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
@@ -114,147 +110,123 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
-Package: hyperref 2026-01-29 v7.01p Hypertext links for LaTeX
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-04-24 v7.01q Hypertext links for LaTeX
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
-keys.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
-ty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
-.sty
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
-)
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
-ty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode not found.
-)) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+)) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
-lestring.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count282
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
+\c@section@level=\count284
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count283
+\etb@tempcnta=\count285
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
 )
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
-ty
-Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
-)
-)
-\@linkdim=\dimen157
-\Hy@linkcounter=\count284
-\Hy@pagecounter=\count285
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
-File: pd1enc.def 2026-01-29 v7.01p Hyperref: PDFDocEncoding definition (HO)
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+\@linkdim=\dimen159
+\Hy@linkcounter=\count286
+\Hy@pagecounter=\count287
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-04-24 v7.01q Hyperref: PDFDocEncoding definition (HO)
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count286
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
-File: puenc.def 2026-01-29 v7.01p Hyperref: PDF Unicode definition (HO)
+\Hy@SavedSpaceFactor=\count288
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-04-24 v7.01q Hyperref: PDF Unicode definition (HO)
 )
-Package hyperref Info: Hyper figures OFF on input line 4201.
-Package hyperref Info: Link nesting OFF on input line 4206.
-Package hyperref Info: Hyper index ON on input line 4209.
-Package hyperref Info: Plain pages OFF on input line 4216.
-Package hyperref Info: Backreferencing OFF on input line 4221.
+Package hyperref Info: Hyper figures OFF on input line 4199.
+Package hyperref Info: Link nesting OFF on input line 4204.
+Package hyperref Info: Hyper index ON on input line 4207.
+Package hyperref Info: Plain pages OFF on input line 4214.
+Package hyperref Info: Backreferencing OFF on input line 4219.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4468.
-\c@Hy@tempcnt=\count287
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+Package hyperref Info: Bookmarks ON on input line 4466.
+\c@Hy@tempcnt=\count289
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
-LaTeX Info: Redefining \url on input line 4807.
-\XeTeXLinkMargin=\dimen158
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+LaTeX Info: Redefining \url on input line 4805.
+\XeTeXLinkMargin=\dimen160
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
-.sty
-Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
-)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count288
-\Field@Width=\dimen159
-\Fld@charsize=\dimen160
-Package hyperref Info: Hyper figures OFF on input line 6084.
-Package hyperref Info: Link nesting OFF on input line 6089.
-Package hyperref Info: Hyper index ON on input line 6092.
-Package hyperref Info: backreferencing OFF on input line 6099.
-Package hyperref Info: Link coloring OFF on input line 6104.
-Package hyperref Info: Link coloring with OCG OFF on input line 6109.
-Package hyperref Info: PDF/A mode OFF on input line 6114.
-\Hy@abspage=\count289
-\c@Item=\count290
-\c@Hfootnote=\count291
+\Fld@menulength=\count290
+\Field@Width=\dimen161
+\Fld@charsize=\dimen162
+Package hyperref Info: Hyper figures OFF on input line 6091.
+Package hyperref Info: Link nesting OFF on input line 6096.
+Package hyperref Info: Hyper index ON on input line 6099.
+Package hyperref Info: backreferencing OFF on input line 6106.
+Package hyperref Info: Link coloring OFF on input line 6111.
+Package hyperref Info: Link coloring with OCG OFF on input line 6116.
+Package hyperref Info: PDF/A mode OFF on input line 6121.
+\Hy@abspage=\count291
+\c@Item=\count292
+\c@Hfootnote=\count293
 )
 Package hyperref Info: Driver (autodetected): hxetex.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hxetex.def
-File: hxetex.def 2026-01-29 v7.01p Hyperref driver for XeTeX
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/hyperref/hxetex.def
+File: hxetex.def 2026-04-24 v7.01q Hyperref driver for XeTeX
 \pdfm@box=\box53
-\c@Hy@AnnotLevel=\count292
-\HyField@AnnotCount=\count293
-\Fld@listcount=\count294
-\c@bookmark@seq@number=\count295
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
-echeck.sty
+\c@Hy@AnnotLevel=\count294
+\HyField@AnnotCount=\count295
+\Fld@listcount=\count296
+\c@bookmark@seq@number=\count297
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
-ounter.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
-Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
-84.
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
 )
 \Hy@SectionHShift=\skip67
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen161
-\lightrulewidth=\dimen162
-\cmidrulewidth=\dimen163
-\belowrulesep=\dimen164
-\belowbottomsep=\dimen165
-\aboverulesep=\dimen166
-\abovetopsep=\dimen167
-\cmidrulesep=\dimen168
-\cmidrulekern=\dimen169
-\defaultaddspace=\dimen170
-\@cmidla=\count296
-\@cmidlb=\count297
-\@aboverulesep=\dimen171
-\@belowrulesep=\dimen172
-\@thisruleclass=\count298
-\@lastruleclass=\count299
-\@thisrulewidth=\dimen173
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+\heavyrulewidth=\dimen163
+\lightrulewidth=\dimen164
+\cmidrulewidth=\dimen165
+\belowrulesep=\dimen166
+\belowbottomsep=\dimen167
+\aboverulesep=\dimen168
+\abovetopsep=\dimen169
+\cmidrulesep=\dimen170
+\cmidrulekern=\dimen171
+\defaultaddspace=\dimen172
+\@cmidla=\count298
+\@cmidlb=\count299
+\@aboverulesep=\dimen173
+\@belowrulesep=\dimen174
+\@thisruleclass=\count300
+\@lastruleclass=\count301
+\@thisrulewidth=\dimen175
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \@emptytoks=\toks22
 \symAMSa=\mathgroup4
@@ -262,144 +234,128 @@ Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/units\nicefrac.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/units/nicefrac.sty
 Package: nicefrac 1998/08/04 v0.9b Nice fractions
 \L@UnitsRaiseDisplaystyle=\skip68
 \L@UnitsRaiseTextstyle=\skip69
 \L@UnitsRaiseScriptstyle=\skip70
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
-))
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
-Package: microtype 2025/07/09 v3.2b Micro-typographical refinements (RS)
+)) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/microtype.sty
+Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
 \MT@toks=\toks23
 \MT@tempbox=\box54
-\MT@count=\count300
-LaTeX Info: Redefining \noprotrusionifhmode on input line 1087.
-LaTeX Info: Redefining \leftprotrusion on input line 1088.
+\MT@count=\count302
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
+LaTeX Info: Redefining \leftprotrusion on input line 1085.
 \MT@prot@toks=\toks24
-LaTeX Info: Redefining \rightprotrusion on input line 1107.
+LaTeX Info: Redefining \rightprotrusion on input line 1104.
 LaTeX Info: Redefining \textls on input line 1449.
-\MT@outer@kern=\dimen174
+\MT@outer@kern=\dimen176
 LaTeX Info: Redefining \microtypecontext on input line 2053.
 LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
-\MT@listname@count=\count301
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-xet
-ex.def
-File: microtype-xetex.def 2025/07/09 v3.2b Definitions specific to xetex (RS)
+\MT@listname@count=\count303
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/microtype-xetex.def
+File: microtype-xetex.def 2026/03/01 v3.2d Definitions specific to xetex (RS)
 LaTeX Info: Redefining \lsstyle on input line 443.
 LaTeX Info: Redefining \lslig on input line 451.
 \MT@outer@space=\skip71
 )
 Package microtype Info: Loading configuration file microtype.cfg.
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg
-File: microtype.cfg 2025/07/09 v3.2b microtype main configuration file (RS)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/microtype.cfg
+File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
 )
 LaTeX Info: Redefining \microtypesetup on input line 3065.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
-Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2026-05-17 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2026-05-17 v1.4h Standard LaTeX Graphics (DPC,SPQR)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
-fg
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: xetex.def on input line 106.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\xetex.def
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics-def/xetex.def
 File: xetex.def 2025/11/01 v5.0p Graphics/color driver for xetex
 ))
-\Gin@req@height=\dimen175
-\Gin@req@width=\dimen176
+\Gin@req@height=\dimen177
+\Gin@req@width=\dimen178
 )
 \cslhangindent=\skip72
 \csllabelwidth=\skip73
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
-\calc@Acount=\count302
-\calc@Bcount=\count303
-\calc@Adimen=\dimen177
-\calc@Bdimen=\dimen178
+\calc@Acount=\count304
+\calc@Bcount=\count305
+\calc@Adimen=\dimen179
+\calc@Bdimen=\dimen180
 \calc@Askip=\skip74
 \calc@Bskip=\skip75
 LaTeX Info: Redefining \setlength on input line 86.
 LaTeX Info: Redefining \addtolength on input line 87.
-\calc@Ccount=\count304
+\calc@Ccount=\count306
 \calc@Cskip=\skip76
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec.sty
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
-e.sty (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.st
-y
-Package: expl3 2026-01-19 L3 programming layer (loader) 
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-xet
-ex.def
-File: l3backend-xetex.def 2025-10-09 L3 backend support: XeTeX
-\g__graphics_track_int=\count305
-\g__pdfannot_backend_int=\count306
-\g__pdfannot_backend_link_int=\count307
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec.sty (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/l3packages/xparse/xparse.sty (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2026-05-26 L3 programming layer (loader) 
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
+File: l3backend-xetex.def 2026-02-18 L3 backend support: XeTeX
+\g__graphics_track_int=\count307
+\g__pdfannot_backend_int=\count308
+\g__pdfannot_backend_link_int=\count309
 ))
 Package: xparse 2025-10-09 L3 Experimental document command parser
 )
 Package: fontspec 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTeX
-
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec-xetex
-.sty
-Package: fontspec-xetex 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTe
-X
-\l__fontspec_script_int=\count308
-\l__fontspec_language_int=\count309
-\l__fontspec_strnum_int=\count310
-\l__fontspec_tmp_int=\count311
-\l__fontspec_tmpa_int=\count312
-\l__fontspec_tmpb_int=\count313
-\l__fontspec_tmpc_int=\count314
-\l__fontspec_em_int=\count315
-\l__fontspec_emdef_int=\count316
-\l__fontspec_strong_int=\count317
-\l__fontspec_strongdef_int=\count318
-\l__fontspec_tmpa_dim=\dimen179
-\l__fontspec_tmpb_dim=\dimen180
-\l__fontspec_tmpc_dim=\dimen181
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec-xetex.sty
+Package: fontspec-xetex 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTeX
+\l__fontspec_script_int=\count310
+\l__fontspec_language_int=\count311
+\l__fontspec_strnum_int=\count312
+\l__fontspec_tmp_int=\count313
+\l__fontspec_tmpa_int=\count314
+\l__fontspec_tmpb_int=\count315
+\l__fontspec_tmpc_int=\count316
+\l__fontspec_em_int=\count317
+\l__fontspec_emdef_int=\count318
+\l__fontspec_strong_int=\count319
+\l__fontspec_strongdef_int=\count320
+\l__fontspec_tmpa_dim=\dimen181
+\l__fontspec_tmpb_dim=\dimen182
+\l__fontspec_tmpc_dim=\dimen183
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec.cfg
-))) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec.cfg))) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count319
+\c@float@type=\count321
 \float@exts=\toks25
 \float@box=\box55
 \@float@everytoks=\toks26
 \@floatcapt=\box56
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
-Package: amsmath 2025/07/09 v2.17z AMS math features
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2026/05/19 v2.18d AMS math features
 \@mathmargin=\skip77
 For additional information on amsmath, use the `?' option.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2024/11/17 v2.01 AMS text
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks27
-\ex@=\dimen182
-)) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+\ex@=\dimen184
+)) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen183
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+\pmbraise@=\dimen185
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count320
+\inf@bad=\count322
 LaTeX Info: Redefining \frac on input line 233.
-\uproot@=\count321
-\leftroot@=\count322
+\uproot@=\count323
+\leftroot@=\count324
 LaTeX Info: Redefining \overline on input line 398.
 LaTeX Info: Redefining \colon on input line 409.
-\classnum@=\count323
-\DOTSCASE@=\count324
+\classnum@=\count325
+\DOTSCASE@=\count326
 LaTeX Info: Redefining \ldots on input line 495.
 LaTeX Info: Redefining \dots on input line 498.
 LaTeX Info: Redefining \cdots on input line 619.
@@ -409,39 +365,39 @@ LaTeX Info: Redefining \big on input line 721.
 LaTeX Info: Redefining \Big on input line 722.
 LaTeX Info: Redefining \bigg on input line 723.
 LaTeX Info: Redefining \Bigg on input line 724.
-\big@size=\dimen184
+\big@size=\dimen186
 LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
-\macc@depth=\count325
+\macc@depth=\count327
 LaTeX Info: Redefining \bmod on input line 904.
 LaTeX Info: Redefining \pmod on input line 909.
 LaTeX Info: Redefining \smash on input line 939.
 LaTeX Info: Redefining \relbar on input line 969.
 LaTeX Info: Redefining \Relbar on input line 970.
-\c@MaxMatrixCols=\count326
+\c@MaxMatrixCols=\count328
 \dotsspace@=\muskip18
-\c@parentequation=\count327
-\dspbrk@lvl=\count328
+\c@parentequation=\count329
+\dspbrk@lvl=\count330
 \tag@help=\toks28
-\row@=\count329
-\column@=\count330
-\maxfields@=\count331
+\row@=\count331
+\column@=\count332
+\maxfields@=\count333
 \andhelp@=\toks29
-\eqnshift@=\dimen185
-\alignsep@=\dimen186
-\tagshift@=\dimen187
-\tagwidth@=\dimen188
-\totwidth@=\dimen189
-\lineht@=\dimen190
+\eqnshift@=\dimen187
+\alignsep@=\dimen188
+\tagshift@=\dimen189
+\tagwidth@=\dimen190
+\totwidth@=\dimen191
+\lineht@=\dimen192
 \@envbody=\toks30
 \multlinegap=\skip78
 \multlinetaggap=\skip79
 \mathdisplay@stack=\toks31
-LaTeX Info: Redefining \[ on input line 2950.
-LaTeX Info: Redefining \] on input line 2951.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+LaTeX Info: Redefining \[ on input line 2965.
+LaTeX Info: Redefining \] on input line 2966.
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/tools\bm.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tools/bm.sty
 Package: bm 2025/10/21 v1.2g Bold Symbol Support (DPC/FMi)
 \symboldoperators=\mathgroup6
 \symboldletters=\mathgroup7
@@ -450,22 +406,22 @@ Package bm Info: No bold for \OMX/lmex/m/n, using \pmb.
 Package bm Info: No bold for \U/msa/m/n, using \pmb.
 Package bm Info: No bold for \U/msb/m/n, using \pmb.
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
-Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
-\col@sep=\dimen191
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tools/array.sty
+Package: array 2026/02/24 v2.7b Tabular extension package (FMi)
+\col@sep=\dimen193
 \ar@mcellbox=\box59
-\extrarowheight=\dimen192
+\extrarowheight=\dimen194
 \NC@list=\toks32
 \extratabsurround=\skip80
 \backup@length=\skip81
 \ar@cellbox=\box60
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: xetex.def on input line 274.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
 Package xcolor Info: Model `RGB' extended on input line 1365.
 Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
@@ -474,43 +430,42 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/colortbl\colortbl.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty
 Package: colortbl 2026/05/01 v1.0l Color table columns (DPC)
-\everycr=\toks33
+new hooks used!!
 \minrowclearance=\skip82
-\rownum=\count332
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty
+\rownum=\count334
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2022/12/04 v6.7b set line spacing
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2023/08/05 v3.6o Customizing captions (AR)
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
-\caption@tempdima=\dimen193
-\captionmargin=\dimen194
-\caption@leftmargin=\dimen195
-\caption@rightmargin=\dimen196
-\caption@width=\dimen197
-\caption@indent=\dimen198
-\caption@parindent=\dimen199
-\caption@hangindent=\dimen256
+\caption@tempdima=\dimen195
+\captionmargin=\dimen196
+\caption@leftmargin=\dimen197
+\caption@rightmargin=\dimen198
+\caption@width=\dimen199
+\caption@indent=\dimen256
+\caption@parindent=\dimen257
+\caption@hangindent=\dimen258
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count333
-\c@continuedfloat=\count334
+\c@caption@flags=\count335
+\c@continuedfloat=\count336
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/caption\subcaption.st
-y
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/caption/subcaption.sty
 Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
 Package caption Info: New subtype `subfigure' on input line 238.
-\c@subfigure=\count335
+\c@subfigure=\count337
 Package caption Info: New subtype `subtable' on input line 238.
-\c@subtable=\count336
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/placeins\placeins.sty
+\c@subtable=\count338
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/placeins/placeins.sty
 Package: placeins 2005/04/18  v 2.2
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 94.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/tocloft\tocloft.sty
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tocloft/tocloft.sty
 Package: tocloft 2017/08/31 v2.3i parameterised ToC, etc., typesetting
 Package tocloft Info: The document has section divisions on input line 51.
 \cftparskip=\skip83
@@ -539,14 +494,14 @@ Package tocloft Info: The document has section divisions on input line 51.
 \cftbeforefigskip=\skip106
 \cftfigindent=\skip107
 \cftfignumwidth=\skip108
-\c@lofdepth=\count337
-\c@lotdepth=\count338
+\c@lofdepth=\count339
+\c@lotdepth=\count340
 \cftbeforelottitleskip=\skip109
 \cftafterlottitleskip=\skip110
 \cftbeforetabskip=\skip111
 \cfttabindent=\skip112
 \cfttabnumwidth=\skip113
-) (Write_Up_Markdown_Script.aux)
+) (./Write_Up_Markdown_Script.aux)
 \openout1 = `Write_Up_Markdown_Script.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 98.
@@ -636,7 +591,7 @@ LaTeX Font Info:    ... okay on input line 98.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 Package hyperref Info: Link coloring ON on input line 98.
-(Write_Up_Markdown_Script.out) (Write_Up_Markdown_Script.out)
+(./Write_Up_Markdown_Script.out) (./Write_Up_Markdown_Script.out)
 \@outlinefile=\write3
 \openout3 = `Write_Up_Markdown_Script.out'.
 
@@ -654,9 +609,8 @@ Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of spacing.
 Package microtype Info: No adjustment of kerning.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
-File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
-(RS)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 )
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmr' (encoding: TU).
@@ -666,24 +620,20 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 File: Figures/logo2UG.png Graphic file (type bmp)
 <Figures/logo2UG.png>
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-00.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-00.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-100.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-100.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -692,18 +642,16 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 100.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 100.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 100
-.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+LaTeX Font Info:    Trying to load font information for U+msa on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 100
-.
-(C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
+LaTeX Font Info:    Trying to load font information for U+msb on input line 100.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) (C:\Users\filip\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 
@@ -713,21 +661,20 @@ LaTeX Font Warning: Font shape `TU/lmr/bx/sc' undefined
 [1
 
 
-] [2] [3] (Write_Up_Markdown_Script.toc)
+] [2] [3] (./Write_Up_Markdown_Script.toc)
 \tf@toc=\write4
 \openout4 = `Write_Up_Markdown_Script.toc'.
 
-[4] (Write_Up_Markdown_Script.lof)
+[4] (./Write_Up_Markdown_Script.lof)
 \tf@lof=\write5
 \openout5 = `Write_Up_Markdown_Script.lof'.
 
-(Write_Up_Markdown_Script.lot)
+(./Write_Up_Markdown_Script.lot)
 \tf@lot=\write6
 \openout6 = `Write_Up_Markdown_Script.lot'.
 
 [5] [6] [7] [8]
-File: Write_Up_Markdown_Script_files/figure-latex/trial-designs-1.pdf Graphic f
-ile (type pdf)
+File: Write_Up_Markdown_Script_files/figure-latex/trial-designs-1.pdf Graphic file (type pdf)
 <use Write_Up_Markdown_Script_files/figure-latex/trial-designs-1.pdf>
 [9] [10]
 Package microtype Info: Loading generic protrusion settings for font family
@@ -735,8 +682,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 [11]
-File: Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1.pdf Graphic 
-file (type pdf)
+File: Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1.pdf Graphic file (type pdf)
 <use Write_Up_Markdown_Script_files/figure-latex/sawtooth-power-1.pdf>
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -745,13 +691,13 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 1057) has occurred while \output is active []
 
 [14] [15] [16] [17] [18] [19]
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 1184.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 1190.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <11> on input line 1184.
+(Font)              <11> on input line 1190.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7.69997> on input line 1184.
+(Font)              <7.69997> on input line 1190.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5.5> on input line 1184.
+(Font)              <5.5> on input line 1190.
 File: Figures/forest_plot_pooled_estimates.png Graphic file (type bmp)
 <Figures/forest_plot_pooled_estimates.png>
 
@@ -820,166 +766,176 @@ Underfull \hbox (badness 10000) in paragraph at lines 1925--1930
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1932--1938
+Underfull \hbox (badness 10000) in paragraph at lines 1932--1937
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1940--1946
+Underfull \hbox (badness 10000) in paragraph at lines 1939--1944
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1948--1954
+Underfull \hbox (badness 10000) in paragraph at lines 1946--1952
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1956--1962
+Underfull \hbox (badness 10000) in paragraph at lines 1954--1960
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1964--1969
+Underfull \hbox (badness 10000) in paragraph at lines 1962--1967
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1971--1976
+Underfull \hbox (badness 1454) in paragraph at lines 1973--1973
+[]\TU/lmr/m/n/10 Rocha-Singh KJ et al. Performance goals and endpoint assessments for clinical trials of
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1969--1974
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1978--1984
+Underfull \hbox (badness 10000) in paragraph at lines 1976--1981
 
  []
 
 
-Underfull \hbox (badness 1953) in paragraph at lines 1990--1990
-[]\TU/lmr/m/n/10 Medical Devices - Clinical investigations and performance stud
-ies - European Commission
+Underfull \hbox (badness 1953) in paragraph at lines 1987--1987
+[]\TU/lmr/m/n/10 Medical Devices - Clinical investigations and performance studies - European Commission
  []
 
 
-Underfull \hbox (badness 2990) in paragraph at lines 1990--1990
-\TU/lmr/m/n/10 [Internet]. 2026 [cited 2026 Jun 4]. Available from: [][]$[][][]
-[][] [] [] [] [][][][][][] [] [][] [] [][][][][][] [] [][] []
+Underfull \hbox (badness 2990) in paragraph at lines 1987--1987
+\TU/lmr/m/n/10 [Internet]. 2026 [cited 2026 Jun 4]. Available from: [][]$[][][][][] [] [] [] [][][][][][] [] [][] [] [][][][][][] [] [][] []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1986--1991
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1993--1998
+Underfull \hbox (badness 10000) in paragraph at lines 1983--1988
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2000--2004
+Underfull \hbox (badness 10000) in paragraph at lines 1990--1995
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2006--2011
+Underfull \hbox (badness 10000) in paragraph at lines 1997--2000
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2013--2019
+Underfull \hbox (badness 10000) in paragraph at lines 2002--2007
 
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 10000) in paragraph at lines 2009--2015
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2017--2023
+
+ []
 
 [35]
-Underfull \hbox (badness 10000) in paragraph at lines 2021--2027
+Underfull \hbox (badness 10000) in paragraph at lines 2025--2030
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2029--2034
+Underfull \hbox (badness 10000) in paragraph at lines 2032--2035
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2036--2039
+Underfull \hbox (badness 10000) in paragraph at lines 2037--2041
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2041--2045
+Underfull \hbox (badness 10000) in paragraph at lines 2043--2047
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2047--2051
+Underfull \hbox (badness 10000) in paragraph at lines 2049--2053
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2053--2058
+Underfull \hbox (badness 10000) in paragraph at lines 2055--2059
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2060--2064
+Underfull \hbox (badness 10000) in paragraph at lines 2061--2066
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2066--2071
+Underfull \hbox (badness 10000) in paragraph at lines 2068--2071
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2073--2076
+Underfull \hbox (badness 10000) in paragraph at lines 2073--2078
 
  []
 
+Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
 
-Underfull \hbox (badness 10000) in paragraph at lines 2078--2083
+Underfull \hbox (badness 10000) in paragraph at lines 2080--2083
 
  []
 
-Missing character: There is no  in font [lmroman10-regular]:mapping=tex-text;!
-Missing character: There is no  in font [lmroman10-regular]:mapping=tex-text;!
-Missing character: There is no  in font [lmroman10-regular]:mapping=tex-text;!
-Missing character: There is no  in font [lmroman10-regular]:mapping=tex-text;!
 
 Underfull \hbox (badness 10000) in paragraph at lines 2085--2088
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2090--2093
+Underfull \hbox (badness 10000) in paragraph at lines 2090--2094
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2095--2099
+Underfull \hbox (badness 10000) in paragraph at lines 2096--2100
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2101--2105
+Underfull \hbox (badness 10000) in paragraph at lines 2102--2105
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2107--2110
+Underfull \hbox (badness 10000) in paragraph at lines 2107--2111
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2112--2116
+Underfull \hbox (badness 10000) in paragraph at lines 2113--2117
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2118--2123
+Underfull \hbox (badness 10000) in paragraph at lines 2119--2123
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2125--2129
 
  []
 
@@ -987,86 +943,57 @@ Underfull \hbox (badness 10000) in paragraph at lines 2118--2123
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [36]
-Underfull \hbox (badness 10000) in paragraph at lines 2125--2131
+Underfull \hbox (badness 10000) in paragraph at lines 2131--2135
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2133--2137
+Underfull \hbox (badness 10000) in paragraph at lines 2137--2145
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2139--2144
+Underfull \hbox (badness 10000) in paragraph at lines 2147--2154
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2146--2155
+Underfull \hbox (badness 10000) in paragraph at lines 2156--2161
 
  []
 
 
-Underfull \hbox (badness 1057) in paragraph at lines 2166--2166
-\TU/lmr/m/n/10 Implantation Versus Balloon Angioplasty for Lesions in the Super
-ficial Femoral Artery and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2157--2167
+Underfull \hbox (badness 10000) in paragraph at lines 2163--2167
 
  []
 
 
-Underfull \hbox (badness 3138) in paragraph at lines 2173--2173
-[]\TU/lmr/m/n/10 Thomas Zeller, Peter A. Gaines, Gary M. Ansel, Colin G. Caro. 
-Helical Centerline
- []
-
-
-Underfull \hbox (badness 3884) in paragraph at lines 2173--2173
-\TU/lmr/m/n/10 Stent Improves Patency. Circulation: Cardiovascular Intervention
-s. 2016;9(6):e002930.
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2169--2174
+Underfull \hbox (badness 10000) in paragraph at lines 2169--2173
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 2176--2180
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2182--2186
-
- []
-
-(Write_Up_Markdown_Script.bbl
+(./Write_Up_Markdown_Script.bbl
 
 LaTeX Warning: Empty `thebibliography' environment on input line 3.
 
-) [37] (Write_Up_Markdown_Script.aux)
+) [37] (./Write_Up_Markdown_Script.aux)
  ***********
-LaTeX2e <2025-11-01>
-L3 programming layer <2026-01-19>
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-05-26>
  ***********
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package rerunfilecheck Info: File `Write_Up_Markdown_Script.out' has not change
-d.
+Package rerunfilecheck Info: File `Write_Up_Markdown_Script.out' has not changed.
 (rerunfilecheck)             Checksum: 61B9E3ADB08649CB1D8BBE168F4F7E83;9925.
  ) 
 Here is how much of TeX's memory you used:
- 17721 strings out of 402982
- 337405 string characters out of 5448461
- 842059 words of memory out of 5000000
- 46173 multiletter control sequences out of 15000+600000
+ 17802 strings out of 469836
+ 344962 string characters out of 5463498
+ 847048 words of memory out of 5000000
+ 46452 multiletter control sequences out of 15000+600000
  675731 words of font info for 106 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 73i,12n,83p,1023b,426s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 14 hyphenation exceptions out of 8191
+ 73i,12n,83p,1021b,424s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 Output written on Write_Up_Markdown_Script.pdf (37 pages).
