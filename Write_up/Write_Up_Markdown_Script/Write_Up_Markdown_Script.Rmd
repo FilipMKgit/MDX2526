@@ -41,8 +41,7 @@ abstract: |
   
   The thesis concludes with an exploration of Bayesian historical borrowing as a framework for formally incorporating prior evidence into the sample size calculation, under the assumption that historical and current patient populations are sufficiently exchangeable to justify combining information across studies.
 
-  The findings demonstrate that the performance goal value, confidence interval method and 
-  sample size procedure each can alter the 
+  The findings demonstrate that the performance goal value, confidence interval method and assumptions underlying the sample size calculation each can alter the 
   design requirements and the conclusion of a performance goal study independently of the underlying clinical data. 
   Transparent derivation and pre-specification of these choices in the SAP is essential to 
   the credibility and reproducibility of performance goal studies in medical device evaluation.
