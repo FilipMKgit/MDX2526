@@ -40,7 +40,6 @@ ui <- fluidPage(
         transition: max-height 0.2s ease, padding 0.2s ease;
       }
       .pgp-accordion-body.open { max-height: 2000px; padding: 14px 16px; overflow: visible; }
-      .pgp-accordion-body .selectize-dropdown { z-index: 9999 !important; position: fixed !important; }
       .pgp-accordion { overflow: visible !important; }
 
       .report-panel { max-width: 700px; margin: 0 auto; padding: 24px 16px; }

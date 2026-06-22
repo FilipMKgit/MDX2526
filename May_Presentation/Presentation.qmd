@@ -31,9 +31,9 @@ library(binom)
 
 # Section 1 {background-color="#5A3A6E"}
 
-- Discuss Non-Inferiority & Performance Goal Studies
-- Describe our Case Study
-- Determine Performance Endpoints
+-   Discuss Non-Inferiority & Performance Goal Studies
+-   Describe our Case Study
+-   Determine Performance Endpoints
 
 ## Non-Inferiority vs Performance Goal Studies {.text-sm}
 
@@ -116,22 +116,22 @@ Includes three studies of similar stents assessing the primary endpoints for saf
 
 **Safety (30-day):** Maximum acceptable level of harm
 
-- Amputation
-- Death
-- Target Vessel Revascularisation (TVR)
-- **Primary composite (Combined amputation, death, TVR)**
+-   Amputation
+-   Death
+-   Target Vessel Revascularisation (TVR)
+-   **Primary composite (Combined amputation, death, TVR)**
 
 **Efficacy (12-month):** Minimum clinical benefit that must be preserved
 
-- **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
+-   **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
 
 ## Meta Analysis:
 
 A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with sample sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity across studies*).
 
-- The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
+-   The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
-- Note: With only 3 studies available, confidence intervals are wide (conservative)
+-   Note: With only 3 studies available, confidence intervals are wide (conservative)
 
 ![](images/clipboard-1855418152.png)
 
@@ -242,25 +242,25 @@ p_safety / p_efficacy +
 
 # Section 2 {background-color="#5A3A6E"}
 
-- Explore CIs for Proportions in PG scenarios
-- Discuss Simulation Study assessing CIs
-- Examine Sample Size Calculation
-- Present our Shiny App: PG-Power
-- Discuss Final Steps
+-   Explore CIs for Proportions in PG scenarios
+-   Discuss Simulation Study assessing CIs
+-   Examine Sample Size Calculation
+-   Present our Shiny App: PG-Power
+-   Discuss Final Steps
 
 # Confidence Intervals for proportions
 
 ## Why it matters
 
-- CI method must be pre-specified in SAP submitted to authorities
+-   CI method must be pre-specified in SAP submitted to authorities
 
-- CANNOT be changed after seeing the data
+-   CANNOT be changed after seeing the data
 
-- Drives sample size calculation
+-   Drives sample size calculation
 
-- For companies: n = \$
+-   For companies: n = \$
 
-- For patients if device is effective: higher n = greater burden (time for approval)
+-   For patients if device is effective: higher n = greater burden (time for approval)
 
 ![](images/confidenceiskey.jpg)
 
@@ -295,10 +295,10 @@ $$\hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
 :::
 
 ::: {.column width="75%"}
-- Assumes $\hat{p}$ is normally distriubuted
-  - Impossible CI bounds, not within \[0,1\]
-  - Underestimates uncertainty at bounderies
-  - Poor coverage, below nominal 95% power
+-   Assumes $\hat{p}$ is normally distriubuted
+    -   Impossible CI bounds, not within \[0,1\]
+    -   Underestimates uncertainty at bounderies
+    -   Poor coverage, below nominal 95% power
 :::
 :::::
 
@@ -340,11 +340,11 @@ legend("bottomright",
 
 ## Alternatives
 
-- Wilson Score Interval
-- Wilson Score Interval *(with continuity correction)*
-- Agresti–Coull Interval
-- Clopper–Pearson Interval
-- Jeffreys Interval
+-   Wilson Score Interval
+-   Wilson Score Interval *(with continuity correction)*
+-   Agresti–Coull Interval
+-   Clopper–Pearson Interval
+-   Jeffreys Interval
 
 ## Wilson Score Interval
 
@@ -358,15 +358,15 @@ z \sqrt{
 1 + \dfrac{z^2}{n}
 }$$
 
-- Inverts score test for a binomial proportion
+-   Inverts score test for a binomial proportion
 
-- Keep values of $p$ that would **not be rejected** by the observed data
+-   Keep values of $p$ that would **not be rejected** by the observed data
 
 ## 
 
-- Wald deems estimate to be center of interval
+-   Wald deems estimate to be center of interval
 
-- Wilson fixes that with:
+-   Wilson fixes that with:
 
 $$\tilde{p}
 =
@@ -388,14 +388,14 @@ $$\text{derived from a score test:}
 \quad
 \frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}$$
 
-- **Prop.test() comes in `stats` package which is loaded with base R**
+-   **Prop.test() comes in `stats` package which is loaded with base R**
 
-  - Essentially Wilson Score Interval with ***continuity correction enabled by default***
+    -   Essentially Wilson Score Interval with ***continuity correction enabled by default***
 
-- Wilson
+-   Wilson
 
-  - **with Continuity correction**
-    - Adjusts the cutoff by .5
+    -   **with Continuity correction**
+        -   Adjusts the cutoff by .5
 
 ## Agresti-Coull Interval
 
@@ -426,13 +426,13 @@ $$\left[
 \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
 \right]$$
 
-- Based on **exact** binomial distribution
+-   Based on **exact** binomial distribution
 
-  $$X \sim \text{Binomial}(n, p)$$
+    $$X \sim \text{Binomial}(n, p)$$
 
-- Inverts the exact binomial test
+-   Inverts the exact binomial test
 
-  - Keep values of $p$ that would **not be rejected** by the observed data
+    -   Keep values of $p$ that would **not be rejected** by the observed data
 
 ## Jeffrey Interval
 
@@ -446,11 +446,11 @@ Also assumes binomial distribution
 
 $$X \sim \text{Binomial}(n, p)$$
 
-- Based on Bayesian idea
+-   Based on Bayesian idea
 
-  - Works well for frequentist problems
+    -   Works well for frequentist problems
 
-- Start with weak prior beliefs on $p$
+-   Start with weak prior beliefs on $p$
 
 $$p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)$$
 
@@ -465,11 +465,11 @@ $$p \sim \mathrm{Beta}\left(\frac{1}{2}, \frac{1}{2}\right)$$
 ::: {.column width="65%"}
 **Pires & Amado (2008):** *Interval estimators for a binomial proportion: Comparison of twenty methods*
 
-- Behaviour evaluated under:
+-   Behaviour evaluated under:
 
-  - Coverage probability
-  - Average expected 95% CI Width
-  - Under different n
+    -   Coverage probability
+    -   Average expected 95% CI Width
+    -   Under different n
 :::
 
 ## Coverage Probability n = 50
@@ -949,9 +949,9 @@ coverage_width_plot(
 
 ## Safety Endpoint
 
-- Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
-- Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
-- Chosen Proportion Method: Exact Test
+-   Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
+-   Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
+-   Chosen Proportion Method: Exact Test
 
 |                                            | Value             |
 |--------------------------------------------|-------------------|
@@ -1026,18 +1026,18 @@ It is a discrete fraction: $\dfrac{\text{critical value}}{n}$
 
 e.g. $\dfrac{1}{50},\quad\dfrac{1}{51},\quad\dfrac{1}{52},\quad\dfrac{2}{53}$
 
-- Sample size increases but the **critical value** remains constant → power declines
+-   Sample size increases but the **critical value** remains constant → power declines
 
-- Then the **critical value** jumps → fraction rises → easier again → power peaks.
+-   Then the **critical value** jumps → fraction rises → easier again → power peaks.
 :::
 
 :::: {.column width="43%"}
 ::: purple-box
 **Different Software:**
 
-- n=220: First N hitting 90% (but immediately drops)
-- n=232: Power reliably above 90%
-- n=256: Power never drops below 90% for any N
+-   n=220: First N hitting 90% (but immediately drops)
+-   n=232: Power reliably above 90%
+-   n=256: Power never drops below 90% for any N
 :::
 ::::
 ::::::
@@ -1060,11 +1060,11 @@ Posit Cloud:
 
 # Thank You {background-color="#5A3A6E"}
 
-- **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
+-   **Gatekeeping approach:** safety must be demonstrated before efficacy is analysed.
 
-- Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
+-   Explore **joint Bayesian modelling** of safety & efficacy simultaneously.
 
-- Incorporate historical data using a **Bayesian weighting framework**.
+-   Incorporate historical data using a **Bayesian weighting framework**.
 
 ## QR Code to Shiny App
 
@@ -1072,14 +1072,14 @@ Posit Cloud:
 
 ## References {.smaller}
 
-- Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
+-   Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
 
-- Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
+-   Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
 
-- FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
+-   FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
 
-- Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
+-   Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
 
-- Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
+-   Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
 
-- Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
+-   Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*

@@ -353,12 +353,22 @@ $(document).ready(function() {
     });
   });
 
-  // -- Accordion toggle ----------------------------------------------------
+// -- Accordion toggle ----------------------------------------------------
   $(document).on('click', '.pgp-accordion-header', function() {
     var $hdr  = $(this);
     var $body = $hdr.next('.pgp-accordion-body');
     $hdr.toggleClass('open');
     $body.toggleClass('open');
+    if ($body.hasClass('open')) {
+      $body.css('overflow', 'visible');
+    } else {
+      $body.css('overflow', 'hidden');
+    }
+  });
+
+  // Fix selectize dropdowns clipped by accordion overflow
+  $(document).on('focus mousedown', '.pgp-accordion-body .selectize-input', function() {
+    $(this).closest('.pgp-accordion-body').css('overflow', 'visible');
   });
 
   // -- Sync interp textarea to Shiny ---------------------------------------
