@@ -626,7 +626,7 @@ pg_tbl <- data.frame(
 
 kbl(pg_tbl, booktabs = TRUE, escape = FALSE, align = "lcccc", linesep = "",
     caption = "Performance Goals for Safety and Efficacy") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE, font_size = 11) |>
   column_spec(1, width = "5.2cm") |>
   column_spec(5, bold = TRUE) |>
   pack_rows("Safety Endpoints",   1, 1, background = "#4A4A6A", color = "white", bold = TRUE) |>
@@ -649,7 +649,7 @@ het_A <- data.frame(
 )
 kbl(het_A, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
     caption = "Heterogeneity Statistics: 30-day Composite") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE, font_size = 11) |>
   row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
   column_spec(1, width = "3cm")
 ```
@@ -663,7 +663,7 @@ het_B <- data.frame(
 )
 kbl(het_B, booktabs = TRUE, escape = FALSE, align = "lcc", linesep = "",
     caption = "Heterogeneity Statistics: 12-month Rutherford classification") |>
-  kable_styling(latex_options = "hold_position", full_width = FALSE, font_size = 11) |>
+  kable_styling(latex_options = "HOLD_position", full_width = FALSE, font_size = 11) |>
   row_spec(0, background = "#3A3A6A", color = "white", bold = TRUE) |>
   column_spec(1, width = "3cm")
 ```

@@ -95,6 +95,20 @@
 \usepackage{tocloft}
 \let\oldmaketitle\maketitle
 \renewcommand{\maketitle}{\begin{center}\includegraphics[width=4cm]{Figures/logo2UG.png}\end{center}\vspace{0.5cm}\oldmaketitle}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \begin{document}
 \maketitle
 
@@ -1176,7 +1190,7 @@ The meta-analysis of the three femoropopliteal bare nitinol stent
 studies described in Section 3.3 produced pooled estimates for both
 endpoints. The results are summarised in Figures 3 and 4.
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:performance-goals-table}Performance Goals for Safety and Efficacy}
 \centering
@@ -1207,7 +1221,7 @@ Endpoint & Timepoint & Pooled Rate & 95\% CI & Performance Goal\\
 The heterogeneity statistics for both endpoints are reported in Tables 2
 and 3.
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:heterogeneity-A}Heterogeneity Statistics: 30-day Composite}
 \centering
@@ -1225,7 +1239,7 @@ Q (LRT) & NA & NA\\
 \end{tabular}
 \end{table}
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:heterogeneity-B}Heterogeneity Statistics: 12-month Rutherford classification}
 \centering

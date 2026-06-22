@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.13)  22 JUN 2026 09:36
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.13)  22 JUN 2026 09:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -501,29 +501,127 @@ Package tocloft Info: The document has section divisions on input line 51.
 \cftbeforetabskip=\skip111
 \cfttabindent=\skip112
 \cfttabnumwidth=\skip113
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2026-01-28 v4.27 Multi-page Table package (DPC)
+\LTleft=\skip114
+\LTright=\skip115
+\LTpre=\skip116
+\LTpost=\skip117
+\LTchunksize=\count341
+\LTcapwidth=\dimen259
+\LT@head=\box61
+\LT@firsthead=\box62
+\LT@foot=\box63
+\LT@lastfoot=\box64
+\LT@gbox=\box65
+\LT@cols=\count342
+\LT@rows=\count343
+\c@LT@tables=\count344
+\c@LT@chunks=\count345
+\LT@p@ftn=\toks33
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip118
+\multirow@cntb=\count346
+\multirow@dima=\skip119
+\bigstrutjot=\dimen260
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen261
+\WF@size=\dimen262
+\c@WF@wrappedlines=\count347
+\WF@box=\box66
+\WF@everypar=\toks34
+Package: wrapfig 2003/01/31  v 3.6
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+Package: pdflscape 2025-06-23 v0.14 Display of landscape pages in PDF
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
+Package: pdflscape-nometadata 2025-06-23 v0.14 Display of landscape pages in PDF (HO)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+)
+Package pdflscape Info: Auto-detected driver: dvipdfm (xetex) on input line 98.
+)) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty
+Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty
+Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
+\@vwid@box=\box67
+\sift@deathcycles=\count348
+\@vwid@loff=\dimen263
+\@vwid@roff=\dimen264
+)
+==> First Aid for varwidth.sty applied!
+\c@taburow=\count349
+\tabu@nbcols=\count350
+\tabu@cnt=\count351
+\tabu@Xcol=\count352
+\tabu@alloc=\count353
+\tabu@nested=\count354
+\tabu@target=\dimen265
+\tabu@spreadtarget=\dimen266
+\tabu@naturalX=\dimen267
+\tabucolX=\dimen268
+\tabu@Xsum=\dimen269
+\extrarowdepth=\dimen270
+\abovetabulinesep=\dimen271
+\belowtabulinesep=\dimen272
+\tabustrutrule=\dimen273
+\tabu@thebody=\toks35
+\tabu@footnotes=\toks36
+\tabu@box=\box68
+\tabu@arstrutbox=\box69
+\tabu@hleads=\box70
+\tabu@vleads=\box71
+\tabu@cellskip=\skip120
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
+Package: threeparttable 2003/06/13  v 3.0
+\@tempboxb=\box72
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/threeparttablex/threeparttablex.sty
+Package: threeparttablex 2013/07/23 v0.3 by daleif
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+\TPTL@width=\skip121
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
+\UL@box=\box73
+\UL@hyphenbox=\box74
+\UL@skip=\skip122
+\UL@hook=\toks37
+\UL@height=\dimen274
+\UL@pe=\count355
+\UL@pixel=\dimen275
+\ULC@box=\box75
+Package: ulem 2019/11/18
+\ULdepth=\dimen276
+) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/makecell/makecell.sty
+Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
+\rotheadsize=\dimen277
+\c@nlinenum=\count356
+\TeXr@lab=\toks38
 ) (./Write_Up_Markdown_Script.aux)
 \openout1 = `Write_Up_Markdown_Script.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 98.
-LaTeX Font Info:    ... okay on input line 98.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 112.
+LaTeX Font Info:    ... okay on input line 112.
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
 *geometry* verbose mode - [ preamble ] result:
@@ -590,20 +688,23 @@ LaTeX Font Info:    ... okay on input line 98.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 98.
+Package hyperref Info: Link coloring ON on input line 112.
 (./Write_Up_Markdown_Script.out) (./Write_Up_Markdown_Script.out)
 \@outlinefile=\write3
 \openout3 = `Write_Up_Markdown_Script.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 98.
-Package microtype Info: Applying patch `item' on input line 98.
-Package microtype Info: Applying patch `toc' on input line 98.
-Package microtype Info: Applying patch `eqnum' on input line 98.
+Package microtype Info: Patching varwidth to enable character protrusion.
+\MT@vwid@leftmargin=\dimen278
+\MT@vwid@rightmargin=\dimen279
+LaTeX Info: Redefining \microtypecontext on input line 112.
+Package microtype Info: Applying patch `item' on input line 112.
+Package microtype Info: Applying patch `toc' on input line 112.
+Package microtype Info: Applying patch `eqnum' on input line 112.
 
-Package microtype Warning: Unable to apply patch `footnote' on input line 98.
+Package microtype Warning: Unable to apply patch `footnote' on input line 112.
 
-Package microtype Info: Applying patch `verbatim' on input line 98.
-LaTeX Info: Redefining \microtypesetup on input line 98.
+Package microtype Info: Applying patch `verbatim' on input line 112.
+LaTeX Info: Redefining \microtypesetup on input line 112.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: No adjustment of tracking.
@@ -617,38 +718,44 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: longtable package is loaded.
+(c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)
+Package caption Info: threeparttable package is loaded.
+Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
 File: Figures/logo2UG.png Graphic file (type bmp)
 <Figures/logo2UG.png>
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 100.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 100.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 100.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 100.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 100.
+(Font)              <10> on input line 114.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 100.
+(Font)              <7> on input line 114.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 100.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 100.
+(Font)              <5> on input line 114.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 100.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 114.
 (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (c:/Users/aineg/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -656,7 +763,7 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 
 LaTeX Font Warning: Font shape `TU/lmr/bx/sc' undefined
-(Font)              using `TU/lmr/bx/n' instead on input line 102.
+(Font)              using `TU/lmr/bx/n' instead on input line 116.
 
 [1
 
@@ -691,26 +798,23 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 1057) has occurred while \output is active []
 
 [14] [15] [16] [17] [18] [19]
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 1190.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 1204.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <11> on input line 1190.
+(Font)              <11> on input line 1204.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7.69997> on input line 1190.
+(Font)              <7.69997> on input line 1204.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5.5> on input line 1190.
+(Font)              <5.5> on input line 1204.
 File: Figures/forest_plot_pooled_estimates.png Graphic file (type bmp)
 <Figures/forest_plot_pooled_estimates.png>
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-File: Figures/coverage_probability_n50.png Graphic file (type bmp)
-<Figures/coverage_probability_n50.png>
-[20]
-File: Figures/coverage_probability_n100.png Graphic file (type bmp)
-<Figures/coverage_probability_n100.png>
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+[20]
+File: Figures/coverage_probability_n50.png Graphic file (type bmp)
+<Figures/coverage_probability_n50.png>
+File: Figures/coverage_probability_n100.png Graphic file (type bmp)
+<Figures/coverage_probability_n100.png>
 [21]
 File: Figures/coverage_probability_n100_overlay.png Graphic file (type bmp)
 <Figures/coverage_probability_n100_overlay.png>
@@ -751,17 +855,7 @@ File: Figures/prior_weight_sensitivity.png Graphic file (type bmp)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [27] [28] [29] [30] [31] [32] [33] [34]
-Underfull \hbox (badness 10000) in paragraph at lines 1912--1916
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1918--1923
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1925--1930
+Underfull \hbox (badness 10000) in paragraph at lines 1926--1930
 
  []
 
@@ -776,27 +870,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 1939--1944
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1946--1952
+Underfull \hbox (badness 10000) in paragraph at lines 1946--1951
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1954--1960
+Underfull \hbox (badness 10000) in paragraph at lines 1953--1958
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1962--1967
+Underfull \hbox (badness 10000) in paragraph at lines 1960--1966
 
  []
 
 
-Underfull \hbox (badness 1454) in paragraph at lines 1973--1973
-[]\TU/lmr/m/n/10 Rocha-Singh KJ et al. Performance goals and endpoint assessments for clinical trials of
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1969--1974
+Underfull \hbox (badness 10000) in paragraph at lines 1968--1974
 
  []
 
@@ -806,13 +895,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 1976--1981
  []
 
 
-Underfull \hbox (badness 1953) in paragraph at lines 1987--1987
-[]\TU/lmr/m/n/10 Medical Devices - Clinical investigations and performance studies - European Commission
- []
-
-
-Underfull \hbox (badness 2990) in paragraph at lines 1987--1987
-\TU/lmr/m/n/10 [Internet]. 2026 [cited 2026 Jun 4]. Available from: [][]$[][][][][] [] [] [] [][][][][][] [] [][] [] [][][][][][] [] [][] []
+Underfull \hbox (badness 1454) in paragraph at lines 1987--1987
+[]\TU/lmr/m/n/10 Rocha-Singh KJ et al. Performance goals and endpoint assessments for clinical trials of
  []
 
 
@@ -826,67 +910,87 @@ Underfull \hbox (badness 10000) in paragraph at lines 1990--1995
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1997--2000
+Underfull \hbox (badness 1953) in paragraph at lines 2001--2001
+[]\TU/lmr/m/n/10 Medical Devices - Clinical investigations and performance studies - European Commission
+ []
+
+
+Underfull \hbox (badness 2990) in paragraph at lines 2001--2001
+\TU/lmr/m/n/10 [Internet]. 2026 [cited 2026 Jun 4]. Available from: [][]$[][][][][] [] [] [] [][][][][][] [] [][] [] [][][][][][] [] [][] []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1997--2002
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2002--2007
+Underfull \hbox (badness 10000) in paragraph at lines 2004--2009
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2009--2015
+Underfull \hbox (badness 10000) in paragraph at lines 2011--2014
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2017--2023
+Underfull \hbox (badness 10000) in paragraph at lines 2016--2021
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2023--2029
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2031--2037
 
  []
 
 [35]
-Underfull \hbox (badness 10000) in paragraph at lines 2025--2030
+Underfull \hbox (badness 10000) in paragraph at lines 2039--2044
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2032--2035
+Underfull \hbox (badness 10000) in paragraph at lines 2046--2049
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2037--2041
+Underfull \hbox (badness 10000) in paragraph at lines 2051--2055
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2043--2047
+Underfull \hbox (badness 10000) in paragraph at lines 2057--2061
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2049--2053
+Underfull \hbox (badness 10000) in paragraph at lines 2063--2067
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2055--2059
+Underfull \hbox (badness 10000) in paragraph at lines 2069--2073
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2061--2066
+Underfull \hbox (badness 10000) in paragraph at lines 2075--2080
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2068--2071
+Underfull \hbox (badness 10000) in paragraph at lines 2082--2085
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2073--2078
+Underfull \hbox (badness 10000) in paragraph at lines 2087--2092
 
  []
 
@@ -895,47 +999,47 @@ Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=
 Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
 Missing character: There is no  (U+F8E8) in font [lmroman10-regular]:mapping=tex-text;!
 
-Underfull \hbox (badness 10000) in paragraph at lines 2080--2083
+Underfull \hbox (badness 10000) in paragraph at lines 2094--2097
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2085--2088
+Underfull \hbox (badness 10000) in paragraph at lines 2099--2102
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2090--2094
+Underfull \hbox (badness 10000) in paragraph at lines 2104--2108
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2096--2100
+Underfull \hbox (badness 10000) in paragraph at lines 2110--2114
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2102--2105
+Underfull \hbox (badness 10000) in paragraph at lines 2116--2119
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2107--2111
+Underfull \hbox (badness 10000) in paragraph at lines 2121--2125
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2113--2117
+Underfull \hbox (badness 10000) in paragraph at lines 2127--2131
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2119--2123
+Underfull \hbox (badness 10000) in paragraph at lines 2133--2137
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2125--2129
+Underfull \hbox (badness 10000) in paragraph at lines 2139--2143
 
  []
 
@@ -943,32 +1047,32 @@ Underfull \hbox (badness 10000) in paragraph at lines 2125--2129
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [36]
-Underfull \hbox (badness 10000) in paragraph at lines 2131--2135
+Underfull \hbox (badness 10000) in paragraph at lines 2145--2149
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2137--2145
+Underfull \hbox (badness 10000) in paragraph at lines 2151--2159
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2147--2154
+Underfull \hbox (badness 10000) in paragraph at lines 2161--2168
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2156--2161
+Underfull \hbox (badness 10000) in paragraph at lines 2170--2175
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2163--2167
+Underfull \hbox (badness 10000) in paragraph at lines 2177--2181
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2169--2173
+Underfull \hbox (badness 10000) in paragraph at lines 2183--2187
 
  []
 
@@ -988,11 +1092,11 @@ Package rerunfilecheck Info: File `Write_Up_Markdown_Script.out' has not changed
 (rerunfilecheck)             Checksum: 61B9E3ADB08649CB1D8BBE168F4F7E83;9925.
  ) 
 Here is how much of TeX's memory you used:
- 17802 strings out of 469836
- 344962 string characters out of 5463498
- 847048 words of memory out of 5000000
- 46452 multiletter control sequences out of 15000+600000
- 675731 words of font info for 106 fonts, out of 8000000 for 9000
+ 19268 strings out of 469836
+ 368953 string characters out of 5463498
+ 873349 words of memory out of 5000000
+ 47863 multiletter control sequences out of 15000+600000
+ 675837 words of font info for 107 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  73i,12n,83p,1021b,424s stack positions out of 10000i,1000n,20000p,200000b,200000s
 

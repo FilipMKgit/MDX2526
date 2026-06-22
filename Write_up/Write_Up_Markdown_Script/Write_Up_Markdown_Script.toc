@@ -25,7 +25,7 @@
 \contentsline {subsection}{\numberline {4.4}Applying Bayesian Borrowing to the Safety Endpoint}{18}{subsection.4.4}%
 \contentsline {section}{\numberline {5}Results}{20}{section.5}%
 \contentsline {subsection}{\numberline {5.1}Meta-Analysis Results}{20}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Simulation Study: CI Method Comparison}{20}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.2}Simulation Study: CI Method Comparison}{21}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Sample Size and Confidence Interval Method Comparison}{25}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}Bayesian Historical Borrowing Results}{26}{subsection.5.4}%
 \contentsline {section}{\numberline {6}Discussion}{29}{section.6}%
