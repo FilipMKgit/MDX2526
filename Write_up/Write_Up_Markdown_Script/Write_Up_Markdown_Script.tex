@@ -132,7 +132,7 @@ Rutherford classification efficacy endpoint were derived through a
 meta-analysis of three historical femoropopliteal bare nitinol stent
 studies comprising 116 patients. Confidence interval boundaries rather
 than point estimates were proposed to account for uncertainty in the
-historical evidence yielded a maximum acceptable 30-day composite
+historical evidence, yielding a maximum acceptable 30-day composite
 adverse event proportion of 12\% and a minimum acceptable 12-month
 Rutherford success proportion of 88\%. The limited evidence base
 produced wide uncertainty around both estimates, illustrating that
@@ -250,7 +250,8 @@ The trial conclusion depends on both the observed treatment effect and
 the uncertainty surrounding it
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-cuzick_interpreting_2022}{2},\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5}).
 In practice, this uncertainty is assessed by comparing a confidence
-interval for the treatment effect against the pre-specified margin
+interval for the treatment effect against the pre-specified
+non-inferioirty margin
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-cuzick_interpreting_2022}{2},\citeproc{ref-piaggio_reporting_2012}{6}).
 For favourable endpoints, where higher values indicate better
 performance, the lower confidence bound is the relevant measure, while
@@ -273,11 +274,10 @@ compare the observed outcome with a pre-specified benchmark derived from
 historical evidence and clinical judgement
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 This benchmark defines the acceptable level of performance for the
-device under evaluation, representing either a minimum required
-performance for favourable endpoints or a maximum acceptable proportion
-of adverse outcomes for unfavourable endpoints.
-{[}(\citeproc{ref-wang_leveraging_2021}{7});
-(\citeproc{ref-rocha-singh_performance_2007}{9})
+device under evaluation, representing either a minimum acceptable
+proportion for favourable (efficacy) endpoints or a maximum acceptable
+proportion for unfavourable (safety) endpoints.
+(\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 
 Preformance goal studies are useful when a randomised active-control
 trial is difficult to justify or conduct
@@ -298,11 +298,11 @@ endpoint
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 For efficacy endpoints, where higher event proportions reflect better
 performance, the estimated proportion and its confidence interval must
-exceed a minimum acceptable level
+exceed a predefined minimum acceptable level
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 For safety endpoints, where lower proportions are desirable, the
 estimated proportion and its confidence interval must remain below a
-maximum acceptable level of harm
+predefined maximum acceptable level of harm
 (\citeproc{ref-wang_leveraging_2021}{7},\citeproc{ref-rocha-singh_performance_2007}{9}).
 In either case, a performance goal should not be treated as a simple
 numerical cut-off
@@ -351,8 +351,8 @@ transparent
 
 This study is motivated by that problem. Using the BioMimics 3D vascular
 stent trial as a case study, it examines how performance goal selection,
-confidence interval choice assumptions underlying the sample size
-calculation interact to influence the design requirements and the
+confidence interval choice and the assumptions underlying the sample
+size calculation interact to influence the design requirements and
 conclusions in a single-arm medical device setting
 (\citeproc{ref-schumi_through_2011}{1},\citeproc{ref-international_council_for_harmonisation_statistical_1998}{5},\citeproc{ref-wang_leveraging_2021}{7}).
 
@@ -361,9 +361,9 @@ Stent}\label{case-study-biomimics-3d-vascular-stent}
 
 The BioMimics 3D vascular stent trial serves as the primary case study
 throughout this analysis. Rather than attempting to reproduce the
-original trial, the case study is used as a real medical device setting
-in which to examine how statistical choices surrounding performance
-goals influence the interpretation of device performance.
+original trial, the case study is used as a real-world medical device
+example to examine how statistical choices surrounding performance goals
+influence the interpretation of device performance.
 
 Clinical and regulatory context for the analysis was obtained through
 meetings with a lead scientist involved in the original trial. These
@@ -567,7 +567,7 @@ distribution directly (\citeproc{ref-brown_interval_2001}{17}):
 
 where \(z = z_{1-\alpha/2}\). Unlike the Wald interval, it recentres the
 interval away from the observed proportion toward the centre of the
-parameter space, which stabilizes coverage probability near the
+parameter space. This stabilizes coverage probability near the
 boundaries of the \([0, 1]\) interval where the normal approximation
 breaks down (\citeproc{ref-brown_interval_2001}{17}).
 
@@ -1198,7 +1198,7 @@ endpoints. The results are summarised in Figures 3 and 4.
 \fontsize{11}{13}\selectfont
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{5.2cm}cccc}
 \toprule
-\cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Endpoint}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Timepoint}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Pooled Proportion}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{95\% CI}}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{\textbf{Performance Goal}}}\\
+\cellcolor[HTML]{3A3A6A}{\textcolor{white}{Endpoint}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{Timepoint}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{Pooled Proportion}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{95\% CI}} & \cellcolor[HTML]{3A3A6A}{\textcolor{white}{Performance Goal}}\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{5}{l}{\cellcolor[HTML]{4A4A6A}{\textcolor{white}{Safety Endpoints}}}\\
@@ -1518,8 +1518,9 @@ would be more modest.
 Findings}\label{interpretation-of-main-findings}
 
 This study set out to examine how performance goal selection, confidence
-interval choice and sample size calculation interact to influence
-conclusions in a single-arm medical device setting. The five aims
+interval choice and the assumptions underlying the sample size
+calculation interact to influence design requirements and conclusions in
+a single-arm performance goal medical device setting. The five aims
 established in Section 1.5 are addressed in turn before their combined
 implications are considered.
 
@@ -1534,10 +1535,10 @@ approximately 95.8\%, with the lower confidence limit at 88\%.
 Confidence interval boundaries rather than point estimates were used to
 derive the proposed performance goals, acknowledging the uncertainty
 inherent in a small historical evidence base of only three studies and
-116 patients combined. The resulting benchmarks of 12\% for safety and
-88\% for efficacy are therefore ranges rather than fixed values, and the
-width of those ranges reflects the limited precision of the available
-evidence.
+116 patients combined. The resulting benchmark values of 12\% for safety
+and 88\% for efficacy are therefore point selections derived from ranges
+of plausible values, with the width of these ranges reflecting the
+limited precision of the available evidence.
 
 Although using confidence interval limits protects against incorrectly
 concluding that an effective device does not meet the performance
@@ -1649,26 +1650,27 @@ of the historical data. This is particularly relevant when the prior is
 informed by early-phase evidence, where bias and uncertainty may be
 greater than in confirmatory studies.
 
-When the prior is strongly informative and the exchangeability between
-historical and current populations does not hold or the validity of the
-historical data is under question, the posterior may be overly
-influenced, inflating the Type I error rate and undermining the validity
-of the trial conclusion
+If the historical data are not sufficiently exchangeable with the
+current population, or if the validity of the historical evidence is
+uncertain, a strongly informative prior may overly influence the
+posterior, potentially inflating the Type I error rate and compromising
+the validity of the trial conclusion
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
-The choice of prior weight is therefore a substantive design choice
-rather than a technical detail.
+Therefore, the choice of prior weight is therefore a substantive design
+choice rather than a technical detail.
 
-Phase I trials are often characterised by small sample sizes, selective
-patient populations, and limited follow-up, which can result in unstable
-estimates and reduced external validity. This is a particular concern in
-the BioMimics context when applying historical evidence to inform the
-prior. Consequently, the reduction from 209 to 79 patients should be
-understood as an illustration of the method's potential rather than a
-design recommendation. Realising such reductions in practice would
-require regulatory justification, including formal exchangeability
-assessment, sensitivity analyses across a range of prior specifications,
-and simulation studies evaluating operating characteristics under
-scenarios where historical and current data diverge
+Early-phase studies are often characterised by small sample sizes,
+selective patient populations, and limited follow-up, which can result
+in unstable estimates and reduced external validity. This is a
+particular concern in the BioMimics context when applying historical
+evidence to inform the prior. Consequently, the reduction from 209 to 79
+patients should be understood as an illustration of the method's
+potential rather than a design recommendation. Realising that achieving
+such reductions in practice would require regulatory justification,
+including formal exchangeability assessment, sensitivity analyses across
+a range of prior specifications and simulation studies evaluating
+operating characteristics under scenarios where historical and current
+data diverge
 (\citeproc{ref-ibrahim_power_2000}{30},\citeproc{ref-chiaruttini_bayesian_2025}{32},\citeproc{ref-gamble_guidelines_2017}{33}).
 
 \subsubsection{Combined Implications}\label{combined-implications}
@@ -1696,31 +1698,32 @@ honestly examined and justified.
 The thread running through all five aims is the that identified in
 Section 1.3. These choices are routinely made in performance goal
 studies, but their rationale is not always made transparent. The results
-of this study suggest that the concern
-(\citeproc{ref-piaggio_reporting_2012}{6}) raised regarding
+of this study suggest that the concern Piaggio et al.~raised regarding
 non-inferiority margin reporting extends equally to performance goal
 methodology, including the preformance goal value, choice of confidence
 interval method, assumptions underlying the sample size procedure and
-prior specification. These choices are not merely procedural; they can
-materially influence study conclusions through their impact on sample
-size requirements and operating characteristics. Consequently, these
-choices must be explicitly considered, justified, and pre-specified to
-ensure both scientific integrity and to support a regulatory decision.
+prior specification (\citeproc{ref-piaggio_reporting_2012}{6}). These
+choices are not merely procedural; they can materially influence study
+conclusions through their impact on sample size requirements and
+operating characteristics. Consequently, these choices must be
+explicitly considered, justified, and pre-specified to ensure both
+scientific integrity and to support a regulatory decision.
 
 \subsection{SAP in Performance Goal
 Studies}\label{sap-in-performance-goal-studies}
 
 As established in Section 2.6, pre-specifying the SAP before data
 collection is a regulatory expectation and a prerequisite for
-reproducible clinical research. The findings of this study make clear
-why this matters in the performance goal setting specifically. The
-performance goal value, confidence interval method and assumed true
-event proportion each independently altered the required sample size and
-the trial conclusion across Sections 5.2 through 5.3, and none of these
-choices is neutral. A confidence interval method selected post-hoc in
-light of favourable results, or a performance goal derived after
-reviewing the data, would undermine the validity of the study conclusion
-regardless of the quality of the underlying clinical evidence
+reproducible clinical research. The findings of this study make
+illustrates why this matters in the performance goal setting
+specifically. The performance goal value, confidence interval method and
+assumed true event proportion each independently altered the required
+sample size and the trial conclusion across Sections 5.2 through 5.3,
+emphasising that none of these choices is neutral. A confidence interval
+method selected post-hoc in light of favourable results, or a
+performance goal derived after reviewing the data, would undermine the
+validity of the study conclusion regardless of the quality of the
+underlying clinical evidence
 (\citeproc{ref-piaggio_reporting_2012}{6},\citeproc{ref-kahan_how_2020}{35}).
 
 The 38-patient difference in required sample size between the most and
@@ -1836,11 +1839,11 @@ tested against real clinical outcomes rather than simulated ones.
 \addcontentsline{toc}{section}{Conclusion}
 
 This thesis examined how three interconnected statistical choices, the
-performance goal value, the confidence interval method and the
-assumptions underlying the sample size calculation, interact to shape
-the design and conclusion of a single-arm performance goal study. Using
-the BioMimics 3D vascular stent as a case study, demonstrated that none
-of these choices is neutral and that each can alter the trial conclusion
+performance goal value, confidence interval method and assumptions
+underlying the sample size calculation, interact to shape the design and
+conclusion of a single-arm performance goal study. Using the BioMimics
+3D vascular stent as a case study, demonstrated that none of these
+choices is neutral and that each can alter the trial conclusion
 independently of the underlying clinical data.
 
 The meta-analysis of three historical femoropopliteal nitinol stent
@@ -1866,7 +1869,7 @@ and the continuity-corrected Wilson Score provided conservative coverage
 with wider intervals. These differences translated directly into
 differences in sample size requirements, ranging from 169 patients under
 the Wald to 247 patients under the continuity-corrected Wilson Score
-under identical design assumptions.
+despite identical design assumptions.
 
 The Bayesian historical borrowing analysis demonstrated that
 incorporating prior evidence through a \(\text{Beta}(2, 48)\) prior
@@ -1874,10 +1877,11 @@ reduced the required sample size from 209 to 79 patients, a reduction of
 approximately 62\%. This reduction was sensitive to the credibility of
 the historical evidence informing the prior and the weight assigned to
 the prior. Stronger borrowing increased dependence on the
-exchangeability assumption in ways that risk inflating the Type I error
-rate. The analysis established the potential of Bayesian borrowing as a
-complementary approach to the frequentist framework, contingent on
-careful prior specification and formal exchangeability assessment.
+exchangeability assumption creating a greater risk of inflating the Type
+I error rate. The analysis established the potential of Bayesian
+borrowing as a complementary approach to the frequentist framework,
+contingent on careful prior specification and formal exchangeability
+assessment.
 
 The PG-Power application provided a transparent and reproducible
 implementation of the sample size framework, making the sensitivity of
