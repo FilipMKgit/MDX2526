@@ -155,7 +155,7 @@ This study is motivated by that problem. Using the BioMimics 3D vascular stent t
 
 ## Case Study: BioMimics 3D Vascular Stent
 
-The BioMimics 3D vascular stent trial serves as the primary case study throughout this analysis. Rather than attempting to reproduce the original trial, the case study is used as a real-world medical device example to examine how statistical choices surrounding performance goals influence the interpretation of device performance.
+The BioMimics 3D vascular stent trial serves as the primary case study throughout this analysis. Rather than attempting to reproduce the original trial, the case study is used as a real-world medical device example to examine how statistical choices surrounding performance goals, confidence intervals and sample size assumptions influence the interpretation of device performance.
 
 Clinical and regulatory context for the analysis was obtained through meetings with a lead scientist involved in the original trial. These discussions clarified how the device was intended to be evaluated in practice and highlighted that the statistical design could not be reduced to a purely numerical exercise — it had to reflect clinical judgement, regulatory expectations and practical feasibility alongside the available evidence.
 
