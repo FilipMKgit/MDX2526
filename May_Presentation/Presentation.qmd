@@ -31,9 +31,9 @@ library(binom)
 
 # Section 1 {background-color="#5A3A6E"}
 
-- Discuss Non-Inferiority & Performance Goal Studies
-- Describe our Case Study
-- Determine Performance Endpoints
+-   Discuss Non-Inferiority & Performance Goal Studies
+-   Describe our Case Study
+-   Determine Performance Endpoints
 
 ## Non-Inferiority RCT vs Performance Goal Studies {.text-sm}
 
@@ -116,22 +116,22 @@ Includes three studies of similar stents assessing the primary endpoints for saf
 
 **Safety (30-day):** Maximum acceptable level of harm
 
-- Amputation
-- Death
-- Target Vessel Revascularisation (TVR)
-- **Primary composite (Combined amputation, death, TVR)**
+-   Amputation
+-   Death
+-   Target Vessel Revascularisation (TVR)
+-   **Primary composite (Combined amputation, death, TVR)**
 
 **Efficacy (12-month):** Minimum clinical benefit that must be preserved
 
-- **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
+-   **Rutherford Classification Change (improved/stable, worsened by x1, worsened by x2)**
 
 ## Meta Analysis:
 
 A logit-transformation was applied (*extreme proportions*), variance was pooled using a generalised linear mixed model (*robust with small sample sizes*), with study-level variances drawn from each study's observed proportion (*not assuming homogeneity across studies*).
 
-- The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
+-   The upper/lower confidence interval bounds — not point estimate — were proposed to the regulators to account for the uncertainty.
 
-- Note: With only 3 studies available, confidence intervals are wide (conservative)
+-   Note: With only 3 studies available, confidence intervals are wide (conservative)
 
 ![](images/clipboard-1855418152.png)
 
@@ -242,33 +242,33 @@ p_safety / p_efficacy +
 
 # Section 2 {background-color="#5A3A6E"}
 
-- CI Methods for Binomial Proportions
-- Simulation-Based Performance Evaluation
-- Sample Size Calculation
-- **PG-Power**: An interactive Shiny App
-- Next Steps
+-   CI Methods for Binomial Proportions
+-   Simulation-Based Performance Evaluation
+-   Sample Size Calculation
+-   **PG-Power**: An interactive Shiny App
+-   Next Steps
 
 ## Why Confidence Interval Method Matters
 
-- The chosen CI method affects the required sample size to achieve adequate power.
+-   The chosen CI method affects the required sample size to achieve adequate power.
 
-- It must be pre-specified in the Statistical Analysis Plan (SAP)
+-   It must be pre-specified in the Statistical Analysis Plan (SAP)
 
-- **Companies:** Larger sample sizes increase study costs, resources, and timelines.
+-   **Companies:** Larger sample sizes increase study costs, resources, and timelines.
 
-- **Patients:** Larger samples sizes may delay device regulatory approval and patient access to beneficial technology\
+-   **Patients:** Larger samples sizes may delay device regulatory approval and patient access to beneficial technology\
 
 ![](images/confidenceiskey.jpg)
 
 ## The Challenge for Confidence Intervals
 
-- CI struggle when proportions are extreme.
+-   CI struggle when proportions are extreme.
 
-  **Low Complication:** Observed proportions close to 0
+    **Low Complication:** Observed proportions close to 0
 
-  **High Success:** Observed proportions close to 1
+    **High Success:** Observed proportions close to 1
 
-  ![](images/clipboard-4269530673.png){width="450"}
+    ![](images/clipboard-4269530673.png){width="450"}
 
 ## Wald's Confidence Interval
 
@@ -276,15 +276,15 @@ $$\hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
 
 ::::: columns
 ::: {.column width="60%"}
-- **Limitations:**
+-   **Limitations:**
 
-  - Assumes $\hat{p}$ follows a normal distriubution
+    -   Assumes $\hat{p}$ follows a normal distriubution
 
-  - Can produce impossible CI bounds outside the \[0,1\]
+    -   Can produce impossible CI bounds outside the \[0,1\]
 
-  - Underestimates uncertainty at bounderies
+    -   Underestimates uncertainty at bounderies
 
-  - Results in poor coverage, below nominal 95%
+    -   Results in poor coverage, below nominal 95%
 :::
 
 ::: {.column width="40%"}
@@ -330,11 +330,11 @@ legend("bottomright",
 
 ## Alternatives
 
-- Wilson Score Interval
-- Wilson Score Interval with Continuity Correction
-- Agresti–Coull Interval
-- Clopper–Pearson Interval
-- Jeffreys Interval
+-   Wilson Score Interval
+-   Wilson Score Interval with Continuity Correction
+-   Agresti–Coull Interval
+-   Clopper–Pearson Interval
+-   Jeffreys Interval
 
 ## Wilson Score Interval
 
@@ -348,11 +348,11 @@ z \sqrt{
 1 + \dfrac{z^2}{n}
 }$$
 
-- Inverts score test for a binomial proportion
+-   Inverts score test for a binomial proportion
 
-- Identifies values of the true proportion $p$ consistent with the observed data
+-   Identifies values of the true proportion $p$ consistent with the observed data
 
-- Pulls the interval centre away from the boundary ➔ Improves Coverage at boundaries  
+-   Pulls the interval centre away from the boundary ➔ Improves Coverage at boundaries  
 
 ## Wilson Score Interval with Continuity Correction
 
@@ -360,17 +360,17 @@ $$\text{Derived by inverting the score test:}
 \quad
 \frac{(\hat{p} - p)^2}{\hat{p}(1-\hat{p})/n}$$
 
-- **Prop.test() (R)**
+-   **Prop.test() (R)**
 
-  - Applys a continuity correction
-  - Adjusts the score test boundary by (0.5)
-  - Produces wider, more conservative intervals
+    -   Applys a continuity correction
+    -   Adjusts the score test boundary by (0.5)
+    -   Produces wider, more conservative intervals
 
 ## Agresti-Coull Interval
 
 Modifies the Wald approach by adding pseudo-observations stabilising the estimate.
 
-- Adding 2 successes and 2 failures (for a 95% CI)
+-   Adding 2 successes and 2 failures (for a 95% CI)
 
 $$\hat{p} = \frac{x}{n}
 \qquad \longrightarrow \qquad
@@ -391,19 +391,19 @@ n+4
 
 ## Clopper-Pearson Interval
 
-- Based on **exact** binomial distribution
+-   Based on **exact** binomial distribution
 
-  $$X \sim \text{Binomial}(n, p)$$
+    $$X \sim \text{Binomial}(n, p)$$
 
-- The interval is obtained by inverting the exact binomial test:
+-   The interval is obtained by inverting the exact binomial test:
 
-  $$\left[
-  \mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
-  \;\;
-  \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
-  \right]$$ Keep values of $p$ that would **not be rejected** by the observed data
+    $$\left[
+    \mathrm{Beta}^{-1}\!\left(\tfrac{\alpha}{2};\; x,\; n - x + 1\right),
+    \;\;
+    \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + 1,\; n - x\right)
+    \right]$$ Keep values of $p$ that would **not be rejected** by the observed data
 
-  Guarantees nominal coverage (often slightly conservative)
+    Guarantees nominal coverage (often slightly conservative)
 
 ## Jeffrey Interval
 
@@ -420,7 +420,7 @@ $$\left[
 \mathrm{Beta}^{-1}\!\left(1 - \tfrac{\alpha}{2};\; x + \tfrac{1}{2},\; n - x + \tfrac{1}{2}\right)
 \right]$$
 
-- Although Bayesian in construction, the Jeffreys interval often shows strong frequentist performance in terms of coverage, particularly in small samples and boundary cases.
+-   Although Bayesian in construction, the Jeffreys interval often shows strong frequentist performance in terms of coverage, particularly in small samples and boundary cases.
 
 ## Simulation Study
 
@@ -434,11 +434,11 @@ $$\left[
 
 *Simulation adapted for performance goal settings: coverage and width evaluated at proportions and sample sizes representative of device non-inferiority trials*
 
-- Behavior Evaluated for:
+-   Behavior Evaluated for:
 
-  - Coverage probability
-  - Average expected 95% CI width
-  - Under different sample sizes
+    -   Coverage probability
+    -   Average expected 95% CI width
+    -   Under different sample sizes
 :::
 :::::
 
@@ -921,9 +921,9 @@ coverage_width_plot(
 
 ## Sample Size: Safety Endpoint
 
-- Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
-- Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
-- Chosen Proportion Method: Exact Test
+-   Proposed Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 12%**
+-   Approved Safety Endpoint for Composite (Death, Amputation, TVR): **≤ 11%**
+-   Chosen Proportion Method: Exact Test
 
 |                                            | Value             |
 |--------------------------------------------|-------------------|
@@ -996,9 +996,9 @@ legend("bottomright",
 ::: {.column width="57%"}
 It is a discrete fraction: $\frac{\text{critical value}}{n}$, e.g. $\frac{1}{50},\;\frac{1}{51},\;\frac{1}{52},\;\frac{2}{53}$
 
-- Sample size increases but the **critical value** remains constant → power declines
+-   Sample size increases but the **critical value** remains constant → power declines
 
-- Then the **critical value** jumps → fraction rises → easier again → power peaks.
+-   Then the **critical value** jumps → fraction rises → easier again → power peaks.
 
 ![](images/clipboard-2085374562.png){width="65%"}
 :::
@@ -1007,9 +1007,9 @@ It is a discrete fraction: $\frac{\text{critical value}}{n}$, e.g. $\frac{1}{50}
 ::: purple-box
 **Different Software:**
 
-- n=220: First N hitting 90% (but immediately drops)
-- n=232: Power reliably above 90%
-- n=256: Power never drops below 90% for any N
+-   n=220: First N hitting 90% (but immediately drops)
+-   n=232: Power reliably above 90%
+-   n=256: Power never drops below 90% for any N
 :::
 ::::
 ::::::
@@ -1028,37 +1028,37 @@ Posit Cloud:
 
 ## How this relates to Roche?
 
-- Methodological choices has **consequences**
+-   Methodological choices has **consequences**
 
-  - CI method ➙ Can affect sample size & results
+    -   CI method ➙ Can affect sample size & results
 
-- Results must be **reproducible and transparent**
+-   Results must be **reproducible and transparent**
 
-  - Statistical methods ➙ Must be defined, justified & consistent
+    -   Statistical methods ➙ Must be defined, justified & consistent
 
-- Statistics must be **communicable** for a cross-functional team
+-   Statistics must be **communicable** for a cross-functional team
 
-  - No man is an island
+    -   No man is an island
 
-- Never rely on a single implementation
+-   Never rely on a single implementation
 
-  - **Cross-validation** is essential
+    -   **Cross-validation** is essential
 
-    ![](images/clipboard-3350543873.png)
+        ![](images/clipboard-3350543873.png)
 
 ## References {.smaller}
 
-- Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
+-   Cuzick & Sasieni (2022). doi: 10.1038/s41416-022-01937-w
 
-- Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
+-   Sandie et al. (2022). doi: 10.1186/s13063-022-06118-x
 
-- FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
+-   FDA (2016). Non-Inferiority Clinical Trials to Establish Effectiveness. https://www.fda.gov/media/78504/download
 
-- Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
+-   Werk et al. (2008). doi: 10.1161/CIRCULATIONAHA.107.735985
 
-- Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
+-   Tepe et al. (2008). doi: 10.1056/NEJMoa0706356
 
-- Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
+-   Pires & Amado (2008). Interval estimators for a binomial proportion: Comparison of twenty methods. *REVSTAT*
 
 ##  {.center}
 
