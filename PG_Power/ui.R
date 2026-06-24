@@ -259,8 +259,8 @@ ui <- fluidPage(
             class = "ov-card",
             tags$p("PG-Power calculates the sample size needed to demonstrate that a medical device meets a pre-specified performance goal (PG) for a binary endpoint, using binom CI simulation methods."),
             tags$ol(
-              tags$li(tags$b("Set up:"), " Enter the performance goal, expected device proportion, significance level, power, and CI method in the ", tags$b("Calculator"), " tab."),
-              tags$li(tags$b("Explore:"), " The power vs n plot shows the sawtooth exact binomial power curve. The CI diagram shows the interval at the required n."),
+              tags$li(tags$b("Set up:"), " Enter the performance goal, expected device proportion, significance level, power and CI method in the ", tags$b("Calculator"), " tab."),
+              tags$li(tags$b("Explore:"), " The power vs n plot shows the sawtooth exact binomial power curve. The CI diagram shows the interval at the required sample size (n)."),
               tags$li(tags$b("Export:"), " Download a PDF or Word report from the ", tags$b("Generate Report"), " tab with any combination of tables, plots, and interpretation.")
             )
           )
@@ -281,7 +281,7 @@ ui <- fluidPage(
             ),
             tags$p(tags$b("Proportions")),
             tags$ul(
-              tags$li(tags$b("Performance goal (PG):"), " The pre-specified benchmark rate the device must meet or beat."),
+              tags$li(tags$b("Performance goal (PG):"), " The pre-specified benchmark the device must meet or beat."),
               tags$li(tags$b("Expected performance:"), " The true proportion you expect the device to achieve. Must be more favourable than the PG.")
             ),
             tags$p(tags$b("Main plot: n vs achieved power")),
@@ -289,15 +289,15 @@ ui <- fluidPage(
             tags$p(tags$b("CI method comparison table")),
             tags$p("Always visible below the n result box. Shows the required n under each CI method. Green rows meet or beat the required n; bold text = currently selected method."),
             tags$p(tags$b("n Result Box")),
-            tags$p("Shows required n, hypotheses, CI equivalent, actual achieved power, min/max events needed, and the dropout-adjusted enrolment target."),
+            tags$p("Shows required n, hypotheses, CI equivalent, actual achieved power, benchmark and the dropout-adjusted enrolment target."),
             tags$p(tags$b("Other Settings")),
             tags$ul(
               tags$li(tags$b("Power plot range:"), " Sets how many n values either side of required n are shown in the power plot (default \u00b150)."),
               tags$li(tags$b("Show power vs n table:"), " A full table of the plot data with a pass/fail column and which CI method(s) land at each n."),
               tags$li(tags$b("Show sensitivity plot and table:"), " How required n changes as the assumed device proportion varies."),
-              tags$li(tags$b("Dropout rate:"), " Inflates n to account for expected dropout."),
+              tags$li(tags$b("Dropout proportion:"), " Inflates n to account for expected dropout."),
               tags$li(tags$b("Simulation quality / seed:"), " Number of simulations and random seed for the binary search."),
-              tags$li(tags$b("Defaults"), " resets all Calculator inputs.")
+              tags$li(tags$b("Defaults"), " resets all", tags$b("Calculator"), "inputs.")
             )
           )
         ),
@@ -347,7 +347,7 @@ ui <- fluidPage(
           open    = FALSE,
           tags$div(
             class = "ov-card",
-            tags$p("Builds a formatted PDF or Word report from the current Calculator inputs."),
+            tags$p("Builds a formatted PDF or Word report from the current", tags$b("Calculator"), "inputs."),
             tags$p(tags$b("Format & export")),
             tags$ul(
               tags$li("Choose ", tags$b("PDF (.pdf)"), " or ", tags$b("Word (.docx)"), " and click the download button."),
@@ -382,7 +382,7 @@ ui <- fluidPage(
             tags$p("A performance goal is a pre-specified, objective benchmark derived from
                     historical data, literature, or prior device performance. It represents
                     the minimum or maximum acceptable event proportion that a device must
-                    achieve, depending on whether a higher or lower rate is the desired outcome."),
+                    achieve, depending on whether a higher or lower proportion is the desired outcome."),
             tags$p(tags$b("Regulatory context")),
             tags$ul(
               tags$li(
@@ -559,22 +559,22 @@ ui <- fluidPage(
               selectInput(
                 "endpoint", "Endpoint direction",
                 choices  = c(
-                  "Higher rate is better (e.g. success, patency)" = "efficacy",
-                  "Lower rate is better (e.g. complications, MACE)" = "safety"
+                  "Higher proportion is better" = "efficacy",
+                  "Lower proportion is better" = "safety"
                 ),
                 selected = "efficacy"
               ),
               conditionalPanel(
                 condition = "input.show_calc_hints == true && input.endpoint == 'efficacy'",
                 tags$p(
-                  HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device proportion must exceed the performance goal.<br>Use when a <em>higher</em> observed proportion means the device performed well."),
+                  HTML("H\u2081: p > p\u2080 &nbsp;&mdash;&nbsp; device proportion must exceed the performance goal.<br>Use when a <em>higher</em> observed proportion means the device performed well. e.g. success, patency"),
                   style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
                 )
               ),
               conditionalPanel(
                 condition = "input.show_calc_hints == true && input.endpoint == 'safety'",
                 tags$p(
-                  HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device proportion must stay below the performance goal.<br>Use when a <em>lower</em> observed proportion means the device performed well."),
+                  HTML("H\u2081: p < p\u2080 &nbsp;&mdash;&nbsp; device proportion must stay below the performance goal.<br>Use when a <em>lower</em> observed proportion means the device performed well. e.g. complications, MACE"),
                   style = "font-size:11px; color:#94a3b8; margin:-4px 0 8px; line-height:1.6;"
                 )
               ),
@@ -729,7 +729,7 @@ ui <- fluidPage(
             
             tags$label(
               style = "font-size:13px; font-weight:400; color:#212529; display:block; margin-bottom:4px;",
-              "Dropout rate for enrolment estimate (%)"
+              "Dropout proportion for enrolment estimate (%)"
             ),
             sliderInput("dropout_rate", label=NULL, min=1, max=20, step=1, value=10, ticks=FALSE),
             conditionalPanel(
@@ -743,17 +743,17 @@ ui <- fluidPage(
             tags$div(
               class = "dl-btn-col",
               style = "margin-top: 10px;",
-              downloadButton("downloadPowerTable", "\u2193 Download power table (.csv)",
+              downloadButton("downloadPowerTable", "\u2193 Power table (.csv)",
                              class="btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadData_plot2", "\u2193 Download sensitivity table (.csv)",
+              downloadButton("downloadData_plot2", "\u2193 Sensitivity table (.csv)",
                              class="btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlot2",      "\u2193 Download sensitivity plot (.png)",
+              downloadButton("downloadPlot2",      "\u2193 Sensitivity plot (.png)",
                              class="btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlotPower",  "\u2193 Download power vs n plot (.png)",
+              downloadButton("downloadPlotPower",  "\u2193 Power vs n plot (.png)",
                              class="btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlotCI",     "\u2193 Download CI diagram (.png)",
+              downloadButton("downloadPlotCI",     "\u2193 CI diagram (.png)",
                              class="btn-sm btn-outline-primary pgp-btn"),
-              downloadButton("downloadPlotCIAll",  "\u2193 Download CI diagram \u2014 all methods (.png)",
+              downloadButton("downloadPlotCIAll",  "\u2193 All CI diagrams (.png)",
                              class="btn-sm btn-outline-primary pgp-btn")
             ),
             
@@ -775,7 +775,7 @@ ui <- fluidPage(
           
           conditionalPanel(
             condition = "input.show_calc_hints == true",
-            tags$p("Power vs sample size for the current performance goal and expected proportion. The orange dot marks the required n and the dashed line is the target power.",
+            tags$p("Power vs sample size for the current performance goal and expected proportion. The dot marks the required n and the dashed line is the target power.",
                    style = "font-size:11px; color:#94a3b8; margin:0 0 4px; line-height:1.5;")
           ),
           plotlyOutput("plot_power", height="380px"),
@@ -960,7 +960,7 @@ ui <- fluidPage(
                   tags$option(value="regulatory",    "Regulatory \u2014 ISO / FDA formal"),
                   tags$option(value="success_ci",    "Success \u2014 CI-focused"),
                   tags$option(value="success_power", "Success \u2014 power justification"),
-                  tags$option(value="safety",        "Safety \u2014 complication rate"),
+                  tags$option(value="safety",        "Safety \u2014 complication proportion"),
                   tags$option(value="safety_ci",     "Safety \u2014 CI upper bound"),
                   tags$option(value="safety_reg",    "Safety \u2014 regulatory formal"),
                   tags$option(value="blank",         "Blank \u2014 start from scratch")

@@ -547,7 +547,7 @@ server <- function(input, output, session) {
   output$dataTable2 <- renderDT({
     if (!isTRUE(input$showTable2)) return(NULL)
     df <- prop_df_sens()
-    colnames(df) <- c("Device Rate", "Required N")
+    colnames(df) <- c("Device Proportion", "Required n")
     DT::datatable(df, rownames=FALSE, class="stripe hover compact",
                   options=list(pageLength=15))
   })
