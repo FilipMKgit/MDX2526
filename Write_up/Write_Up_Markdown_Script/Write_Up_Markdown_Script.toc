@@ -17,7 +17,7 @@
 \contentsline {subsection}{\numberline {3.1}BioMimics 3D Vascular Stent}{14}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Endpoints}{15}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}Literature Search and Meta-analysis Data}{15}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Derivation of Performance Goals}{15}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.4}Derivation of Performance Goals}{16}{subsection.3.4}%
 \contentsline {section}{\numberline {4}Methods}{17}{section.4}%
 \contentsline {subsection}{\numberline {4.1}Simulation Study}{17}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Sample Size Calculation}{18}{subsection.4.2}%
