@@ -60,7 +60,7 @@ h1, h2, h3 {
 
 # Introduction
 
-Often in clinical trials, particularly those assessing safety or adverse events, the proportions of interest are small. For instance, outcomes such as device failure may occur only in a small fraction of patients. This leads to estimated proportions close to 0 (and sometimes close to 1 for high success rates), which creates challenges for standard confidence interval methods.
+Often in clinical trials, particularly those assessing safety or adverse events, the proportions of interest are small. For instance, outcomes such as device failure may occur only in a small fraction of patients. This leads to estimated proportions close to 0 (or close to 1 for high success proportions), which creates challenges for standard confidence interval methods.
 
 The Wald interval — commonly introduced in basic statistical settings — is known to perform poorly in these scenarios:
 
@@ -68,7 +68,7 @@ $$
 \hat{p} \;\pm\; z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
 $$
 
-This is because the distribution of $\hat{p}$ is highly skewed when $p$ is near 0 or 1, which violates the symmetry assumption underlying the normal approximation. As a result, the intervals can be too narrow, may extend beyond the $[0,1]$ range, and may exhibit substantial **undercoverage** — meaning the true proportion is contained within the interval less frequently than the nominal confidence level would suggest. This is particularly problematic in a clinical context where accurate uncertainty quantification is essential.
+This is because the Wald interval relies on a normal approximation for $\hat{p}$, which becomes unreliable when the true proportion is close to 0 or 1, where the sampling distribution of $\hat{p}$ becomes skewed and constrained by the boundaries of the parameter space. As a result, the intervals can be too narrow, extend beyond the $[0,1]$ limits, and exhibit substantial **undercoverage** — meaning the true proportion is contained within the interval less frequently than the nominal confidence level would suggest. This is particularly problematic in a clinical context where accurate uncertainty quantification is essential.
 
 ```{r wald-coverage, echo=FALSE, fig.cap="Wald interval coverage across a range of true proportions when n = 20. For small values of p (shaded region), coverage falls well below 95%, indicating poor performance of the normal approximation in this setting."}
 
@@ -136,9 +136,9 @@ A key distinction in clinical trial design is whether the analysis involves a **
 
 In performance goal studies — such as single-arm trials — the objective is to estimate a single proportion $p_T$ and compare it against a predefined benchmark $p_0$ derived from historical data or prior studies. Inference is based on constructing a confidence interval for $p_T$ and assessing whether it exceeds the performance threshold.
 
-In contrast, **non-inferiority trials** involve a direct comparison between two groups, usually a treatment and a control. The parameter of interest is the difference $p_T - p_C$, and the goal is to determine whether the new treatment is not unacceptably worse than the control by more than a predefined margin $\Delta$. This requires confidence intervals for differences in proportions, introducing additional complexity.
+In contrast, **non-inferiority trials** involve a direct comparison between two groups, usually a treatment and an active control. The parameter of interest is the difference $p_T - p_C$, and the goal is to determine whether the new treatment is not unacceptably worse than the control by more than a predefined margin $\Delta$. This requires confidence intervals for differences in proportions, introducing additional complexity.
 
-This distinction is important because the issues highlighted with the Wald interval arise in both settings. The focus in this discussion is on confidence intervals for a **single proportion**, while noting that extensions to two-sample settings require different methodological approaches.
+This distinction is important because the issues highlighted with the Wald interval arise in both settings. The focus here is on confidence intervals for a **single proportion**, while noting that extensions to two-sample settings require different methodological approaches.
 
 ---
 
@@ -210,7 +210,7 @@ While these methods are based on different underlying ideas, they lead to interv
 
 # Simulation Study
 
-This simulation follows the comparative framework of Pires and Amado (2008), restricted to the most practically relevant methods: **Wald, Wilson, Agresti–Coull, Clopper–Pearson, prop.test** and **Jeffreys**. Since the focus is on small event rates, $p$ was evaluated over a grid of values near 0, with methods compared using coverage probability, expected interval width and minimum coverage.
+This simulation follows the comparative framework of Pires and Amado (2008), restricted to the most practically relevant methods: **Wald, Wilson, Agresti–Coull, Clopper–Pearson, prop.test** and **Jeffreys**. Since the focus is on small event proportions, $p$ was evaluated over a grid of values near 0, with methods compared using coverage probability, expected interval width and minimum coverage.
 
 ```{r coverage-function, echo=TRUE}
 # ============================================================
