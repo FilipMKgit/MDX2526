@@ -235,7 +235,7 @@ ui <- fluidPage(
   
   tags$div(
     class = "pgp-header",
-    tags$img(src = "pg_power_logo_1.png", height = "68px"),
+    tags$img(src = "pg_power_logo.png", height = "100px"),
     tags$p(tags$em("design with confidence"), class = "pgp-subtitle")
   ),
   
