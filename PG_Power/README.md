@@ -1,4 +1,4 @@
-# PG-Power <img src="www/pg_power_logo_1.png" align="right" height="60"/>
+# PG-Power <img src="www/pg_power_logo.png" align="right" height="60"/>
 
 > *design with confidence*
 
